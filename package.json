@@ -1,0 +1,36 @@
+{
+  "name": "forge-cdl-eldt-platform",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.28.1",
+  "engines": {
+    "node": ">=20.9.0 <25"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:db": "bash scripts/test-database.sh"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.6.1",
+    "@supabase/supabase-js": "2.49.8",
+    "next": "15.5.2",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3.3.1",
+    "@types/node": "22.15.30",
+    "@types/react": "19.1.6",
+    "@types/react-dom": "19.1.5",
+    "eslint": "9.28.0",
+    "eslint-config-next": "15.5.2",
+    "prettier": "3.5.3",
+    "typescript": "5.8.3"
+  }
+}
