@@ -22,39 +22,16 @@ This procedure is required to validate behavior that plain PostgreSQL tests cann
 
    The script requires an existing confirmed Auth user, refuses to run if any platform administrator already exists, and writes an audit event. It accepts no password or service-role key.
 
-7. Sign in as that platform administrator and create two demonstration schools. Record their non-secret UUIDs, then create the minimum clearly labeled fixture from the trusted database shell. Do not insert memberships directly—the invitation flow under test must create them.
+7. Sign in as that platform administrator and create two disposable non-demo schools. Do not insert memberships directly—the invitation flow under test must create them.
+8. In `/platform/courses`, create a course with the **Demonstration content** box left unchecked. Add an original short module and lesson, record an exact-manifest content review that explicitly makes no regulatory claim, and publish it. This exercises the same approval gate required for non-demo content rather than bypassing publication with direct SQL.
+9. Open each school workspace as the platform administrator and create an assignment from that published version. Retrieve the non-secret organization and assignment IDs with a trusted read-only query if needed:
 
-   ```bash
-   psql "$DATABASE_URL" --no-psqlrc -v ON_ERROR_STOP=1 \
-     -v first_organization_id=... \
-     -v second_organization_id=... \
-     -v platform_user_id=... <<'SQL'
-   insert into public.courses (id, title, description, is_demo)
-   values ('60000000-0000-4000-8000-000000000001',
-     'Disposable onboarding demonstration',
-     'Software-flow fixture only; not approved curriculum.', true);
-   insert into public.course_versions (
-     id, course_id, version_number, status, manifest_hash, published_at
-   ) values (
-     '60000000-0000-4000-8000-000000000002',
-     '60000000-0000-4000-8000-000000000001', 1, 'published',
-     repeat('6', 64), statement_timestamp()
-   );
-   insert into public.course_assignments (
-     id, organization_id, course_version_id, title, created_by
-   ) values
-     ('60000000-0000-4000-8000-000000000003',
-       :'first_organization_id'::uuid,
-       '60000000-0000-4000-8000-000000000002',
-       'First disposable assignment', :'platform_user_id'::uuid),
-     ('60000000-0000-4000-8000-000000000004',
-       :'second_organization_id'::uuid,
-       '60000000-0000-4000-8000-000000000002',
-       'Second disposable assignment', :'platform_user_id'::uuid);
-   SQL
+   ```sql
+   select o.id as organization_id, o.slug, a.id as assignment_id
+   from public.organizations o
+   join public.course_assignments a on a.organization_id = o.id
+   order by o.slug, a.created_at;
    ```
-
-   Use `60000000-0000-4000-8000-000000000003` and `60000000-0000-4000-8000-000000000004` as the first and second assignment IDs below.
 
 ## Application environment
 
@@ -94,6 +71,6 @@ Run once against the disposable project:
 node scripts/test-supabase-e2e.mjs
 ```
 
-The script verifies real password token issuance, confirmed Auth users, platform-to-school-admin invitation, school-admin-to-student invitation, wrong-email and replay rejection, pinned enrollment visibility through RLS, cross-tenant assignment denial, invitation-hash denial, and token refresh. It never prints passwords or invitation tokens. Because it consumes invitations and creates memberships/enrollment, reset the disposable database before repeating it.
+The script verifies real password token issuance, confirmed Auth users, platform-to-school-admin invitation, school-admin-to-student invitation, wrong-email and replay rejection, pinned enrollment/manifest visibility through RLS, idempotent lesson interaction through PostgREST, cross-tenant assignment denial, invitation-hash denial, and token refresh. It never prints passwords or invitation tokens. Because it consumes invitations and creates memberships/enrollment/progress, reset the disposable database before repeating it.
 
 Manually exercise `/signup`, the local confirmation message, `/auth/confirm`, `/login`, `/invitations/accept`, `/password/recover`, and `/password/update` to verify the configured email templates and browser cookie flow. Those browser/email-template checks are not performed by the Node script.

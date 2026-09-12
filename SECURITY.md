@@ -29,10 +29,20 @@
 - Acceptance rechecks that the issuing platform/school administrator and organization are still active. A private per-user 15-minute redemption counter limits authenticated guessing without storing guesses; deployment-level IP/risk rate limiting remains required.
 - The first platform administrator is established only by a one-time, confirmed-user, trusted-database script that refuses an existing installation and writes an audit event. Only platform administrators can invite school administrators.
 
+## Course delivery controls
+
+- Master authoring RPCs are platform-only. School administrators can assign existing published versions within their tenant but cannot edit curriculum.
+- Canonical manifests include ordered modules, ordered lessons, version metadata, lesson bodies, and delivery metadata. Draft changes rotate the hash and stale prior exact-hash approvals.
+- Publication requires a current approval for both demo and non-demo content. Review records explicitly are not regulatory or instructor certification.
+- Database triggers deny update/delete of published content, ordering, manifest membership, version metadata, reviews, and interaction history. Retirement and assignment withdrawal are separate reasoned metadata transitions.
+- Demo publication requires an active explicitly demo-classified school, and demo assignment requires that target classification at both RPC and trigger layers; classification changes cannot convert an existing assigned relationship.
+- Student reads and writes require an active membership, own active enrollment, exact pinned version, and manifest lesson. Composite keys protect progress/event tenant, student, enrollment, version, and lesson relationships.
+- Lesson interaction requests are idempotent. Open, resume, and completion-interaction timestamps are navigation evidence only and create no course completion, certification, assessment result, report, or TPR event.
+
 ## Required future controls
 
 - Operations: configure Auth abuse protection and edge/IP rate limits, monitor invitation failures, and rehearse account recovery.
-- Curriculum: enrollment-pinned student reads; exact manifest reviews; draft-change review invalidation; protected-schema answer keys.
+- Curriculum: formal reviewer qualification/workflow requirements, theory-unit coverage blueprints, and protected-schema answer keys.
 - Assessments: server selection and grading; required blueprint coverage; persisted option ordering; idempotency keys and row locks; exact integer threshold comparisons.
 - Completion: transactional prerequisite checks and unique completion; immutable reporting identity/provider snapshots; append-only corrections.
 - Reporting: distinct ready/submitted/accepted/needs-attention/rejected/corrected events; no inferred acceptance; tenant-safe exports and CSV formula neutralization.

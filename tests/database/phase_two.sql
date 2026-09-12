@@ -83,7 +83,7 @@ do $$ begin
     'eeeeeeee-0000-4000-8000-000000000002'
   );
   raise exception 'ASSERTION FAILED: cross-school assignment was accepted';
-exception when foreign_key_violation then null;
+exception when foreign_key_violation or check_violation then null;
 end $$;
 reset role;
 
@@ -241,8 +241,14 @@ reset role;
 
 -- Draft versions cannot become assignments, and composite keys reject enrollment
 -- attempts that mix a student, assignment, or version across tenant boundaries.
-insert into public.course_versions (id, course_id, version_number, status, manifest_hash)
-values ('dddddddd-0000-4000-8000-000000000002', 'cccccccc-0000-4000-8000-000000000001', 2, 'draft', repeat('2', 64));
+insert into public.course_versions (
+  id, course_id, version_number, status, manifest_hash, title, description, created_by
+)
+values (
+  'dddddddd-0000-4000-8000-000000000002',
+  'cccccccc-0000-4000-8000-000000000001', 2, 'draft', repeat('2', 64),
+  'Draft boundary fixture', 'Not published.', '00000000-0000-4000-8000-000000000001'
+);
 do $$ begin
   insert into public.course_assignments (organization_id, course_version_id, title, created_by)
   values ('aaaaaaaa-0000-4000-8000-000000000001', 'dddddddd-0000-4000-8000-000000000002',
@@ -256,7 +262,7 @@ do $$ begin
     'eeeeeeee-0000-4000-8000-000000000002', 'dddddddd-0000-4000-8000-000000000001',
     '10000000-0000-4000-8000-000000000001');
   raise exception 'ASSERTION FAILED: cross-school assignment enrollment succeeded';
-exception when foreign_key_violation then null;
+exception when foreign_key_violation or check_violation then null;
 end $$;
 
 -- Suspending an organization disables its otherwise-active memberships.

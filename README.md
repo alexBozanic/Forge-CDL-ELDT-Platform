@@ -69,6 +69,14 @@ The first platform administrator is a controlled database bootstrap, not an appl
 
 See `STAGING-SETUP.md` for exact disposable-project configuration and `scripts/test-supabase-e2e.mjs` for Auth/PostgREST verification that must run when Supabase services are available.
 
+## Versioned lesson delivery
+
+Platform administrators author draft course versions at `/platform/courses`, add ordered modules and original Markdown lesson text, preview the safely rendered result, and record a content-review decision against the exact manifest hash. Any draft edit changes the hash and stales the earlier approval. Publication requires a current approval and freezes version metadata, ordering, content, and manifest membership; a revision starts a new version.
+
+School administrators can create or withdraw assignments from existing published versions but cannot edit master curriculum. Demo versions are assignable only to schools explicitly classified as demo in the database. Students navigate only the immutable manifest pinned to their enrollment, save a resume position, and record lesson interactions. The UI and stored event metadata state that these clicks are not proof of attention, course completion, certification, curriculum approval, or reporting readiness.
+
+`pnpm test:db` verifies authoring roles, stale reviews, publication gates, immutability, demo/non-demo boundaries, enrollment pin persistence, tenant/lesson authorization, suspended access, idempotent interaction events, timestamps, and append-only history against PostgreSQL. Actual Supabase Auth/PostgREST/email and browser flows remain the separate staging gate documented in `STAGING-SETUP.md`.
+
 ## Documentation
 
 - `ARCHITECTURE.md` — system boundaries and permanent decisions

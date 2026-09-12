@@ -22,6 +22,7 @@ done
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f supabase/seed.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/rls.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/phase_two.sql
+psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/course-delivery.sql
 
 # Exercise redemption from two genuinely concurrent PostgreSQL sessions. The
 # first transaction holds its successful redemption open while the second waits.

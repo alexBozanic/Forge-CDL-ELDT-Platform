@@ -30,6 +30,10 @@ TPR readiness, submission, confirmed acceptance, rejection/needs-attention, and 
 
 Student curriculum access will require an authorized enrollment and exactly its pinned version. Publication status alone is never sufficient. Student-readable question content and protected answer keys live in separate tables/schemas; browser clients cannot read the protected schema.
 
+The implemented lesson-delivery slice stores version metadata, ordered modules, lesson text, and a canonical JSON manifest/hash on the course version. Reviews record the exact draft hash they saw; any draft mutation recomputes the hash, making prior approvals stale. Publication materializes ordered manifest membership and database triggers prevent later content, order, manifest, review, or version-metadata rewrites. Retirement and assignment withdrawal are separate one-way metadata changes and do not rewrite enrollment pins.
+
+Lesson access is derived from an active student membership plus an active enrollment pinned to the lesson's published manifest. Open, resume-position, and lesson-interaction-complete events are server-authorized and append-only; the mutable progress row is only a current projection. These interactions are not evidence of attention and cannot produce course completion, certification, assessment results, reporting readiness, or a TPR event.
+
 ## Session architecture decision
 
 Authentication uses the installed `@supabase/ssr` 0.6.1 `createServerClient` API with its current `getAll`/`setAll` cookie adapter. Next.js middleware calls `auth.getUser()` and copies refreshed cookies to both the request and response. Server-rendered authorization independently calls `auth.getUser()` and loads platform/membership grants from RLS-protected database rows; it never trusts cookie payloads, user metadata, route parameters, or client role claims. Server actions that establish or clear a session use a cookie-writable client, while render-only clients leave refresh writes to middleware.

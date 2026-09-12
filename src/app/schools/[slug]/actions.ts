@@ -56,3 +56,26 @@ export async function revokeInvitation(formData: FormData) {
   if (error) throw error;
   revalidatePath(`/schools/${slug}`);
 }
+
+export async function createAssignment(formData: FormData) {
+  const { supabase } = await getAuthorizationContext();
+  const slug = requiredString(formData, "slug");
+  const { error } = await supabase.rpc("create_course_assignment", {
+    target_organization_id: requiredString(formData, "organizationId"),
+    target_course_version_id: requiredString(formData, "courseVersionId"),
+    assignment_title: requiredString(formData, "title"),
+  });
+  if (error) throw error;
+  revalidatePath(`/schools/${slug}`);
+}
+
+export async function withdrawAssignment(formData: FormData) {
+  const { supabase } = await getAuthorizationContext();
+  const slug = requiredString(formData, "slug");
+  const { error } = await supabase.rpc("withdraw_course_assignment", {
+    target_assignment_id: requiredString(formData, "assignmentId"),
+    reason: requiredString(formData, "reason"),
+  });
+  if (error) throw error;
+  revalidatePath(`/schools/${slug}`);
+}

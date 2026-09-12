@@ -29,8 +29,20 @@
 
 ## Later MVP
 
+### Course authoring and lesson delivery
+
+- [x] Add platform-only draft version/module/lesson authoring with safe preview.
+- [x] Add canonical immutable publication manifests and exact-hash review invalidation.
+- [x] Require exact current review for demo and non-demo publication; restrict demo assignments to explicit demo schools.
+- [x] Add school assignment/withdrawal of existing published versions without rewriting enrollment pins.
+- [x] Add enrollment-manifest-bound student overview, lesson reader, resume position, and idempotent interaction progress.
+- [x] Show actual pinned version, progress states, and timestamps to authorized school administrators.
+- [ ] Verify Auth/PostgREST/email/browser course delivery against the disposable Supabase staging gate.
+
+### Remaining curriculum and completion work
+
 - [ ] Immutable curriculum versions, exact-manifest reviews, retirement metadata, and theory-unit coverage blueprints.
-- [ ] Enrollment-pinned student content access and separate protected answer keys.
+- [ ] Add separate protected answer keys when assessment authoring begins.
 - [ ] Learning progress, assessments, exact attempt reconstruction, grading, and idempotent completion.
 - [ ] Immutable completion identity/provider snapshots and append-only corrections.
 - [ ] Explicit manual TPR submission, acceptance, rejection/needs-attention, and correction events.

@@ -31,9 +31,19 @@ Organization, settings, invitation, revocation, acceptance, and enrollment comma
 
 The third migration adds platform-only school-administrator invitations, current-issuer authorization checks, and a private per-authenticated-user redemption window. Invalid redemption attempts return the same null result so failed attempts can commit their rate-limit counter without revealing whether a token, email, or invitation state matched. Successful acceptance still locks the invitation and performs authority/enrollment/audit changes in one transaction. Edge/IP abuse controls are deliberately an operational layer rather than a database substitute.
 
+## Versioned lesson delivery
+
+The fourth migration adds ordered `course_modules` and `course_lessons`, materialized `course_version_manifest_lessons`, exact-hash `curriculum_reviews`, tenant-bound `lesson_progress`, and append-only `lesson_interaction_events`. The manifest includes version metadata, ordered membership, lesson text, and delivery metadata needed to reconstruct the assigned reading. Progress and event relationships contain the enrollment's organization, student, version, and lesson keys so mismatches fail independently of route code.
+
+Only platform administrators can author master drafts. Draft edits recompute the canonical manifest and hash, so an earlier review remains historical but cannot authorize publication. All content—demo and non-demo—requires a current exact-hash approval before publishing. The review is a software content-review record only; it does not claim qualified-instructor, curriculum, regulatory, provider, or jurisdiction approval. Published and retired content, order, manifest membership, and review records reject updates/deletes. Revisions are new version rows.
+
+Demo content can be published only when an active explicitly demo-classified school exists, and can be assigned only to such schools. The publication/assignment RPCs and database trigger enforce these gates, and classification cannot be changed while it would convert an existing demo relationship. School administrators may select existing published versions and may withdraw assignments with a reason; they cannot edit the master curriculum. Retirement and withdrawal prevent future use without changing existing enrollment pins.
+
+Students can read modules and lessons only through their own active, pinned enrollment and its materialized manifest. `record_lesson_interaction` derives student and tenant identity from `auth.uid()`, rejects mismatched lessons/enrollments, and uses a tenant-scoped idempotency key. Progress stores actual open/resume/completion-interaction timestamps; events explicitly carry `{"interaction_only":true}` and cannot create course completion or reporting state.
+
 ## Planned immutable records
 
-Later curriculum/completion migrations will add full publication manifests, manifest-bound reviews, protected answer keys, attempt snapshots, completion reporting-identity/provider snapshots, append-only corrections, and distinct TPR event states. These requirements are architectural constraints, not placeholders that may be weakened for development.
+Later curriculum/completion migrations will add formal review workflow/qualification records, theory-unit coverage blueprints, protected answer keys, assessment attempt snapshots, completion reporting-identity/provider snapshots, append-only corrections, and distinct TPR event states. These requirements are architectural constraints, not placeholders that may be weakened for development.
 
 ## Migration workflow
 

@@ -113,7 +113,7 @@ if (replayError || replayed !== null)
 
 const { data: enrollments, error: enrollmentError } = await student
   .from("enrollments")
-  .select("organization_id, assignment_id, course_version_id")
+  .select("id, organization_id, assignment_id, course_version_id")
   .eq("organization_id", process.env.STAGING_ORGANIZATION_ID);
 if (
   enrollmentError ||
@@ -121,6 +121,38 @@ if (
   !enrollments[0].course_version_id
 ) {
   throw new Error("Pinned student enrollment was not visible through RLS");
+}
+
+const { data: manifestLessons, error: manifestError } = await student
+  .from("course_version_manifest_lessons")
+  .select("lesson_id, manifest_position")
+  .eq("course_version_id", enrollments[0].course_version_id)
+  .order("manifest_position")
+  .limit(1);
+if (manifestError || manifestLessons?.length !== 1) {
+  throw new Error("Pinned lesson manifest was not visible through RLS");
+}
+const interactionKey = globalThis.crypto.randomUUID();
+for (let attempt = 0; attempt < 2; attempt += 1) {
+  const { error: interactionError } = await student.rpc(
+    "record_lesson_interaction",
+    {
+      target_enrollment_id: enrollments[0].id,
+      target_lesson_id: manifestLessons[0].lesson_id,
+      target_interaction_type: "opened",
+      target_resume_position: 0,
+      request_idempotency_key: interactionKey,
+    },
+  );
+  if (interactionError) throw new Error("Lesson interaction RPC failed");
+}
+const { data: interactionEvents, error: eventsError } = await student
+  .from("lesson_interaction_events")
+  .select("id")
+  .eq("enrollment_id", enrollments[0].id)
+  .eq("idempotency_key", interactionKey);
+if (eventsError || interactionEvents?.length !== 1) {
+  throw new Error("Lesson interaction idempotency failed through PostgREST");
 }
 
 const crossToken = randomBytes(32).toString("base64url");

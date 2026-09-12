@@ -32,6 +32,8 @@ export default async function StudentDetailPage({
     { data: profile },
     { data: enrollments },
     { data: assignments },
+    { data: progress },
+    { data: lessons },
   ] = await Promise.all([
     supabase
       .from("organization_memberships")
@@ -48,7 +50,9 @@ export default async function StudentDetailPage({
       .maybeSingle(),
     supabase
       .from("enrollments")
-      .select("id, status, course_version_id, course_assignments(title)")
+      .select(
+        "id, status, course_version_id, course_assignments(title), course_versions(title, version_number, manifest_hash)",
+      )
       .eq("organization_id", organization.id)
       .eq("student_user_id", userId),
     supabase
@@ -56,8 +60,19 @@ export default async function StudentDetailPage({
       .select("id, title")
       .eq("organization_id", organization.id)
       .eq("active", true),
+    supabase
+      .from("lesson_progress")
+      .select(
+        "enrollment_id, lesson_id, status, resume_position, first_opened_at, last_opened_at, completed_at",
+      )
+      .eq("organization_id", organization.id)
+      .eq("student_user_id", userId),
+    supabase.from("course_lessons").select("id, title"),
   ]);
   if (!membership) notFound();
+  const lessonTitles = new Map(
+    (lessons ?? []).map((lesson) => [lesson.id, lesson.title]),
+  );
   return (
     <main className="container main" id="main-content">
       <p className="kicker">{organization.name} · Student record</p>
@@ -78,13 +93,42 @@ export default async function StudentDetailPage({
                 const assignment = Array.isArray(enrollment.course_assignments)
                   ? enrollment.course_assignments[0]
                   : enrollment.course_assignments;
+                const version = Array.isArray(enrollment.course_versions)
+                  ? enrollment.course_versions[0]
+                  : enrollment.course_versions;
+                const enrollmentProgress = progress?.filter(
+                  (item) => item.enrollment_id === enrollment.id,
+                );
                 return (
                   <article className="gate" key={enrollment.id}>
                     <h3>{assignment?.title ?? "Assignment"}</h3>
                     <p>
-                      {enrollment.status} · pinned version{" "}
-                      {enrollment.course_version_id}
+                      {enrollment.status} · {version?.title ?? "Version"} ·
+                      pinned version{" "}
+                      {version?.version_number ?? enrollment.course_version_id}
                     </p>
+                    <p>
+                      Manifest: <code>{version?.manifest_hash}</code>
+                    </p>
+                    {enrollmentProgress?.length ? (
+                      <ul>
+                        {enrollmentProgress.map((item) => (
+                          <li key={item.lesson_id}>
+                            {lessonTitles.get(item.lesson_id) ??
+                              "Manifest lesson"}
+                            : {item.status} · last opened{" "}
+                            {item.last_opened_at
+                              ? new Date(item.last_opened_at).toLocaleString()
+                              : "not recorded"}
+                            {item.completed_at
+                              ? ` · interaction completed ${new Date(item.completed_at).toLocaleString()}`
+                              : ""}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No lesson interactions recorded.</p>
+                    )}
                   </article>
                 );
               })}
@@ -97,7 +141,7 @@ export default async function StudentDetailPage({
           )}
         </section>
         <section className="panel">
-          <h2>Assign demonstration content</h2>
+          <h2>Assign published content</h2>
           {membership.status === "active" && assignments?.length ? (
             <form action={enrollStudent} className="form-stack">
               <input

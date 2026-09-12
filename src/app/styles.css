@@ -241,7 +241,8 @@ a:focus-visible {
   font-weight: 700;
 }
 .form-stack input,
-.form-stack select {
+.form-stack select,
+.form-stack textarea {
   width: 100%;
   min-height: 2.75rem;
   padding: 0.55rem 0.7rem;
@@ -251,8 +252,13 @@ a:focus-visible {
   color: var(--ink);
   font: inherit;
 }
+.form-stack textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
 .form-stack input:focus-visible,
-.form-stack select:focus-visible {
+.form-stack select:focus-visible,
+.form-stack textarea:focus-visible {
   outline: 0.2rem solid var(--blue);
   outline-offset: 0.1rem;
 }
@@ -318,6 +324,69 @@ a:focus-visible {
 .branded-shell .kicker {
   color: var(--school-primary, var(--blue-dark));
 }
+.authoring-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.module-card,
+.lesson-preview {
+  margin-block: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: white;
+}
+.lesson-preview {
+  background: #fbfcfe;
+}
+.inline-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.inline-form input {
+  min-height: 2.5rem;
+  padding: 0.45rem;
+}
+.compact-editor,
+.assignment-list,
+.review-record {
+  margin-top: 1.25rem;
+}
+.review-record {
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.hash-line {
+  overflow-wrap: anywhere;
+}
+.lesson-content {
+  max-width: 68ch;
+  font-size: 1.1rem;
+}
+.lesson-content p {
+  white-space: pre-line;
+}
+.reader-shell {
+  max-width: 58rem;
+}
+.interaction-controls {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  margin-block: 2rem;
+  padding-block: 1.5rem;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -336,6 +405,9 @@ a:focus-visible {
   .card-grid,
   .two-column,
   .admin-grid {
+    grid-template-columns: 1fr;
+  }
+  .authoring-layout {
     grid-template-columns: 1fr;
   }
   .page-heading,

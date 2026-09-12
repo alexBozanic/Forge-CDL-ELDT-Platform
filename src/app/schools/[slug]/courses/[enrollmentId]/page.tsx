@@ -1,0 +1,141 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { requireUser } from "@/lib/auth";
+
+export default async function StudentCoursePage({
+  params,
+}: {
+  params: Promise<{ slug: string; enrollmentId: string }>;
+}) {
+  const { slug, enrollmentId } = await params;
+  const { supabase, user } = await requireUser();
+  const { data: organization } = await supabase
+    .from("organizations")
+    .select("id, name, brand_primary_color, brand_accent_color")
+    .eq("slug", slug)
+    .single();
+  if (!organization) notFound();
+  const { data: enrollment } = await supabase
+    .from("enrollments")
+    .select(
+      "id, organization_id, course_version_id, status, course_assignments(title)",
+    )
+    .eq("id", enrollmentId)
+    .eq("organization_id", organization.id)
+    .eq("student_user_id", user.id)
+    .single();
+  if (!enrollment) notFound();
+  const [versionResult, modulesResult, lessonsResult, progressResult] =
+    await Promise.all([
+      supabase
+        .from("course_versions")
+        .select("id, title, description, version_number, manifest_hash")
+        .eq("id", enrollment.course_version_id)
+        .single(),
+      supabase
+        .from("course_modules")
+        .select("id, title, position")
+        .eq("course_version_id", enrollment.course_version_id)
+        .order("position"),
+      supabase
+        .from("course_version_manifest_lessons")
+        .select(
+          "lesson_id, module_id, manifest_position, course_lessons(title, estimated_minutes)",
+        )
+        .eq("course_version_id", enrollment.course_version_id)
+        .order("manifest_position"),
+      supabase
+        .from("lesson_progress")
+        .select(
+          "lesson_id, status, resume_position, last_opened_at, completed_at, updated_at",
+        )
+        .eq("enrollment_id", enrollment.id)
+        .order("updated_at", { ascending: false }),
+    ]);
+  if (versionResult.error || !versionResult.data) notFound();
+  for (const result of [modulesResult, lessonsResult, progressResult])
+    if (result.error) throw result.error;
+  const progress = new Map(
+    (progressResult.data ?? []).map((item) => [item.lesson_id, item]),
+  );
+  const firstLesson = lessonsResult.data?.[0]?.lesson_id;
+  const resumeLesson = progressResult.data?.[0]?.lesson_id ?? firstLesson;
+  const assignment = Array.isArray(enrollment.course_assignments)
+    ? enrollment.course_assignments[0]
+    : enrollment.course_assignments;
+  return (
+    <main
+      className="container main branded-shell"
+      style={
+        {
+          "--school-primary": organization.brand_primary_color,
+          "--school-accent": organization.brand_accent_color,
+        } as React.CSSProperties
+      }
+      id="main-content"
+    >
+      <p className="kicker">
+        {organization.name} · Assigned version{" "}
+        {versionResult.data.version_number}
+      </p>
+      <h1>{versionResult.data.title}</h1>
+      <p className="lede">{versionResult.data.description}</p>
+      <div className="notice">
+        <strong>Demonstration learning content</strong>
+        <span>
+          Lesson interactions are not proof of attention, course completion,
+          certification, or reporting readiness.
+        </span>
+      </div>
+      {resumeLesson ? (
+        <p>
+          <Link
+            className="button"
+            href={`/schools/${slug}/courses/${enrollment.id}/lessons/${resumeLesson}`}
+          >
+            {progressResult.data?.length
+              ? "Resume learning"
+              : "Start first lesson"}
+          </Link>
+        </p>
+      ) : null}
+      <section>
+        <h2>{assignment?.title ?? "Course outline"}</h2>
+        {modulesResult.data?.map((module) => (
+          <article className="module-card" key={module.id}>
+            <h3>
+              {module.position}. {module.title}
+            </h3>
+            <div className="list-stack">
+              {lessonsResult.data
+                ?.filter((lesson) => lesson.module_id === module.id)
+                .map((lesson) => {
+                  const details = Array.isArray(lesson.course_lessons)
+                    ? lesson.course_lessons[0]
+                    : lesson.course_lessons;
+                  const state = progress.get(lesson.lesson_id);
+                  return (
+                    <Link
+                      className="list-row"
+                      href={`/schools/${slug}/courses/${enrollment.id}/lessons/${lesson.lesson_id}`}
+                      key={lesson.lesson_id}
+                    >
+                      <span>
+                        {lesson.manifest_position}. {details?.title}
+                      </span>
+                      <span>
+                        {state?.status ?? "not started"}
+                        {state?.completed_at
+                          ? ` · ${new Date(state.completed_at).toLocaleString()}`
+                          : ""}
+                      </span>
+                    </Link>
+                  );
+                })}
+            </div>
+          </article>
+        ))}
+      </section>
+    </main>
+  );
+}

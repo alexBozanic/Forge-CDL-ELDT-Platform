@@ -25,10 +25,16 @@ export default async function DashboardPage() {
       </div>
       <div className="card-grid">
         {isPlatformAdministrator ? (
-          <Link className="gate interactive-card" href="/platform/schools">
-            <h2>Platform administration</h2>
-            <p>Create and review demonstration schools.</p>
-          </Link>
+          <>
+            <Link className="gate interactive-card" href="/platform/schools">
+              <h2>Platform administration</h2>
+              <p>Create and review demonstration schools.</p>
+            </Link>
+            <Link className="gate interactive-card" href="/platform/courses">
+              <h2>Course authoring</h2>
+              <p>Build, review, preview, and publish immutable versions.</p>
+            </Link>
+          </>
         ) : null}
         {activeMemberships.map((membership) => {
           const organization = Array.isArray(membership.organizations)
