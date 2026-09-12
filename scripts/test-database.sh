@@ -16,6 +16,9 @@ if [[ -z "${DATABASE_URL:-}" ]]; then
 fi
 
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/bootstrap.sql
-psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f supabase/migrations/202609120001_foundation.sql
+for migration in supabase/migrations/*.sql; do
+  psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f "${migration}"
+done
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f supabase/seed.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/rls.sql
+psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/phase_two.sql

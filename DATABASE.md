@@ -21,9 +21,17 @@ Authorization predicates are `SECURITY DEFINER` functions in the non-exposed `pr
 
 Audit rows can be inserted only through the non-public `private.write_audit_event` building block, which verifies either a platform administrator or an active membership for the target tenant. It is intentionally not executable directly by application roles; future controlled command functions can call it. Application roles cannot update or delete audit rows. Database owners and service-role operators remain technically capable of changing them, so this is append-only for application roles rather than absolutely immutable.
 
+## Phase 2 records
+
+The second migration adds minimal demo `courses` and immutable `course_versions`, tenant `course_assignments`, hashed invitations, version-pinned enrollments, and append-only enrollment transition events. Assignments accept only published versions; composite foreign keys prevent assignment and enrollment rows from crossing tenant boundaries. Published version identity/manifest fields cannot change, and retirement is one-way metadata. This is only the data integrity needed for this phase—not approved curriculum or an assessment engine.
+
+Raw invitation tokens never enter the database. A server action generates 256 bits of randomness, sends only its SHA-256 hash to a narrow database function, and exposes the raw token once through the local fake-delivery UI. Acceptance locks the matching invitation, derives the confirmed authenticated email from `auth.users`, rejects expiry/revocation/replay and suspended/removed memberships, then atomically creates membership, optional pinned enrollment, transition history, and audit history. It does not invent legal-profile values. Authenticated roles cannot select the hash column.
+
+Organization, settings, invitation, revocation, acceptance, and enrollment commands are public-schema RPC functions because PostgREST exposes the API schema, but their execution is narrowly granted and each function reauthorizes with `auth.uid()` plus stored database grants. Internal predicate/audit functions remain in the non-exposed `private` schema.
+
 ## Planned immutable records
 
-The next curriculum/completion migrations will add immutable publication manifests, manifest-bound reviews, enrollment-pinned content, protected answer keys, attempt snapshots, completion reporting-identity/provider snapshots, append-only corrections, and distinct TPR event states. These requirements are architectural constraints, not placeholders that may be weakened for development.
+Later curriculum/completion migrations will add full publication manifests, manifest-bound reviews, protected answer keys, attempt snapshots, completion reporting-identity/provider snapshots, append-only corrections, and distinct TPR event states. These requirements are architectural constraints, not placeholders that may be weakened for development.
 
 ## Migration workflow
 

@@ -32,7 +32,9 @@ Student curriculum access will require an authorized enrollment and exactly its 
 
 ## Session architecture decision
 
-The implementation will follow the supported `@supabase/ssr` Next.js pattern: browser and server clients use the framework cookie adapter, and server-side token refresh updates cookies through supported middleware/proxy handling. Authorization always calls a server-validated user operation rather than trusting cookie contents alone. We do **not** claim that Supabase tokens can be placed exclusively in HTTP-only cookies: the current official documentation could not be reached from this environment, so cookie flags and the exact supported refresh API must be revalidated against official Supabase documentation before authentication is implemented.
+Authentication uses the installed `@supabase/ssr` 0.6.1 `createServerClient` API with its current `getAll`/`setAll` cookie adapter. Next.js middleware calls `auth.getUser()` and copies refreshed cookies to both the request and response. Server-rendered authorization independently calls `auth.getUser()` and loads platform/membership grants from RLS-protected database rows; it never trusts cookie payloads, user metadata, route parameters, or client role claims. Server actions that establish or clear a session use a cookie-writable client, while render-only clients leave refresh writes to middleware.
+
+No service-role client exists in the application. Organization, invitation, and enrollment mutations go through narrowly granted, authorization-checking database functions under the caller's authenticated session. Official online Supabase guidance was unavailable, so the implementation was checked against the installed package source and declarations; local or hosted Supabase Auth/JWT/PostgREST verification remains required before a real pilot.
 
 ## User experience
 

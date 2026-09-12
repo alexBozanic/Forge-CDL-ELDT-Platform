@@ -181,6 +181,24 @@ h2 {
 .button:hover {
   background: var(--navy);
 }
+.button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+.button.secondary {
+  background: white;
+  color: var(--navy);
+  border: 1px solid var(--navy);
+}
+.text-button {
+  border: 0;
+  background: transparent;
+  color: #8b1d1d;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
 .button:focus-visible,
 a:focus-visible {
   outline: 0.2rem solid #e76700;
@@ -191,6 +209,109 @@ a:focus-visible {
   background: #e8edf4;
   color: #34445c;
   font-size: 0.875rem;
+}
+.auth-shell {
+  display: grid;
+  place-items: center;
+}
+.panel,
+.empty-state {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--white);
+}
+.narrow-panel {
+  width: min(100%, 32rem);
+}
+.form-stack,
+.list-stack {
+  display: grid;
+  gap: 1rem;
+}
+.form-stack label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+.form-stack input,
+.form-stack select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #9aa8ba;
+  border-radius: 0.35rem;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+.form-stack input:focus-visible,
+.form-stack select:focus-visible {
+  outline: 0.2rem solid var(--blue);
+  outline-offset: 0.1rem;
+}
+.form-error {
+  padding: 0.75rem;
+  border-left: 0.3rem solid #a92323;
+  background: #fff0f0;
+  color: #751717;
+}
+.page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.page-heading h1,
+.branded-shell h1 {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+}
+.card-grid,
+.two-column,
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.interactive-card {
+  color: inherit;
+  text-decoration: none;
+}
+.interactive-card:hover {
+  border-color: var(--blue);
+  transform: translateY(-0.1rem);
+}
+.interactive-card h2 {
+  margin-top: 0;
+}
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  color: inherit;
+  text-decoration: none;
+}
+.delivery-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  overflow-wrap: anywhere;
+  border: 2px solid var(--school-accent, var(--amber-border));
+  border-radius: 0.5rem;
+  background: var(--amber-bg);
+}
+.delivery-box code {
+  user-select: all;
+}
+.branded-shell {
+  border-top: 0.4rem solid var(--school-accent, var(--blue));
+}
+.branded-shell .kicker {
+  color: var(--school-primary, var(--blue-dark));
 }
 @keyframes spin {
   to {
@@ -206,6 +327,16 @@ a:focus-visible {
     flex-direction: column;
     justify-content: center;
     padding-block: 1rem;
+  }
+  .card-grid,
+  .two-column,
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+  .page-heading,
+  .list-row {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 @media (prefers-reduced-motion: reduce) {

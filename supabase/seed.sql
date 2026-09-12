@@ -1,13 +1,13 @@
 -- Fake development identities only. Password sign-in is not configured by this seed.
-insert into auth.users (id, email)
+insert into auth.users (id, email, email_confirmed_at)
 values
-  ('00000000-0000-4000-8000-000000000001', 'platform.admin@example.invalid'),
-  ('10000000-0000-4000-8000-000000000001', 'admin@northstar.example.invalid'),
-  ('10000000-0000-4000-8000-000000000002', 'avery@northstar.example.invalid'),
-  ('10000000-0000-4000-8000-000000000003', 'jordan@northstar.example.invalid'),
-  ('20000000-0000-4000-8000-000000000001', 'admin@redcanyon.example.invalid'),
-  ('20000000-0000-4000-8000-000000000002', 'morgan@redcanyon.example.invalid'),
-  ('20000000-0000-4000-8000-000000000003', 'taylor@redcanyon.example.invalid')
+  ('00000000-0000-4000-8000-000000000001', 'platform.admin@example.invalid', statement_timestamp()),
+  ('10000000-0000-4000-8000-000000000001', 'admin@northstar.example.invalid', statement_timestamp()),
+  ('10000000-0000-4000-8000-000000000002', 'avery@northstar.example.invalid', statement_timestamp()),
+  ('10000000-0000-4000-8000-000000000003', 'jordan@northstar.example.invalid', statement_timestamp()),
+  ('20000000-0000-4000-8000-000000000001', 'admin@redcanyon.example.invalid', statement_timestamp()),
+  ('20000000-0000-4000-8000-000000000002', 'morgan@redcanyon.example.invalid', statement_timestamp()),
+  ('20000000-0000-4000-8000-000000000003', 'taylor@redcanyon.example.invalid', statement_timestamp())
 on conflict (id) do nothing;
 
 insert into public.organizations (id, slug, name, contact_email, brand_primary_color, brand_accent_color)
@@ -44,3 +44,45 @@ insert into public.audit_events (organization_id, actor_user_id, action, target_
 values
   ('aaaaaaaa-0000-4000-8000-000000000001', null, 'development.seeded', 'organization', 'aaaaaaaa-0000-4000-8000-000000000001', '{"fake_data":true}'),
   ('bbbbbbbb-0000-4000-8000-000000000002', null, 'development.seeded', 'organization', 'bbbbbbbb-0000-4000-8000-000000000002', '{"fake_data":true}');
+
+insert into public.courses (id, title, description, is_demo)
+values (
+  'cccccccc-0000-4000-8000-000000000001',
+  'Demonstration CDL Theory Orientation',
+  'Placeholder content for software testing only; not approved curriculum.',
+  true
+)
+on conflict (id) do nothing;
+
+insert into public.course_versions (
+  id, course_id, version_number, status, manifest_hash, published_at
+)
+values (
+  'dddddddd-0000-4000-8000-000000000001',
+  'cccccccc-0000-4000-8000-000000000001',
+  1,
+  'published',
+  repeat('1', 64),
+  '2026-09-12T00:00:00Z'
+)
+on conflict (id) do nothing;
+
+insert into public.course_assignments (
+  id, organization_id, course_version_id, title, created_by
+)
+values
+  (
+    'eeeeeeee-0000-4000-8000-000000000001',
+    'aaaaaaaa-0000-4000-8000-000000000001',
+    'dddddddd-0000-4000-8000-000000000001',
+    'Northstar demonstration assignment',
+    '00000000-0000-4000-8000-000000000001'
+  ),
+  (
+    'eeeeeeee-0000-4000-8000-000000000002',
+    'bbbbbbbb-0000-4000-8000-000000000002',
+    'dddddddd-0000-4000-8000-000000000001',
+    'Red Canyon demonstration assignment',
+    '00000000-0000-4000-8000-000000000001'
+  )
+on conflict (id) do nothing;

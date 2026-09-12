@@ -47,7 +47,15 @@ A disposable, trust-authenticated PostgreSQL cluster was initialized under `/tmp
 
 The same environment passed formatting, ESLint, TypeScript, and the optimized Next.js production build. The app responded locally after the production server started. Browser automation was not available, so desktop/mobile rendering was not visually inspected and no screenshot was produced.
 
-Dependencies are exactly pinned in `package.json` and resolved in `pnpm-lock.yaml`. Because current upstream documentation and advisories were unavailable in the network-disabled agent environment, current-version compatibility, security-advisory status, and the deferred Supabase SSR/cookie design still require verification against official sources before authentication work begins.
+Dependencies are exactly pinned in `package.json` and resolved in `pnpm-lock.yaml`. Because current upstream documentation and advisories were unavailable in the network-disabled agent environment, current-version compatibility, security-advisory status, and the implemented Supabase SSR/cookie design still require verification against official sources before a real pilot.
+
+## Phase 2: local authentication and invitations
+
+Phase 2 adds Supabase password-session wiring, middleware refresh, server-validated protected routes, platform school administration, school settings/student records, secure student invitations, and demo assignment enrollment. Configure only the public project URL and anonymous key from a local Supabase instance in `.env.local`; the application does not use a service-role key.
+
+The invitation screen is a local fake-delivery adapter: it shows a high-entropy token once to the authorized administrator. It does not send email or place the token in a URL. The student must already be signed into a Supabase account whose verified Auth email matches the invitation and must paste the token on `/invitations/accept`.
+
+The database-only suite verifies policies and privileged functions with realistic `auth.uid()` values, but its `auth.users` table and `auth.uid()` function are compatibility fixtures. It does **not** prove password login, email verification, JWT issuance/refresh, cookie persistence, PostgREST RPC/schema exposure, or concurrent requests through Supabase. Before any pilot, run the same two-school cases through an actual local Supabase stack or isolated hosted test project and recheck the SSR implementation against current official documentation.
 
 ## Documentation
 

@@ -15,11 +15,12 @@
 
 ## Next phase: invitation and organization vertical slice
 
-- [ ] Add organization administration commands with audit events.
-- [ ] Add hashed, expiring, single-use, tenant-bound invitations.
-- [ ] Add atomic invitation acceptance that creates only the intended membership and pinned enrollment.
-- [ ] Implement supported Supabase SSR clients/session refresh after documentation verification.
-- [ ] Add authenticated organization selection and school-branded shell.
+- [x] Add organization administration commands with audit events.
+- [x] Add hashed, expiring, single-use, tenant/email/student-role-bound invitations and local fake delivery.
+- [x] Add atomic invitation acceptance with optional version-pinned enrollment.
+- [x] Implement the installed Supabase SSR client and middleware cookie-refresh pattern with server-validated identity.
+- [x] Add login/logout, protected role-specific routes, organization selection, school branding, and responsive school/student views.
+- [x] Add tenant-safe idempotent enrollment assignment and append-only initial transition/audit records.
 - [ ] Test direct REST/database access with real Supabase-issued sessions for two schools.
 
 ## Later MVP
