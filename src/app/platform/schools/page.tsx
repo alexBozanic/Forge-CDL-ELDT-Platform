@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getAuthorizationContext } from "@/lib/auth";
 import { createSchool } from "./actions";
+import { AdminInvitationForm } from "./admin-invitation-form";
 
 export default async function SchoolsPage() {
   const { supabase, isPlatformAdministrator } = await getAuthorizationContext();
@@ -45,17 +46,16 @@ export default async function SchoolsPage() {
           {schools?.length ? (
             <div className="list-stack">
               {schools.map((school) => (
-                <Link
-                  className="gate interactive-card"
-                  href={`/schools/${school.slug}`}
-                  key={school.id}
-                >
-                  <h3>{school.name}</h3>
+                <article className="gate" key={school.id}>
+                  <h3>
+                    <Link href={`/schools/${school.slug}`}>{school.name}</Link>
+                  </h3>
                   <p>
                     {school.slug} · {school.status}
                   </p>
                   <p>{school.contact_email ?? "No contact email"}</p>
-                </Link>
+                  <AdminInvitationForm organizationId={school.id} />
+                </article>
               ))}
             </div>
           ) : (

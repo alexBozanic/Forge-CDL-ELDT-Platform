@@ -214,6 +214,11 @@ a:focus-visible {
   display: grid;
   place-items: center;
 }
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
 .panel,
 .empty-state {
   padding: clamp(1.25rem, 4vw, 2rem);

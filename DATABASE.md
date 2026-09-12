@@ -29,6 +29,8 @@ Raw invitation tokens never enter the database. A server action generates 256 bi
 
 Organization, settings, invitation, revocation, acceptance, and enrollment commands are public-schema RPC functions because PostgREST exposes the API schema, but their execution is narrowly granted and each function reauthorizes with `auth.uid()` plus stored database grants. Internal predicate/audit functions remain in the non-exposed `private` schema.
 
+The third migration adds platform-only school-administrator invitations, current-issuer authorization checks, and a private per-authenticated-user redemption window. Invalid redemption attempts return the same null result so failed attempts can commit their rate-limit counter without revealing whether a token, email, or invitation state matched. Successful acceptance still locks the invitation and performs authority/enrollment/audit changes in one transaction. Edge/IP abuse controls are deliberately an operational layer rather than a database substitute.
+
 ## Planned immutable records
 
 Later curriculum/completion migrations will add full publication manifests, manifest-bound reviews, protected answer keys, attempt snapshots, completion reporting-identity/provider snapshots, append-only corrections, and distinct TPR event states. These requirements are architectural constraints, not placeholders that may be weakened for development.

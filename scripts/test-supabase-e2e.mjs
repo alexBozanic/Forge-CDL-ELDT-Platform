@@ -1,0 +1,151 @@
+import { createHash, randomBytes } from "node:crypto";
+import { createClient } from "@supabase/supabase-js";
+
+const required = [
+  "STAGING_SUPABASE_URL",
+  "STAGING_SUPABASE_ANON_KEY",
+  "STAGING_PLATFORM_EMAIL",
+  "STAGING_PLATFORM_PASSWORD",
+  "STAGING_SCHOOL_ADMIN_EMAIL",
+  "STAGING_SCHOOL_ADMIN_PASSWORD",
+  "STAGING_STUDENT_EMAIL",
+  "STAGING_STUDENT_PASSWORD",
+  "STAGING_WRONG_EMAIL",
+  "STAGING_WRONG_PASSWORD",
+  "STAGING_ORGANIZATION_ID",
+  "STAGING_ASSIGNMENT_ID",
+  "STAGING_SECOND_ASSIGNMENT_ID",
+];
+for (const name of required) {
+  if (!process.env[name]) throw new Error(`Missing ${name}`);
+}
+
+const url = process.env.STAGING_SUPABASE_URL;
+const key = process.env.STAGING_SUPABASE_ANON_KEY;
+const client = () =>
+  createClient(url, key, { auth: { persistSession: false } });
+const digest = (token) => createHash("sha256").update(token).digest("hex");
+const expiresAt = () => new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
+async function signIn(emailName, passwordName) {
+  const supabase = client();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: process.env[emailName],
+    password: process.env[passwordName],
+  });
+  if (error || !data.user || !data.session)
+    throw new Error(`${emailName} sign-in failed`);
+  if (!data.user.email_confirmed_at)
+    throw new Error(`${emailName} is not confirmed`);
+  return supabase;
+}
+
+const platform = await signIn(
+  "STAGING_PLATFORM_EMAIL",
+  "STAGING_PLATFORM_PASSWORD",
+);
+const schoolAdmin = await signIn(
+  "STAGING_SCHOOL_ADMIN_EMAIL",
+  "STAGING_SCHOOL_ADMIN_PASSWORD",
+);
+const student = await signIn(
+  "STAGING_STUDENT_EMAIL",
+  "STAGING_STUDENT_PASSWORD",
+);
+const wrongUser = await signIn("STAGING_WRONG_EMAIL", "STAGING_WRONG_PASSWORD");
+
+const adminToken = randomBytes(32).toString("base64url");
+const { error: adminInviteError } = await platform.rpc(
+  "create_school_admin_invitation",
+  {
+    target_organization_id: process.env.STAGING_ORGANIZATION_ID,
+    invitation_email: process.env.STAGING_SCHOOL_ADMIN_EMAIL.toLowerCase(),
+    invitation_token_hash: digest(adminToken),
+    invitation_expires_at: expiresAt(),
+  },
+);
+if (adminInviteError) throw new Error("Platform admin invitation failed");
+const { data: adminAccepted, error: adminAcceptError } = await schoolAdmin.rpc(
+  "accept_student_invitation",
+  { invitation_token_hash: digest(adminToken) },
+);
+if (adminAcceptError || adminAccepted !== process.env.STAGING_ORGANIZATION_ID) {
+  throw new Error("School administrator acceptance failed");
+}
+
+const studentToken = randomBytes(32).toString("base64url");
+const { error: studentInviteError } = await schoolAdmin.rpc(
+  "create_student_invitation",
+  {
+    target_organization_id: process.env.STAGING_ORGANIZATION_ID,
+    invitation_email: process.env.STAGING_STUDENT_EMAIL.toLowerCase(),
+    invitation_token_hash: digest(studentToken),
+    invitation_expires_at: expiresAt(),
+    target_assignment_id: process.env.STAGING_ASSIGNMENT_ID,
+  },
+);
+if (studentInviteError) throw new Error("Student invitation failed");
+
+const { data: wrongAccepted, error: wrongAcceptError } = await wrongUser.rpc(
+  "accept_student_invitation",
+  { invitation_token_hash: digest(studentToken) },
+);
+if (wrongAcceptError || wrongAccepted !== null)
+  throw new Error("Wrong email was not rejected generically");
+
+const { data: accepted, error: acceptError } = await student.rpc(
+  "accept_student_invitation",
+  {
+    invitation_token_hash: digest(studentToken),
+  },
+);
+if (acceptError || accepted !== process.env.STAGING_ORGANIZATION_ID) {
+  throw new Error("Student invitation acceptance failed");
+}
+const { data: replayed, error: replayError } = await student.rpc(
+  "accept_student_invitation",
+  {
+    invitation_token_hash: digest(studentToken),
+  },
+);
+if (replayError || replayed !== null)
+  throw new Error("Invitation replay was not rejected generically");
+
+const { data: enrollments, error: enrollmentError } = await student
+  .from("enrollments")
+  .select("organization_id, assignment_id, course_version_id")
+  .eq("organization_id", process.env.STAGING_ORGANIZATION_ID);
+if (
+  enrollmentError ||
+  enrollments?.length !== 1 ||
+  !enrollments[0].course_version_id
+) {
+  throw new Error("Pinned student enrollment was not visible through RLS");
+}
+
+const crossToken = randomBytes(32).toString("base64url");
+const { error: crossTenantError } = await schoolAdmin.rpc(
+  "create_student_invitation",
+  {
+    target_organization_id: process.env.STAGING_ORGANIZATION_ID,
+    invitation_email: process.env.STAGING_WRONG_EMAIL.toLowerCase(),
+    invitation_token_hash: digest(crossToken),
+    invitation_expires_at: expiresAt(),
+    target_assignment_id: process.env.STAGING_SECOND_ASSIGNMENT_ID,
+  },
+);
+if (!crossTenantError) throw new Error("Cross-tenant assignment was accepted");
+
+const { error: hashReadError } = await schoolAdmin
+  .from("invitations")
+  .select("token_hash");
+if (!hashReadError)
+  throw new Error("Invitation hashes were readable through the API");
+const { data: refreshed, error: refreshError } =
+  await student.auth.refreshSession();
+if (refreshError || !refreshed.session)
+  throw new Error("Session refresh failed");
+
+console.log(
+  "Supabase Auth/PostgREST onboarding checks passed with disposable fake accounts.",
+);

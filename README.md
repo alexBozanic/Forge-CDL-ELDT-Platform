@@ -57,6 +57,18 @@ The invitation screen is a local fake-delivery adapter: it shows a high-entropy 
 
 The database-only suite verifies policies and privileged functions with realistic `auth.uid()` values, but its `auth.users` table and `auth.uid()` function are compatibility fixtures. It does **not** prove password login, email verification, JWT issuance/refresh, cookie persistence, PostgREST RPC/schema exposure, or concurrent requests through Supabase. Before any pilot, run the same two-school cases through an actual local Supabase stack or isolated hosted test project and recheck the SSR implementation against current official documentation.
 
+### Onboarding sequence
+
+1. A platform administrator creates a school and issues its first school-administrator invitation. A school administrator can issue student invitations only.
+2. A new invitee uses `/signup`; signup alone creates no membership. Supabase delivers confirmation through the configured local/test inbox.
+3. `/auth/confirm` exchanges the Supabase PKCE code or verifies its supported token hash, accepting only fixed internal destinations. The confirmed user signs in at `/login`.
+4. The user pastes the separately delivered invitation token at `/invitations/accept`. The database validates the confirmed Auth email, current issuer authority, organization state, invitation state, and redemption limit before atomically granting membership and the optional version-pinned enrollment.
+5. Password recovery starts at `/password/recover`; the Supabase recovery callback establishes the recovery session before `/password/update` validates the user and changes the password.
+
+The first platform administrator is a controlled database bootstrap, not an application signup role. Follow `STAGING-SETUP.md` and run `scripts/bootstrap-platform-admin.sh` once with an existing confirmed Auth user UUID. The script refuses to run after the first grant and records an audit event. School-administrator assignment thereafter uses the platform-only invitation flow.
+
+See `STAGING-SETUP.md` for exact disposable-project configuration and `scripts/test-supabase-e2e.mjs` for Auth/PostgREST verification that must run when Supabase services are available.
+
 ## Documentation
 
 - `ARCHITECTURE.md` — system boundaries and permanent decisions
@@ -64,3 +76,4 @@ The database-only suite verifies policies and privileged functions with realisti
 - `SECURITY.md` — threat model and verification standard
 - `TODO.md` — phased delivery checklist
 - `AGENTS.md` — mandatory contributor rules
+- `STAGING-SETUP.md` — disposable Supabase Auth/PostgREST verification

@@ -21,6 +21,10 @@
 - [x] Implement the installed Supabase SSR client and middleware cookie-refresh pattern with server-validated identity.
 - [x] Add login/logout, protected role-specific routes, organization selection, school branding, and responsive school/student views.
 - [x] Add tenant-safe idempotent enrollment assignment and append-only initial transition/audit records.
+- [x] Add signup confirmation, password recovery/update, and safe fixed-destination Auth callbacks.
+- [x] Add controlled first-platform-admin bootstrap and platform-only school-admin invitations.
+- [x] Recheck invitation issuer authority at acceptance, add per-user guessing limits, and test real concurrent PostgreSQL redemption sessions.
+- [x] Provide disposable staging setup and an executable Auth/PostgREST verification script without tracked credentials.
 - [ ] Test direct REST/database access with real Supabase-issued sessions for two schools.
 
 ## Later MVP

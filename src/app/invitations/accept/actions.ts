@@ -10,9 +10,9 @@ export async function acceptInvitation(formData: FormData) {
   const tokenHash = createHash("sha256")
     .update(requiredString(formData, "token"))
     .digest("hex");
-  const { error } = await supabase.rpc("accept_student_invitation", {
+  const { data, error } = await supabase.rpc("accept_student_invitation", {
     invitation_token_hash: tokenHash,
   });
-  if (error) redirect("/invitations/accept?error=invalid");
+  if (error || !data) redirect("/invitations/accept?error=invalid");
   redirect("/dashboard");
 }

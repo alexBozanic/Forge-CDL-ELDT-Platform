@@ -22,3 +22,31 @@ done
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f supabase/seed.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/rls.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/phase_two.sql
+
+# Exercise redemption from two genuinely concurrent PostgreSQL sessions. The
+# first transaction holds its successful redemption open while the second waits.
+psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/concurrent-invitation-setup.sql
+first_output="$(mktemp)"
+second_output="$(mktemp)"
+trap 'rm -f "${first_output}" "${second_output}"' EXIT
+(
+  psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -Atq >"${first_output}" <<'SQL'
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '40000000-0000-4000-8000-000000000001', true);
+select public.accept_student_invitation(repeat('7', 64));
+select pg_sleep(1);
+commit;
+SQL
+) &
+first_pid=$!
+sleep 0.1
+psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -Atq >"${second_output}" <<'SQL'
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '40000000-0000-4000-8000-000000000001', true);
+select public.accept_student_invitation(repeat('7', 64));
+commit;
+SQL
+wait "${first_pid}"
+psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/concurrent-invitation-assert.sql
