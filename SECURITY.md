@@ -16,6 +16,7 @@
 - Security-definer helpers use a fixed empty search path and schema-qualified names.
 - Audit history is update/delete-denied to application roles.
 - Development data is obviously fake and contains no SSNs or live credentials.
+- Student profile reads and writes require an active tenant-matched membership; suspended and removed memberships no longer authorize profile access.
 
 ## Required future controls
 
@@ -34,3 +35,5 @@ Authentication implementation is intentionally deferred. Before adding it, verif
 ## Testing standard
 
 Tenant isolation requires real PostgreSQL tests using separate `anon` and `authenticated` identities with realistic `auth.uid()` values. Unit mocks do not count. Hosted Supabase Auth/API behavior remains unverified until tested against a Supabase local stack or isolated hosted test project.
+
+The PostgreSQL integration suite also covers cross-school writes, attempts by a school administrator to grant platform-administrator access, and access after membership suspension/removal. This is PostgreSQL policy and constraint evidence, not evidence about Supabase Auth, JWT issuance, or PostgREST configuration.

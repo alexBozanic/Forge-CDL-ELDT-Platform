@@ -6,10 +6,12 @@
 - [x] Initial tenant schema, deny-by-default grants, RLS, composite tenant FK, and audit controls.
 - [x] Two-school fake seed model and database integration test specification.
 - [x] CI workflow and reproducible commands.
-- [ ] Generate and commit a verified dependency lockfile when registry access is available.
-- [ ] Run install, lint, type check, and production build when registry access is available.
-- [ ] Run migrations/tests against local Supabase or PostgreSQL when a runtime is available.
+- [x] Generate and commit a dependency lockfile; validate it against the installed package store with frozen-lockfile mode.
+- [x] Run install, formatting, lint, type check, and production build in the reset environment.
+- [x] Run migrations, fake seeds, and RLS integration tests from a clean local PostgreSQL 16 database.
 - [ ] Revalidate dependency versions and Supabase SSR behavior against current official sources.
+- [ ] Visually inspect desktop/mobile layouts when browser automation is available.
+- [ ] Exercise Auth, JWT, and API behavior using a local Supabase stack or isolated hosted test project.
 
 ## Next phase: invitation and organization vertical slice
 

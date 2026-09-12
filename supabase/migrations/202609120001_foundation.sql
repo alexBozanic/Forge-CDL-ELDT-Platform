@@ -207,6 +207,12 @@ alter table public.organization_memberships enable row level security;
 alter table public.student_profiles enable row level security;
 alter table public.audit_events enable row level security;
 
+alter table public.organizations force row level security;
+alter table public.platform_administrators force row level security;
+alter table public.organization_memberships force row level security;
+alter table public.student_profiles force row level security;
+alter table public.audit_events force row level security;
+
 create policy organizations_select_authorized
 on public.organizations for select to authenticated
 using (
@@ -231,7 +237,10 @@ on public.student_profiles for select to authenticated
 using (
   private.is_platform_administrator()
   or private.has_organization_role(organization_id, array['school_admin']::public.organization_role[])
-  or user_id = auth.uid()
+  or (
+    user_id = auth.uid()
+    and private.has_organization_role(organization_id, array['student']::public.organization_role[])
+  )
 );
 
 create policy student_profiles_update_self

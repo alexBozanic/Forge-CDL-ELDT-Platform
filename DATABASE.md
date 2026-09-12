@@ -15,7 +15,7 @@ UUIDs identify records but do not authorize access. Memberships and profiles use
 
 ## Authorization
 
-All public tables enable and force RLS. Grants are revoked from `public` and `anon`; `authenticated` receives only the minimum table privileges that RLS can further constrain. Membership and platform-role writes have no client policy. School administrators can read active records in their school; students can read their own membership, organization, and profile. Students may update limited fields on their own profile, but database triggers prevent tenant/user key changes.
+All public tables enable and force RLS. Grants are revoked from `public` and `anon`; `authenticated` receives only the minimum table privileges that RLS can further constrain. Membership and platform-role writes have no client policy. Active school administrators can read records in their school; active students can read their own organization and profile. A user can still read their own membership row so its lifecycle state can be determined, but suspended and removed memberships authorize no tenant or profile access. Active students may update limited fields on their own profile, while database triggers prevent tenant/user key changes.
 
 Authorization predicates are `SECURITY DEFINER` functions in the non-exposed `private` schema. Each has an empty, fixed `search_path`, schema-qualified names, stable volatility where valid, and execute privileges only for authenticated application users. Functions rely on `auth.uid()` and stored grants, never role data supplied by a client. A protected trigger additionally requires every student profile to reference a tenant-matched membership whose role is actually `student`.
 
