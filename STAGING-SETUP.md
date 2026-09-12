@@ -2,9 +2,49 @@
 
 This procedure is required to validate behavior that plain PostgreSQL tests cannot cover. Use a disposable local or hosted Supabase project containing only `.example.invalid` identities and demonstration content. Do not use a production project, real student records, or a real email delivery provider.
 
-## Project configuration
+## Current hosted test-project state
 
-1. Apply `supabase/migrations/*.sql` in filename order. Do **not** apply `supabase/seed.sql`: it is a plain-PostgreSQL development fixture that includes a preselected fake platform administrator and is not an Auth-account bootstrap.
+As of 2026-09-12, the empty test project `uooiziwxmuzdbdcxblox` at
+`https://uooiziwxmuzdbdcxblox.supabase.co` has migrations `202609120001`,
+`202609120002`, and `202609120003` manually applied from saved commit
+`9f435699642b38454c11b96f84f90b7a1f7cf65c` through SQL Editor. The editor's
+**Run and enable RLS** option also enabled RLS on
+`private.invitation_redemption_limits`. No seed, Auth user, membership, sample
+record, application public-key configuration, or hosted Auth/PostgREST test has
+been applied. Migrations `202609120004` and `202609120005` remain pending there.
+
+SQL Editor execution may not have populated `supabase_migrations.schema_migrations`.
+Before any linked CLI push, do **not** rerun the three create-table migrations or
+reset the project. First retrieve the exact three files from the saved commit,
+compare their SHA-256 values with the executed artifacts and this branch, and
+inspect both migration history and representative schema state:
+
+```bash
+sha256sum supabase/migrations/20260912000{1,2,3}_*.sql
+supabase migration list --linked
+```
+
+```sql
+select version, name from supabase_migrations.schema_migrations order by version;
+select n.nspname, c.relname, c.relrowsecurity
+from pg_class c join pg_namespace n on n.oid = c.relnamespace
+where (n.nspname, c.relname) in
+  (('private', 'invitation_redemption_limits'),
+   ('public', 'invitations'), ('public', 'enrollments'))
+order by 1, 2;
+```
+
+Only after the file hashes and inspected schema agree should an operator use the
+installed Supabase CLI's documented migration-repair command to mark exactly
+`202609120001`, `202609120002`, and `202609120003` as applied. Re-run
+`supabase migration list --linked`, review the resulting diff so it contains only
+the pending forward migrations, and then apply `202609120004` followed by
+`202609120005`. Record the hashes and command output in the private deployment
+log. Do not hand-insert migration-history rows or use `db reset` on this project.
+
+## New disposable project configuration
+
+1. For a new empty project only, apply `supabase/migrations/*.sql` in filename order. Do **not** use this step on the partially initialized hosted project described above. Do **not** apply `supabase/seed.sql`: it is a plain-PostgreSQL development fixture that includes a preselected fake platform administrator and is not an Auth-account bootstrap.
 2. Set the Auth site URL to the application origin and allow exactly these redirect URLs:
    - `http://localhost:3000/auth/confirm`
    - the corresponding HTTPS staging origin `/auth/confirm`

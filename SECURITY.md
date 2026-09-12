@@ -27,6 +27,7 @@
 - Enrollments require active tenant-matched students and assignments, pin the assignment's published immutable course version, use a tenant composite key, and are idempotent per student/assignment.
 - Signup grants no application role. Confirmation and recovery use Supabase APIs, fixed internal callback destinations, generic account-disclosure-resistant responses, and server actions protected by Next.js origin checks.
 - Acceptance rechecks that the issuing platform/school administrator and organization are still active. A private per-user 15-minute redemption counter limits authenticated guessing without storing guesses; deployment-level IP/risk rate limiting remains required.
+- The private redemption counter has RLS enabled with no client policy and retains explicit grant revocation. Only the narrow owner-executed invitation function accesses it; PostgreSQL regression tests exercise redemption and concurrency with this protection enabled.
 - The first platform administrator is established only by a one-time, confirmed-user, trusted-database script that refuses an existing installation and writes an audit event. Only platform administrators can invite school administrators.
 
 ## Course delivery controls

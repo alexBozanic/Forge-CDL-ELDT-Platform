@@ -152,6 +152,9 @@ reset role;
 select pg_temp.assert_true((select attempt_count = 11
   from private.invitation_redemption_limits
   where user_id = '30000000-0000-4000-8000-000000000002'), 'redemption attempts were not rate limited');
+select pg_temp.assert_true((select relrowsecurity from pg_class
+  where oid = 'private.invitation_redemption_limits'::regclass),
+  'invitation redemption limits RLS was not enabled');
 select pg_temp.assert_true((select status = 'pending' from public.invitations
   where token_hash = repeat('4', 64)), 'rate limiting consumed an invitation');
 

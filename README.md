@@ -69,6 +69,11 @@ The first platform administrator is a controlled database bootstrap, not an appl
 
 See `STAGING-SETUP.md` for exact disposable-project configuration and `scripts/test-supabase-e2e.mjs` for Auth/PostgREST verification that must run when Supabase services are available.
 
+The hosted disposable project currently contains only the first three manually
+applied migrations plus SQL-Editor-enabled RLS on the private redemption counter.
+Its migration history must be reconciled and verified before applying later
+forward migrations; it has not run hosted Auth, PostgREST, email, or browser tests.
+
 ## Versioned lesson delivery
 
 Platform administrators author draft course versions at `/platform/courses`, add ordered modules and original Markdown lesson text, preview the safely rendered result, and record a content-review decision against the exact manifest hash. Any draft edit changes the hash and stales the earlier approval. Publication requires a current approval and freezes version metadata, ordering, content, and manifest membership; a revision starts a new version.
