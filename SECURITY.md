@@ -17,6 +17,9 @@
 - Audit history is update/delete-denied to application roles.
 - Development data is obviously fake and contains no SSNs or live credentials.
 - Student profile reads and writes require an active tenant-matched membership; suspended and removed memberships no longer authorize profile access.
+- Application responses deny framing through CSP `frame-ancestors` and the legacy
+  frame header, disable MIME sniffing, limit referrer detail, and deny unused
+  camera, geolocation, microphone, payment, and USB browser capabilities.
 
 ## Phase 2 controls
 
@@ -45,6 +48,10 @@
 - Operations: configure Auth abuse protection and edge/IP rate limits, monitor invitation failures, and rehearse account recovery.
 - Curriculum governance: define and verify formal reviewer qualifications and theory-unit blueprint content. Existing review records are software workflow evidence only.
 - Assessments use private RLS-protected answer keys and attempt payloads, server selection/grading, exact persisted option order, row locks, and integer threshold comparisons. Students cannot select their score or read submitted final payloads.
+- Browser roles cannot select submitted assessment-answer rows. Administrators
+  receive aggregate attempt outcomes and tenant-authorized transcripts instead,
+  preventing answer selections and correctness flags from becoming an indirect
+  answer-key channel.
 - Completion checks pinned lesson prerequisites and a passing final in one idempotent transaction, then freezes identity/provider/course/attempt snapshots. Corrections append records instead of rewriting history.
 - Reporting keeps needs-attention, ready, submitted, accepted, and rejected distinct, requires actor/time/reason events, performs no FMCSA call, and neutralizes spreadsheet formulas in tenant-scoped CSV exports.
 - Storage: private buckets, tenant-aware authorization, short-lived signed URLs, restricted content types and sizes.

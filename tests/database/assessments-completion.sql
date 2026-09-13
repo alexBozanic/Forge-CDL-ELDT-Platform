@@ -72,7 +72,9 @@ select pg_temp.expect_invalid_submission(:'first_attempt',jsonb_build_object(
    'd6430000-0000-4000-8000-000000000001','d6630000-0000-4000-8000-000000000001',
    'd6440000-0000-4000-8000-000000000001','d6640000-0000-4000-8000-000000000001',
    'd6450000-0000-4000-8000-000000000001','d6650000-0000-4000-8000-000000000001'));
+reset role;
 select pg_temp.assert_true(not exists(select 1 from public.assessment_answers where attempt_id=:'first_attempt'),'invalid answers were partially persisted');
+set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
 -- 3/5 = 60, below the exact 80 threshold.
 select public.submit_assessment(:'first_attempt',jsonb_build_object(
 'd6410000-0000-4000-8000-000000000001','d6610000-0000-4000-8000-000000000001',

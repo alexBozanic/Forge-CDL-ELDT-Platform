@@ -48,6 +48,13 @@ hosted staging, send real email, or use real identities.
   order, invalid/foreign options, expired attempts, submitted replay, revoked
   memberships, transcript isolation, lesson timestamps, every attempt, pinned
   version/hash, immutable snapshots, and correction/reporting history.
+- Release hardening now emits and production-smoke-tests anti-framing, no-sniff,
+  referrer, and least-capability permissions headers. Browser roles can no longer
+  select submitted assessment answers; aggregate outcomes remain available.
+- The checked-in inspection-only 004-007 bundle passed exact-inventory/hash,
+  transaction-boundary, missing/unexpected file, mismatch, and no-mutation-command
+  tests. Its read-only SQL still requires a trusted operator to verify the actual
+  hosted target and archive evidence.
 
 ## External blockers
 
@@ -60,6 +67,8 @@ hosted staging, send real email, or use real identities.
   replay migrations.
 - Hosted Auth/PostgREST/email/browser, backup/restore, and deployment remain
   release gates even after local PostgreSQL and build checks pass.
+- Actual-browser keyboard, screen-reader, responsive, and print inspection could
+  not run because this environment has no browser automation executable.
 
 ## Resume instructions
 

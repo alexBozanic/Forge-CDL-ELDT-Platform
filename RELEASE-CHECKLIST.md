@@ -13,6 +13,10 @@ Passing local checks establishes software evidence only. It does not establish c
 - [x] Exercise tenant-isolated printable transcripts, immutable snapshots,
       persisted randomization, invalid/foreign options, expiry, replay, and
       revoked memberships in PostgreSQL.
+- [x] Verify production responses emit anti-framing, no-sniff, referrer, and
+      least-capability permissions headers.
+- [x] Produce and refusal-test an inspection-only 004-007 migration bundle with
+      exact hashes, source provenance, and read-only hosted verification SQL.
 
 ## Operations and privacy
 

@@ -49,6 +49,7 @@ select pg_temp.assert_true((public.get_training_transcript(:'completion_id')->'l
 select pg_temp.assert_true(jsonb_array_length(public.get_training_transcript(:'completion_id')->'attempts')=1,'transcript omitted attempts');
 select pg_temp.assert_true((public.get_training_transcript(:'completion_id')->'attempts'->0->>'score_percent')::integer=100,'transcript score is wrong');
 select pg_temp.assert_true(public.get_training_transcript(:'completion_id')->'completion'->'student_identity_snapshot'->>'legal_first_name'='Avery','transcript did not use immutable identity snapshot');
+do $$ begin begin perform count(*) from public.assessment_answers; raise exception 'administrator read submitted answers'; exception when insufficient_privilege then null; end; end $$;
 reset role;
 
 -- A foreign tenant and a revoked school administrator receive no transcript.

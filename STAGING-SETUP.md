@@ -16,34 +16,44 @@ there. Migration 007 adds the tenant-authorized transcript read and must be
 included in reconciliation tooling that previously knew only five migrations.
 
 SQL Editor execution may not have populated `supabase_migrations.schema_migrations`.
-Before any linked CLI push, do **not** rerun the three create-table migrations or
-reset the project. First retrieve the exact three files from the saved commit,
-compare their SHA-256 values with the executed artifacts and this branch, and
-inspect both migration history and representative schema state:
+The repository therefore provides an inspection-only offline bundle in
+`release/staging-migration-bundle`. Regenerate it with the command below; the
+generator refuses changed, missing, or unexpected migrations and has no network,
+database, history-repair, or push path:
 
 ```bash
-sha256sum supabase/migrations/20260912000{1,2,3}_*.sql
-supabase migration list --linked
+pnpm test:migration-bundle
+./scripts/prepare-staging-migration-bundle.sh
 ```
 
-```sql
-select version, name from supabase_migrations.schema_migrations order by version;
-select n.nspname, c.relname, c.relrowsecurity
-from pg_class c join pg_namespace n on n.oid = c.relnamespace
-where (n.nspname, c.relname) in
-  (('private', 'invitation_redemption_limits'),
-   ('public', 'invitations'), ('public', 'enrollments'))
-order by 1, 2;
-```
+Its source manifest records the exact hashes for all seven migrations and the
+hosted 001-003 provenance commit. Files 004-007 remain separate and retain their
+own transaction boundaries. The bundle is evidence for review, not an executable
+claim that the hosted schema matches.
 
-Only after the file hashes and inspected schema agree should an operator use the
-installed Supabase CLI's documented migration-repair command to mark exactly
-`202609120001`, `202609120002`, and `202609120003` as applied. Re-run
-`supabase migration list --linked`, review the resulting diff so it contains only
-the pending forward migrations, and then apply `202609120004`, `202609120005`, `202609120006`, and finally
-`202609120007`. Record the hashes and command output in the
-private deployment log. Do not hand-insert migration-history rows or use `db reset`
-on this project.
+### Controlled operator gates
+
+There is intentionally no repository script that repairs migration history or
+pushes this bundle. A trusted operator must complete and archive each gate before
+choosing any mutation command from current official tooling documentation:
+
+1. Open project `uooiziwxmuzdbdcxblox` in the Supabase dashboard and independently
+   confirm that the connection endpoint used by the trusted SQL session belongs
+   to that project. A CLI link plus an environment variable is not proof of target.
+2. Run `verify-hosted-schema-read-only.sql` in that explicitly verified session.
+   It begins a read-only transaction and rolls back. Review migration history,
+   expected 001-003 objects, forced RLS state, and security-definer routines.
+3. Compare the original SQL Editor artifacts for 001-003 with commit
+   `9f435699642b38454c11b96f84f90b7a1f7cf65c` and the manifest hashes. Schema
+   inspection alone cannot prove source equivalence. Stop on any uncertainty.
+4. Obtain human approval for a specific migration-history reconciliation plan.
+   Inspect history again after reconciliation and stop unless only reviewed
+   migrations 004-007 are pending in filename order.
+5. Review and apply each pending file separately, retaining its `begin`/`commit`
+   boundary. Re-run the read-only verification and archive all output privately.
+
+Never hand-insert migration-history rows, use `db reset`, rely on confirmation
+environment strings, or allow an automated script to repair history and then push.
 
 ## New disposable project configuration
 
