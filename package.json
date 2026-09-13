@@ -16,6 +16,7 @@
     "format:check": "prettier --check .",
     "test:headers": "bash scripts/test-http-security-headers.sh",
     "test:migration-bundle": "bash scripts/test-staging-migration-bundle.sh",
+    "test:restore-local": "bash scripts/rehearse-local-backup-restore.sh",
     "test:db": "bash scripts/test-database.sh"
   },
   "dependencies": {

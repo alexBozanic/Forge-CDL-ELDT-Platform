@@ -5,7 +5,8 @@ Passing local checks establishes software evidence only. It does not establish c
 ## Code and database
 
 - [ ] Review every forward migration and verify hosted migration hashes/history.
-- [ ] Apply pending migrations to a disposable project without seed/reset.
+- [x] Operator-reported application of exact release migrations 004-007 to the
+      disposable hosted project without seed/reset; migration history remains absent.
 - [x] Pass frozen install, format, lint, typecheck, clean PostgreSQL suites, and build locally.
 - [ ] Run two-school Auth/PostgREST assessment and reporting tests with fake users.
 - [ ] Confirm answer keys and submitted final payloads are absent from browser APIs.
@@ -21,6 +22,8 @@ Passing local checks establishes software evidence only. It does not establish c
 ## Operations and privacy
 
 - [ ] Configure Auth/email abuse controls using a non-delivering test inbox.
+- [x] Rehearse dump/restore with representative fake fixtures between separate
+      disposable local PostgreSQL databases and verify schema, RLS, grants, and history.
 - [ ] Complete backup and point-in-time restore rehearsal with documented evidence.
 - [ ] Approve retention/deletion rules, audit monitoring, incident response, and secret scanning.
 - [ ] Verify no SSN field, service-role key, invitation secret, or answer key is collected/logged.

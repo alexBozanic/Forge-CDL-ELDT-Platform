@@ -52,7 +52,7 @@ d93b3492bcd1f9b6c3c9fe5571c40651e7a9cac139020b68022f983866059da3  202609120004_c
 9758f15fd85ad2ef79bc32059b44384978a478ce1d57ce59ae9496621d80017a  202609120006_assessments_completion_reporting.sql
 bcf7565ac5536215dede126fe4c952ab0324cff45226ec6f3bfe4bc5326a00dc  202609120007_training_transcripts.sql
 
-Pending files 004-007 retain their own BEGIN/COMMIT transaction boundaries and must be reviewed and applied individually, in filename order, only after the controlled gates in STAGING-SETUP.md.
+Release files 004-007 retain their own BEGIN/COMMIT transaction boundaries. An operator reports they were manually applied on 2026-09-13; do not replay them. Follow the controlled gates and current state in STAGING-SETUP.md.
 No command in this bundle repairs migration history, pushes migrations, or derives authorization from environment-string assertions.
 EOF
 

@@ -4,9 +4,22 @@ begin transaction read only;
 select current_database() as connected_database, current_user as connected_user,
   inet_server_addr() as server_address, inet_server_port() as server_port;
 
-select version, name
-from supabase_migrations.schema_migrations
-order by version;
+do $inspection$
+declare history record;
+begin
+  if to_regclass('supabase_migrations.schema_migrations') is null then
+    raise notice 'migration_history=absent (expected after manual SQL Editor execution; no repair attempted)';
+  else
+    raise notice 'migration_history=present';
+    for history in execute
+      'select version::text as version, coalesce(name::text, '''') as name
+       from supabase_migrations.schema_migrations order by version'
+    loop
+      raise notice 'migration_version=% migration_name=%', history.version, history.name;
+    end loop;
+  end if;
+end
+$inspection$;
 
 select expected.schema_name, expected.relation_name,
   to_regclass(format('%I.%I', expected.schema_name, expected.relation_name)) is not null as exists,

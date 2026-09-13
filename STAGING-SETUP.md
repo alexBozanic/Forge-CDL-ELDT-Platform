@@ -4,18 +4,30 @@ This procedure is required to validate behavior that plain PostgreSQL tests cann
 
 ## Current hosted test-project state
 
-As of 2026-09-12, the empty test project `uooiziwxmuzdbdcxblox` at
+The 001-003 provenance remains: the test project `uooiziwxmuzdbdcxblox` at
 `https://uooiziwxmuzdbdcxblox.supabase.co` has migrations `202609120001`,
 `202609120002`, and `202609120003` manually applied from saved commit
 `9f435699642b38454c11b96f84f90b7a1f7cf65c` through SQL Editor. The editor's
 **Run and enable RLS** option also enabled RLS on
 `private.invitation_redemption_limits`. No seed, Auth user, membership, sample
-record, application public-key configuration, or hosted Auth/PostgREST test has
-been applied. Migrations `202609120004` through `202609120007` remain pending
-there. Migration 007 adds the tenant-authorized transcript read and must be
-included in reconciliation tooling that previously knew only five migrations.
+record, application public-key configuration, or hosted Auth/PostgREST test had
+been applied at that checkpoint.
 
-SQL Editor execution may not have populated `supabase_migrations.schema_migrations`.
+**Operator-reported evidence, 2026-09-13:** with explicit user approval, an
+authenticated operator applied the exact migrations 004-007 from release commit
+`7a56c600511d74cc4cadbe5365612d972dc681bd` individually through the Supabase SQL
+Editor; each returned `Success`. A fresh read-only query then reported all 28
+public and all 3 private application tables with RLS enabled, the transcript RPC
+present, anonymous execution denied, authenticated execution allowed, and
+authenticated `SELECT` on `assessment_answers` denied. It also reported zero Auth
+users and zero completions. This is source-attributed hosted schema evidence, not
+execution performed by this local agent and not Auth/PostgREST/browser evidence.
+
+The `supabase_migrations.schema_migrations` table is absent because migrations
+were executed manually. Do not rerun 001-007, manufacture migration history,
+reset, seed, or reinterpret SQL Editor success as CLI reconciliation.
+
+SQL Editor execution did not populate `supabase_migrations.schema_migrations`.
 The repository therefore provides an inspection-only offline bundle in
 `release/staging-migration-bundle`. Regenerate it with the command below; the
 generator refuses changed, missing, or unexpected migrations and has no network,
@@ -46,11 +58,9 @@ choosing any mutation command from current official tooling documentation:
 3. Compare the original SQL Editor artifacts for 001-003 with commit
    `9f435699642b38454c11b96f84f90b7a1f7cf65c` and the manifest hashes. Schema
    inspection alone cannot prove source equivalence. Stop on any uncertainty.
-4. Obtain human approval for a specific migration-history reconciliation plan.
-   Inspect history again after reconciliation and stop unless only reviewed
-   migrations 004-007 are pending in filename order.
-5. Review and apply each pending file separately, retaining its `begin`/`commit`
-   boundary. Re-run the read-only verification and archive all output privately.
+4. Stop. Migration-history reconciliation is a separate future operator decision;
+   it is not required for preview configuration and is not authorized here. The
+   already-applied migrations must not be replayed.
 
 Never hand-insert migration-history rows, use `db reset`, rely on confirmation
 environment strings, or allow an automated script to repair history and then push.
@@ -97,6 +107,9 @@ NEXT_PUBLIC_SITE_URL
 ```
 
 `NEXT_PUBLIC_SITE_URL` must be an HTTPS origin in staging; HTTP is accepted only for `localhost` or `127.0.0.1`. Do not add a service-role key to the application environment.
+
+For the exact Vercel Preview procedure, commit pinning, callbacks, and fake Auth
+account prerequisites, follow `VERCEL-PREVIEW.md`.
 
 ## Automated Auth/PostgREST test
 

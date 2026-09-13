@@ -59,7 +59,7 @@
 
 ## Sessions
 
-The implementation follows the locally installed `@supabase/ssr` source and type declarations rather than inventing an authentication API. Public project coordinates are the only browser-safe configuration. Online official documentation remained unavailable, and neither a local Supabase CLI nor a hosted test project was available; therefore Auth password flows, JWT issuance/refresh, cookie flags, PostgREST RPC exposure, and email verification still require end-to-end confirmation before a real pilot.
+The implementation follows the locally installed `@supabase/ssr` source and type declarations rather than inventing an authentication API. Public project coordinates are the only browser-safe configuration. The hosted disposable schema has now been inspected, but the project has no Auth users or completed Auth/PostgREST flow. Auth password flows, JWT issuance/refresh, cookie flags, PostgREST RPC exposure, and email verification still require end-to-end confirmation with confirmed fake identities and a non-delivering inbox before a real pilot.
 
 ## Testing standard
 
