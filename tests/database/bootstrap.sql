@@ -14,7 +14,8 @@ create schema if not exists auth;
 
 create table if not exists auth.users (
   id uuid primary key,
-  email text unique
+  email text unique,
+  email_confirmed_at timestamptz
 );
 
 create or replace function auth.uid()
