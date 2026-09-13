@@ -208,8 +208,12 @@ export default async function ReportingPage({
                   </ul>
                 </details>
                 <p>
-                  Use the browser print command for a human-readable transcript
-                  of this immutable history.
+                  <Link
+                    className="button secondary"
+                    href={`/schools/${slug}/reporting/${completion?.id}`}
+                  >
+                    View printable training transcript
+                  </Link>
                 </p>
               </article>
             );

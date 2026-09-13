@@ -1,5 +1,6 @@
 begin;
 create or replace function pg_temp.assert_true(ok boolean, message text) returns void language plpgsql as $$ begin if not coalesce(ok,false) then raise exception 'assertion failed: %',message; end if; end $$;
+create or replace function pg_temp.expect_invalid_submission(attempt_id uuid, answers jsonb) returns void language plpgsql as $$ begin begin perform public.submit_assessment(attempt_id,answers); raise exception 'invalid assessment submission was accepted'; exception when sqlstate '22023' then null; end; end $$;
 
 -- A new version carries assessment content; the already-published seed version remains untouched.
 insert into public.course_versions(id,course_id,version_number,status,manifest_hash,title,description,created_by)
@@ -53,9 +54,25 @@ set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000
 do $$ begin begin perform public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000001'); raise exception 'final opened before prerequisites'; exception when sqlstate '55000' then null; end; end $$;
 select public.record_lesson_interaction('d6800000-0000-4000-8000-000000000001','d6200000-0000-4000-8000-000000000001','completed',0,'d6900000-0000-4000-8000-000000000002');
 select (public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000003')->>'attempt_id')::uuid as first_attempt \gset
+select public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000003')->'questions' as replayed_questions \gset
 reset role;
 select pg_temp.assert_true((select jsonb_array_length(selected_questions)=5 from private.assessment_attempt_payloads where attempt_id=:'first_attempt'),'blueprint did not select exact question count');
+select pg_temp.assert_true((select selected_questions=:'replayed_questions'::jsonb from private.assessment_attempt_payloads where attempt_id=:'first_attempt'),'idempotent start did not preserve randomized question and option order');
 set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
+-- A same-version option for a different question and an unselected question are rejected atomically.
+select pg_temp.expect_invalid_submission(:'first_attempt',jsonb_build_object(
+   'd6410000-0000-4000-8000-000000000001','d6620000-0000-4000-8000-000000000001',
+   'd6420000-0000-4000-8000-000000000001','d6620000-0000-4000-8000-000000000001',
+   'd6430000-0000-4000-8000-000000000001','d6630000-0000-4000-8000-000000000001',
+   'd6440000-0000-4000-8000-000000000001','d6640000-0000-4000-8000-000000000001',
+   'd6450000-0000-4000-8000-000000000001','d6650000-0000-4000-8000-000000000001'));
+select pg_temp.expect_invalid_submission(:'first_attempt',jsonb_build_object(
+   '00000000-0000-4000-8000-000000000001','d6610000-0000-4000-8000-000000000001',
+   'd6420000-0000-4000-8000-000000000001','d6620000-0000-4000-8000-000000000001',
+   'd6430000-0000-4000-8000-000000000001','d6630000-0000-4000-8000-000000000001',
+   'd6440000-0000-4000-8000-000000000001','d6640000-0000-4000-8000-000000000001',
+   'd6450000-0000-4000-8000-000000000001','d6650000-0000-4000-8000-000000000001'));
+select pg_temp.assert_true(not exists(select 1 from public.assessment_answers where attempt_id=:'first_attempt'),'invalid answers were partially persisted');
 -- 3/5 = 60, below the exact 80 threshold.
 select public.submit_assessment(:'first_attempt',jsonb_build_object(
 'd6410000-0000-4000-8000-000000000001','d6610000-0000-4000-8000-000000000001',
@@ -64,6 +81,7 @@ select public.submit_assessment(:'first_attempt',jsonb_build_object(
 'd6440000-0000-4000-8000-000000000001','d6540000-0000-4000-8000-000000000001',
 'd6450000-0000-4000-8000-000000000001','d6550000-0000-4000-8000-000000000001'));
 select pg_temp.assert_true((select status='failed' and score_percent=60 from public.assessment_attempts where id=:'first_attempt'),'below-threshold score was wrong');
+select pg_temp.assert_true(public.submit_assessment(:'first_attempt','{}'::jsonb)->>'status'='failed','submitted-attempt replay changed the result');
 select pg_temp.assert_true(public.get_assessment_attempt(:'first_attempt')->'questions'='null'::jsonb,'submitted final payload remained student-readable');
 select pg_temp.assert_true(not exists(select 1 from public.course_completions where enrollment_id='d6800000-0000-4000-8000-000000000001'),'failed attempt completed enrollment');
 -- Retake at exactly 4/5 = 80 passes and creates one completion/needs-attention record.
@@ -88,6 +106,21 @@ select public.submit_assessment(:'high_attempt',jsonb_build_object(
 select pg_temp.assert_true((select status='passed' and score_percent=100 from public.assessment_attempts where id=:'high_attempt'),'above-threshold score was wrong');
 select pg_temp.assert_true((select count(*)=1 from public.course_completions where enrollment_id='d6800000-0000-4000-8000-000000000001'),'retake duplicated completion');
 reset role;
+
+-- Expiry is server-enforced, and revoked memberships cannot read or start attempts.
+set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
+select (public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000006')->>'attempt_id')::uuid as expired_attempt \gset
+reset role;
+update public.assessment_attempts set expires_at=statement_timestamp()-interval '1 second' where id=:'expired_attempt';
+set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
+select pg_temp.assert_true(public.submit_assessment(:'expired_attempt','{}'::jsonb)->>'status'='expired','expired attempt was accepted');
+reset role;
+update public.organization_memberships set status='suspended' where organization_id='aaaaaaaa-0000-4000-8000-000000000001' and user_id='10000000-0000-4000-8000-000000000002';
+set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
+select pg_temp.assert_true(public.get_assessment_attempt(:'expired_attempt') is null,'revoked membership retained attempt access');
+do $$ begin begin perform public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000007'); raise exception 'revoked membership started attempt'; exception when insufficient_privilege then null; end; end $$;
+reset role;
+update public.organization_memberships set status='active' where organization_id='aaaaaaaa-0000-4000-8000-000000000001' and user_id='10000000-0000-4000-8000-000000000002';
 
 -- Keys are inaccessible and another tenant cannot see or mutate Northstar history.
 set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);

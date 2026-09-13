@@ -49,6 +49,13 @@ Students can read modules and lessons only through their own active, pinned enro
 
 `course_completions` is unique per tenant enrollment and snapshots identity, provider, manifest hash, and qualifying attempt. `reporting_records` is the mutable current queue projection while `reporting_events` and `completion_corrections` are append-only history. Required reporting fields are never synthesized. Manual submission and external acceptance/rejection are separate transitions.
 
+The seventh migration adds a narrow tenant-authorized transcript function for
+active school administrators and platform administrators. It assembles the
+pinned version and manifest, immutable completion identity/provider snapshot,
+published lesson hashes and completion timestamps, every append-only assessment
+attempt, and correction/reporting history. It returns no question payload,
+selected answer, or answer-key data.
+
 ## Planned immutable records
 
 Later curriculum/completion migrations will add formal review workflow/qualification records, theory-unit coverage blueprints, protected answer keys, assessment attempt snapshots, completion reporting-identity/provider snapshots, append-only corrections, and distinct TPR event states. These requirements are architectural constraints, not placeholders that may be weakened for development.

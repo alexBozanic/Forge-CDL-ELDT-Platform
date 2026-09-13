@@ -10,6 +10,9 @@ Passing local checks establishes software evidence only. It does not establish c
 - [ ] Run two-school Auth/PostgREST assessment and reporting tests with fake users.
 - [ ] Confirm answer keys and submitted final payloads are absent from browser APIs.
 - [x] Exercise concurrent invitation redemption and concurrent final submit/completion in PostgreSQL sessions.
+- [x] Exercise tenant-isolated printable transcripts, immutable snapshots,
+      persisted randomization, invalid/foreign options, expiry, replay, and
+      revoked memberships in PostgreSQL.
 
 ## Operations and privacy
 

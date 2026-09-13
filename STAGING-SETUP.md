@@ -11,7 +11,9 @@ As of 2026-09-12, the empty test project `uooiziwxmuzdbdcxblox` at
 **Run and enable RLS** option also enabled RLS on
 `private.invitation_redemption_limits`. No seed, Auth user, membership, sample
 record, application public-key configuration, or hosted Auth/PostgREST test has
-been applied. Migrations `202609120004`, `202609120005`, and `202609120006` remain pending there.
+been applied. Migrations `202609120004` through `202609120007` remain pending
+there. Migration 007 adds the tenant-authorized transcript read and must be
+included in reconciliation tooling that previously knew only five migrations.
 
 SQL Editor execution may not have populated `supabase_migrations.schema_migrations`.
 Before any linked CLI push, do **not** rerun the three create-table migrations or
@@ -38,8 +40,8 @@ Only after the file hashes and inspected schema agree should an operator use the
 installed Supabase CLI's documented migration-repair command to mark exactly
 `202609120001`, `202609120002`, and `202609120003` as applied. Re-run
 `supabase migration list --linked`, review the resulting diff so it contains only
-the pending forward migrations, and then apply `202609120004` followed by
-`202609120005`, then `202609120006`. Record the hashes and command output in the
+the pending forward migrations, and then apply `202609120004`, `202609120005`, `202609120006`, and finally
+`202609120007`. Record the hashes and command output in the
 private deployment log. Do not hand-insert migration-history rows or use `db reset`
 on this project.
 
