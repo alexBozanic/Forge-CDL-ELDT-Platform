@@ -43,10 +43,10 @@
 ## Required future controls
 
 - Operations: configure Auth abuse protection and edge/IP rate limits, monitor invitation failures, and rehearse account recovery.
-- Curriculum: formal reviewer qualification/workflow requirements, theory-unit coverage blueprints, and protected-schema answer keys.
-- Assessments: server selection and grading; required blueprint coverage; persisted option ordering; idempotency keys and row locks; exact integer threshold comparisons.
-- Completion: transactional prerequisite checks and unique completion; immutable reporting identity/provider snapshots; append-only corrections.
-- Reporting: distinct ready/submitted/accepted/needs-attention/rejected/corrected events; no inferred acceptance; tenant-safe exports and CSV formula neutralization.
+- Curriculum governance: define and verify formal reviewer qualifications and theory-unit blueprint content. Existing review records are software workflow evidence only.
+- Assessments use private RLS-protected answer keys and attempt payloads, server selection/grading, exact persisted option order, row locks, and integer threshold comparisons. Students cannot select their score or read submitted final payloads.
+- Completion checks pinned lesson prerequisites and a passing final in one idempotent transaction, then freezes identity/provider/course/attempt snapshots. Corrections append records instead of rewriting history.
+- Reporting keeps needs-attention, ready, submitted, accepted, and rejected distinct, requires actor/time/reason events, performs no FMCSA call, and neutralizes spreadsheet formulas in tenant-scoped CSV exports.
 - Storage: private buckets, tenant-aware authorization, short-lived signed URLs, restricted content types and sizes.
 - Operations: secret scanning, dependency review, rate limits, PII redaction, backups, restore exercises, retention rules, and audited school export.
 

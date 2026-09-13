@@ -96,6 +96,59 @@ export async function saveLesson(formData: FormData) {
   revalidatePath(`/platform/courses/${versionId}`);
 }
 
+export async function addAssessment(formData: FormData) {
+  const versionId = requiredString(formData, "versionId");
+  await rpc("add_assessment", {
+    target_version_id: versionId,
+    target_lesson_id:
+      formData.get("kind") === "lesson_quiz"
+        ? requiredString(formData, "lessonId")
+        : null,
+    assessment_kind: requiredString(formData, "kind"),
+    assessment_title: requiredString(formData, "title"),
+    assessment_position: Number(requiredString(formData, "position")),
+    assessment_question_count: Number(
+      requiredString(formData, "questionCount"),
+    ),
+    assessment_passing_percent: Number(
+      requiredString(formData, "passingPercent"),
+    ),
+    assessment_time_limit_minutes: Number(
+      requiredString(formData, "timeLimit"),
+    ),
+  });
+  revalidatePath(`/platform/courses/${versionId}`);
+}
+
+export async function addAssessmentTopic(formData: FormData) {
+  const versionId = requiredString(formData, "versionId");
+  await rpc("add_assessment_topic", {
+    target_version_id: versionId,
+    target_assessment_id: requiredString(formData, "assessmentId"),
+    assessment_topic_code: requiredString(formData, "topicCode"),
+    topic_required_count: Number(requiredString(formData, "requiredCount")),
+  });
+  revalidatePath(`/platform/courses/${versionId}`);
+}
+
+export async function addAssessmentQuestion(formData: FormData) {
+  const versionId = requiredString(formData, "versionId");
+  const options = requiredString(formData, "options")
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  await rpc("add_assessment_question", {
+    target_version_id: versionId,
+    target_assessment_id: requiredString(formData, "assessmentId"),
+    question_topic_code: requiredString(formData, "topicCode"),
+    question_prompt: requiredString(formData, "prompt"),
+    question_rationale: requiredString(formData, "rationale"),
+    option_texts: options,
+    correct_option_number: Number(requiredString(formData, "correctOption")),
+  });
+  revalidatePath(`/platform/courses/${versionId}`);
+}
+
 export async function reviewVersion(formData: FormData) {
   const versionId = requiredString(formData, "versionId");
   await rpc("review_course_version", {

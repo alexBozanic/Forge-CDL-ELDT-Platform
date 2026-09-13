@@ -108,6 +108,24 @@ values
   )
 on conflict (id) do nothing;
 
+insert into public.assessments (
+  id, course_version_id, kind, title, position, question_count, passing_percent, time_limit_minutes
+) values (
+  '72000000-0000-4000-8000-000000000001', 'dddddddd-0000-4000-8000-000000000001',
+  'final_exam', 'Demonstration software final', 1, 1, 80, 10
+);
+insert into public.assessment_blueprint_topics (course_version_id, assessment_id, topic_code, required_count)
+values ('dddddddd-0000-4000-8000-000000000001', '72000000-0000-4000-8000-000000000001', 'demo_boundary', 1);
+insert into public.assessment_questions (id, course_version_id, assessment_id, topic_code, prompt)
+values ('72100000-0000-4000-8000-000000000001', 'dddddddd-0000-4000-8000-000000000001',
+  '72000000-0000-4000-8000-000000000001', 'demo_boundary',
+  'Does completing this demonstration assessment establish certification or regulatory approval?');
+insert into public.assessment_options (id, course_version_id, question_id, option_text) values
+  ('72200000-0000-4000-8000-000000000001', 'dddddddd-0000-4000-8000-000000000001', '72100000-0000-4000-8000-000000000001', 'Yes'),
+  ('72200000-0000-4000-8000-000000000002', 'dddddddd-0000-4000-8000-000000000001', '72100000-0000-4000-8000-000000000001', 'No; it is fake software-test content only');
+insert into private.assessment_answer_keys (course_version_id, question_id, correct_option_id)
+values ('dddddddd-0000-4000-8000-000000000001', '72100000-0000-4000-8000-000000000001', '72200000-0000-4000-8000-000000000002');
+
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
 select public.review_course_version(

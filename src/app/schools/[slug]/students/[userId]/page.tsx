@@ -34,6 +34,8 @@ export default async function StudentDetailPage({
     { data: assignments },
     { data: progress },
     { data: lessons },
+    { data: attempts },
+    { data: completions },
   ] = await Promise.all([
     supabase
       .from("organization_memberships")
@@ -68,6 +70,21 @@ export default async function StudentDetailPage({
       .eq("organization_id", organization.id)
       .eq("student_user_id", userId),
     supabase.from("course_lessons").select("id, title"),
+    supabase
+      .from("assessment_attempts")
+      .select(
+        "id, enrollment_id, attempt_number, status, score_percent, question_count, correct_count, started_at, submitted_at, assessments(title, kind)",
+      )
+      .eq("organization_id", organization.id)
+      .eq("student_user_id", userId)
+      .order("started_at", { ascending: false }),
+    supabase
+      .from("course_completions")
+      .select(
+        "id, enrollment_id, completed_at, course_manifest_hash, reporting_ready, readiness_issues",
+      )
+      .eq("organization_id", organization.id)
+      .eq("student_user_id", userId),
   ]);
   if (!membership) notFound();
   const lessonTitles = new Map(
@@ -129,6 +146,48 @@ export default async function StudentDetailPage({
                     ) : (
                       <p>No lesson interactions recorded.</p>
                     )}
+                    {(attempts ?? [])
+                      .filter(
+                        (attempt) => attempt.enrollment_id === enrollment.id,
+                      )
+                      .map((attempt) => {
+                        const assessment = Array.isArray(attempt.assessments)
+                          ? attempt.assessments[0]
+                          : attempt.assessments;
+                        return (
+                          <p key={attempt.id}>
+                            {assessment?.title ?? "Assessment"} attempt{" "}
+                            {attempt.attempt_number}: {attempt.status}
+                            {attempt.score_percent === null
+                              ? ""
+                              : ` · ${attempt.score_percent}% (${attempt.correct_count}/${attempt.question_count})`}{" "}
+                            · started{" "}
+                            {new Date(attempt.started_at).toLocaleString()}
+                            {attempt.submitted_at
+                              ? ` · submitted ${new Date(attempt.submitted_at).toLocaleString()}`
+                              : ""}
+                          </p>
+                        );
+                      })}
+                    {(completions ?? [])
+                      .filter(
+                        (completion) =>
+                          completion.enrollment_id === enrollment.id,
+                      )
+                      .map((completion) => (
+                        <div className="notice" key={completion.id}>
+                          <strong>Software completion snapshot</strong>
+                          <span>
+                            {new Date(completion.completed_at).toLocaleString()}{" "}
+                            · manifest {completion.course_manifest_hash} ·
+                            reporting{" "}
+                            {completion.reporting_ready
+                              ? "ready"
+                              : "needs attention"}
+                            . External submission and acceptance are separate.
+                          </span>
+                        </div>
+                      ))}
                   </article>
                 );
               })}

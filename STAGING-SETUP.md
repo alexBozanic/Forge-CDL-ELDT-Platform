@@ -11,7 +11,7 @@ As of 2026-09-12, the empty test project `uooiziwxmuzdbdcxblox` at
 **Run and enable RLS** option also enabled RLS on
 `private.invitation_redemption_limits`. No seed, Auth user, membership, sample
 record, application public-key configuration, or hosted Auth/PostgREST test has
-been applied. Migrations `202609120004` and `202609120005` remain pending there.
+been applied. Migrations `202609120004`, `202609120005`, and `202609120006` remain pending there.
 
 SQL Editor execution may not have populated `supabase_migrations.schema_migrations`.
 Before any linked CLI push, do **not** rerun the three create-table migrations or
@@ -39,8 +39,9 @@ installed Supabase CLI's documented migration-repair command to mark exactly
 `202609120001`, `202609120002`, and `202609120003` as applied. Re-run
 `supabase migration list --linked`, review the resulting diff so it contains only
 the pending forward migrations, and then apply `202609120004` followed by
-`202609120005`. Record the hashes and command output in the private deployment
-log. Do not hand-insert migration-history rows or use `db reset` on this project.
+`202609120005`, then `202609120006`. Record the hashes and command output in the
+private deployment log. Do not hand-insert migration-history rows or use `db reset`
+on this project.
 
 ## New disposable project configuration
 
@@ -103,6 +104,7 @@ STAGING_WRONG_PASSWORD
 STAGING_ORGANIZATION_ID
 STAGING_ASSIGNMENT_ID
 STAGING_SECOND_ASSIGNMENT_ID
+STAGING_ASSESSMENT_ANSWERS
 ```
 
 Run once against the disposable project:
@@ -111,6 +113,8 @@ Run once against the disposable project:
 node scripts/test-supabase-e2e.mjs
 ```
 
-The script verifies real password token issuance, confirmed Auth users, platform-to-school-admin invitation, school-admin-to-student invitation, wrong-email and replay rejection, pinned enrollment/manifest visibility through RLS, idempotent lesson interaction through PostgREST, cross-tenant assignment denial, invitation-hash denial, and token refresh. It never prints passwords or invitation tokens. Because it consumes invitations and creates memberships/enrollment/progress, reset the disposable database before repeating it.
+`STAGING_ASSESSMENT_ANSWERS` is an untracked JSON object mapping the staged final's selected question UUIDs to option UUIDs. Treat it as test answer-key material and never print or commit it.
+
+The script verifies real password token issuance, confirmed Auth users, platform-to-school-admin invitation, school-admin-to-student invitation, wrong-email and replay rejection, pinned enrollment/manifest visibility through RLS, idempotent lesson interactions, prerequisite-gated server assessment start/scoring, protected-schema denial, completion/reporting visibility, cross-tenant assignment denial, invitation-hash denial, and token refresh. It never prints passwords, invitation tokens, or submitted answers. Because it consumes invitations and creates memberships, enrollment, progress, attempts, completion, and reporting state, use a fresh disposable project dataset before repeating it; do not reset the partially initialized shared test project without an explicit reviewed recovery plan.
 
 Manually exercise `/signup`, the local confirmation message, `/auth/confirm`, `/login`, `/invitations/accept`, `/password/recover`, and `/password/update` to verify the configured email templates and browser cookie flow. Those browser/email-template checks are not performed by the Node script.

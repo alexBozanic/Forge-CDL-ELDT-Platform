@@ -41,6 +41,14 @@ Demo content can be published only when an active explicitly demo-classified sch
 
 Students can read modules and lessons only through their own active, pinned enrollment and its materialized manifest. `record_lesson_interaction` derives student and tenant identity from `auth.uid()`, rejects mismatched lessons/enrollments, and uses a tenant-scoped idempotency key. Progress stores actual open/resume/completion-interaction timestamps; events explicitly carry `{"interaction_only":true}` and cannot create course completion or reporting state.
 
+## Assessments, completion, and reporting
+
+`assessments`, `assessment_blueprint_topics`, `assessment_questions`, and `assessment_options` belong to one course version and enter its canonical hash. `private.assessment_answer_keys` has RLS enabled and no browser-role grants. Publication validates exact blueprint counts, question availability, at least two options, and one private key per question before materializing assessment membership.
+
+`assessment_attempts` stores status, threshold, timing, counts, and immutable outcome. `private.assessment_attempt_payloads` stores the exact randomized question and option order; a narrow RPC returns it only to the owning active student while the attempt is open. `assessment_answers` is append-only and stores the server-derived correctness result. Grading compares `correct * 100 >= threshold * total`; a final cannot configure a threshold below 80.
+
+`course_completions` is unique per tenant enrollment and snapshots identity, provider, manifest hash, and qualifying attempt. `reporting_records` is the mutable current queue projection while `reporting_events` and `completion_corrections` are append-only history. Required reporting fields are never synthesized. Manual submission and external acceptance/rejection are separate transitions.
+
 ## Planned immutable records
 
 Later curriculum/completion migrations will add formal review workflow/qualification records, theory-unit coverage blueprints, protected answer keys, assessment attempt snapshots, completion reporting-identity/provider snapshots, append-only corrections, and distinct TPR event states. These requirements are architectural constraints, not placeholders that may be weakened for development.

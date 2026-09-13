@@ -82,6 +82,12 @@ School administrators can create or withdraw assignments from existing published
 
 `pnpm test:db` verifies authoring roles, stale reviews, publication gates, immutability, demo/non-demo boundaries, enrollment pin persistence, tenant/lesson authorization, suspended access, idempotent interaction events, timestamps, and append-only history against PostgreSQL. Actual Supabase Auth/PostgREST/email and browser flows remain the separate staging gate documented in `STAGING-SETUP.md`.
 
+## Assessments and manual reporting
+
+Published versions may include lesson quizzes and a final assessment with explicit topic-count blueprints. The database selects questions and randomizes option order when an attempt starts, stores that exact payload in the private schema, and performs all scoring. Required lesson interactions gate final starts. Submitted answers and attempts are immutable, retakes create new attempts, and exact integer arithmetic applies the configured threshold; final thresholds cannot be below 80 percent.
+
+A qualifying final creates one immutable software completion and reporting snapshot. Missing existing reporting fields produces a needs-attention record rather than invented data. School administrators can prepare the record, explicitly record manual submission and later acceptance/rejection, print history, or export tenant-filtered formula-neutralized CSV. None of these states claims certification, provider eligibility, curriculum approval, or automatic TPR transmission.
+
 ## Documentation
 
 - `ARCHITECTURE.md` — system boundaries and permanent decisions

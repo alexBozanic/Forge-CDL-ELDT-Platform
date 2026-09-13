@@ -1,0 +1,30 @@
+# Software MVP release-readiness checklist
+
+Passing local checks establishes software evidence only. It does not establish curriculum approval, provider eligibility, state eligibility, certification, or authorization to use real student data.
+
+## Code and database
+
+- [ ] Review every forward migration and verify hosted migration hashes/history.
+- [ ] Apply pending migrations to a disposable project without seed/reset.
+- [x] Pass frozen install, format, lint, typecheck, clean PostgreSQL suites, and build locally.
+- [ ] Run two-school Auth/PostgREST assessment and reporting tests with fake users.
+- [ ] Confirm answer keys and submitted final payloads are absent from browser APIs.
+- [x] Exercise concurrent invitation redemption and concurrent final submit/completion in PostgreSQL sessions.
+
+## Operations and privacy
+
+- [ ] Configure Auth/email abuse controls using a non-delivering test inbox.
+- [ ] Complete backup and point-in-time restore rehearsal with documented evidence.
+- [ ] Approve retention/deletion rules, audit monitoring, incident response, and secret scanning.
+- [ ] Verify no SSN field, service-role key, invitation secret, or answer key is collected/logged.
+
+## Product and accessibility
+
+- [ ] Keyboard and screen-reader walkthrough for onboarding, lessons, assessments, and reporting.
+- [ ] Inspect narrow mobile and desktop layouts in actual supported browsers.
+- [ ] Review empty/loading/error/expired-attempt states with fake data.
+- [ ] Obtain separate curriculum, provider, and state eligibility decisions outside this software checklist.
+
+## Explicitly prohibited for this review
+
+- Production deployment, merge, paid purchase, real email, real student records, automated FMCSA submission, or claims of compliance/approval/readiness.

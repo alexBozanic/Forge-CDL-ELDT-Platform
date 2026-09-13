@@ -143,6 +143,11 @@ export default async function SchoolPage({
     >
       <p className="kicker">School administration · Demonstration only</p>
       <h1>{organization.name}</h1>
+      <p>
+        <Link className="button secondary" href={`/schools/${slug}/reporting`}>
+          Completion and manual reporting queue
+        </Link>
+      </p>
       <div className="admin-grid">
         <section className="panel">
           <h2>Students</h2>

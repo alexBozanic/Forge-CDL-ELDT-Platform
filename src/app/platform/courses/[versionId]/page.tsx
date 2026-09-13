@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { SafeMarkdown } from "@/components/safe-markdown";
 import { getAuthorizationContext } from "@/lib/auth";
 import {
+  addAssessment,
+  addAssessmentQuestion,
+  addAssessmentTopic,
   addLesson,
   addModule,
   publishVersion,
@@ -20,40 +23,64 @@ export default async function CourseVersionPage({
   const { versionId } = await params;
   const { supabase, isPlatformAdministrator } = await getAuthorizationContext();
   if (!isPlatformAdministrator) notFound();
-  const [versionResult, modulesResult, lessonsResult, reviewsResult] =
-    await Promise.all([
-      supabase
-        .from("course_versions")
-        .select(
-          "id, course_id, version_number, title, description, status, manifest_hash, retirement_reason",
-        )
-        .eq("id", versionId)
-        .single(),
-      supabase
-        .from("course_modules")
-        .select("id, title, position")
-        .eq("course_version_id", versionId)
-        .order("position"),
-      supabase
-        .from("course_lessons")
-        .select(
-          "id, module_id, title, body_markdown, position, estimated_minutes",
-        )
-        .eq("course_version_id", versionId)
-        .order("position"),
-      supabase
-        .from("curriculum_reviews")
-        .select("id, manifest_hash, decision, notes, reviewed_at")
-        .eq("course_version_id", versionId)
-        .order("reviewed_at", { ascending: false }),
-    ]);
+  const [
+    versionResult,
+    modulesResult,
+    lessonsResult,
+    reviewsResult,
+    assessmentsResult,
+    topicsResult,
+  ] = await Promise.all([
+    supabase
+      .from("course_versions")
+      .select(
+        "id, course_id, version_number, title, description, status, manifest_hash, retirement_reason",
+      )
+      .eq("id", versionId)
+      .single(),
+    supabase
+      .from("course_modules")
+      .select("id, title, position")
+      .eq("course_version_id", versionId)
+      .order("position"),
+    supabase
+      .from("course_lessons")
+      .select(
+        "id, module_id, title, body_markdown, position, estimated_minutes",
+      )
+      .eq("course_version_id", versionId)
+      .order("position"),
+    supabase
+      .from("curriculum_reviews")
+      .select("id, manifest_hash, decision, notes, reviewed_at")
+      .eq("course_version_id", versionId)
+      .order("reviewed_at", { ascending: false }),
+    supabase
+      .from("assessments")
+      .select(
+        "id, lesson_id, kind, title, position, question_count, passing_percent, time_limit_minutes",
+      )
+      .eq("course_version_id", versionId)
+      .order("position"),
+    supabase
+      .from("assessment_blueprint_topics")
+      .select("assessment_id, topic_code, required_count")
+      .eq("course_version_id", versionId),
+  ]);
   if (versionResult.error || !versionResult.data) notFound();
-  for (const result of [modulesResult, lessonsResult, reviewsResult])
+  for (const result of [
+    modulesResult,
+    lessonsResult,
+    reviewsResult,
+    assessmentsResult,
+    topicsResult,
+  ])
     if (result.error) throw result.error;
   const version = versionResult.data;
   const modules = modulesResult.data ?? [];
   const lessons = lessonsResult.data ?? [];
   const reviews = reviewsResult.data ?? [];
+  const assessments = assessmentsResult.data ?? [];
   const isDraft = version.status === "draft";
   return (
     <main className="container main" id="main-content">
@@ -236,6 +263,171 @@ export default async function CourseVersionPage({
               <button className="button">Add module</button>
             </form>
           ) : null}
+          <section className="panel">
+            <h2>Assessments</h2>
+            <p>
+              Question prompts are published with the exact manifest. Correct
+              options remain in the private schema and are never sent to
+              students.
+            </p>
+            {assessments.map((assessment) => (
+              <article className="gate" key={assessment.id}>
+                <h3>{assessment.title}</h3>
+                <p>
+                  {assessment.kind.replace("_", " ")} · select{" "}
+                  {assessment.question_count} · pass{" "}
+                  {assessment.passing_percent}% ·{" "}
+                  {assessment.time_limit_minutes} minutes
+                </p>
+                <p>
+                  Blueprint:{" "}
+                  {(topicsResult.data ?? [])
+                    .filter((topic) => topic.assessment_id === assessment.id)
+                    .map(
+                      (topic) => `${topic.topic_code}: ${topic.required_count}`,
+                    )
+                    .join(", ") || "not configured"}
+                </p>
+                {isDraft ? (
+                  <>
+                    <form action={addAssessmentTopic} className="inline-form">
+                      <input
+                        type="hidden"
+                        name="versionId"
+                        value={version.id}
+                      />
+                      <input
+                        type="hidden"
+                        name="assessmentId"
+                        value={assessment.id}
+                      />
+                      <input
+                        name="topicCode"
+                        pattern="[a-z0-9]+(?:_[a-z0-9]+)*"
+                        placeholder="topic_code"
+                        required
+                      />
+                      <input
+                        name="requiredCount"
+                        type="number"
+                        min="1"
+                        placeholder="Required"
+                        required
+                      />
+                      <button className="text-button">Add topic</button>
+                    </form>
+                    <form action={addAssessmentQuestion} className="form-stack">
+                      <input
+                        type="hidden"
+                        name="versionId"
+                        value={version.id}
+                      />
+                      <input
+                        type="hidden"
+                        name="assessmentId"
+                        value={assessment.id}
+                      />
+                      <label>
+                        Topic code
+                        <input name="topicCode" required />
+                      </label>
+                      <label>
+                        Prompt
+                        <textarea name="prompt" required />
+                      </label>
+                      <label>
+                        Options, one per line
+                        <textarea name="options" rows={4} required />
+                      </label>
+                      <label>
+                        Correct option number
+                        <input
+                          name="correctOption"
+                          type="number"
+                          min="1"
+                          required
+                        />
+                      </label>
+                      <label>
+                        Review rationale (not shown during final)
+                        <textarea name="rationale" required />
+                      </label>
+                      <button className="button">
+                        Add immutable-version question
+                      </button>
+                    </form>
+                  </>
+                ) : null}
+              </article>
+            ))}
+            {isDraft ? (
+              <form action={addAssessment} className="form-stack">
+                <input type="hidden" name="versionId" value={version.id} />
+                <h3>Add assessment</h3>
+                <label>
+                  Title
+                  <input name="title" required />
+                </label>
+                <label>
+                  Kind
+                  <select name="kind">
+                    <option value="lesson_quiz">Lesson quiz</option>
+                    <option value="final_exam">Final exam</option>
+                  </select>
+                </label>
+                <label>
+                  Lesson for quiz
+                  <select name="lessonId">
+                    <option value="">
+                      None (required only for lesson quiz)
+                    </option>
+                    {lessons.map((lesson) => (
+                      <option key={lesson.id} value={lesson.id}>
+                        {lesson.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="inline-form">
+                  <label>
+                    Position
+                    <input name="position" type="number" min="1" required />
+                  </label>
+                  <label>
+                    Questions selected
+                    <input
+                      name="questionCount"
+                      type="number"
+                      min="1"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Pass percent
+                    <input
+                      name="passingPercent"
+                      type="number"
+                      min="1"
+                      max="100"
+                      defaultValue="80"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Minutes
+                    <input
+                      name="timeLimit"
+                      type="number"
+                      min="1"
+                      max="240"
+                      required
+                    />
+                  </label>
+                </div>
+                <button className="button">Add assessment</button>
+              </form>
+            ) : null}
+          </section>
         </section>
         <aside className="panel review-sidebar">
           <h2>Review record</h2>

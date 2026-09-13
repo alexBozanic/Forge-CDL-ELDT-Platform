@@ -25,35 +25,68 @@ export default async function StudentCoursePage({
     .eq("student_user_id", user.id)
     .single();
   if (!enrollment) notFound();
-  const [versionResult, modulesResult, lessonsResult, progressResult] =
-    await Promise.all([
-      supabase
-        .from("course_versions")
-        .select("id, title, description, version_number, manifest_hash")
-        .eq("id", enrollment.course_version_id)
-        .single(),
-      supabase
-        .from("course_modules")
-        .select("id, title, position")
-        .eq("course_version_id", enrollment.course_version_id)
-        .order("position"),
-      supabase
-        .from("course_version_manifest_lessons")
-        .select(
-          "lesson_id, module_id, manifest_position, course_lessons(title, estimated_minutes)",
-        )
-        .eq("course_version_id", enrollment.course_version_id)
-        .order("manifest_position"),
-      supabase
-        .from("lesson_progress")
-        .select(
-          "lesson_id, status, resume_position, last_opened_at, completed_at, updated_at",
-        )
-        .eq("enrollment_id", enrollment.id)
-        .order("updated_at", { ascending: false }),
-    ]);
+  const [
+    versionResult,
+    modulesResult,
+    lessonsResult,
+    progressResult,
+    assessmentsResult,
+    attemptsResult,
+    completionResult,
+  ] = await Promise.all([
+    supabase
+      .from("course_versions")
+      .select("id, title, description, version_number, manifest_hash")
+      .eq("id", enrollment.course_version_id)
+      .single(),
+    supabase
+      .from("course_modules")
+      .select("id, title, position")
+      .eq("course_version_id", enrollment.course_version_id)
+      .order("position"),
+    supabase
+      .from("course_version_manifest_lessons")
+      .select(
+        "lesson_id, module_id, manifest_position, course_lessons(title, estimated_minutes)",
+      )
+      .eq("course_version_id", enrollment.course_version_id)
+      .order("manifest_position"),
+    supabase
+      .from("lesson_progress")
+      .select(
+        "lesson_id, status, resume_position, last_opened_at, completed_at, updated_at",
+      )
+      .eq("enrollment_id", enrollment.id)
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("assessments")
+      .select(
+        "id, title, kind, lesson_id, position, question_count, passing_percent",
+      )
+      .eq("course_version_id", enrollment.course_version_id)
+      .order("position"),
+    supabase
+      .from("assessment_attempts")
+      .select(
+        "id, assessment_id, attempt_number, status, score_percent, submitted_at",
+      )
+      .eq("enrollment_id", enrollment.id)
+      .order("started_at", { ascending: false }),
+    supabase
+      .from("course_completions")
+      .select("id, completed_at, reporting_ready, readiness_issues")
+      .eq("enrollment_id", enrollment.id)
+      .maybeSingle(),
+  ]);
   if (versionResult.error || !versionResult.data) notFound();
-  for (const result of [modulesResult, lessonsResult, progressResult])
+  for (const result of [
+    modulesResult,
+    lessonsResult,
+    progressResult,
+    assessmentsResult,
+    attemptsResult,
+    completionResult,
+  ])
     if (result.error) throw result.error;
   const progress = new Map(
     (progressResult.data ?? []).map((item) => [item.lesson_id, item]),
@@ -136,6 +169,69 @@ export default async function StudentCoursePage({
           </article>
         ))}
       </section>
+      <section>
+        <h2>Assessments</h2>
+        {assessmentsResult.data?.length ? (
+          <div className="list-stack">
+            {assessmentsResult.data.map((assessment) => {
+              const latest = attemptsResult.data?.find(
+                (attempt) => attempt.assessment_id === assessment.id,
+              );
+              const destination =
+                latest?.status === "in_progress"
+                  ? `/schools/${slug}/courses/${enrollment.id}/attempts/${latest.id}`
+                  : `/schools/${slug}/courses/${enrollment.id}/assessments/${assessment.id}`;
+              return (
+                <article className="gate" key={assessment.id}>
+                  <h3>{assessment.title}</h3>
+                  <p>
+                    {assessment.kind.replace("_", " ")} ·{" "}
+                    {assessment.question_count} questions ·{" "}
+                    {assessment.passing_percent}% required
+                  </p>
+                  {latest ? (
+                    <p>
+                      Latest attempt {latest.attempt_number}: {latest.status}
+                      {latest.score_percent === null
+                        ? ""
+                        : ` · ${latest.score_percent}%`}
+                    </p>
+                  ) : (
+                    <p>No attempt recorded.</p>
+                  )}
+                  <Link className="button secondary" href={destination}>
+                    {latest?.status === "in_progress"
+                      ? "Resume attempt"
+                      : "Start another attempt"}
+                  </Link>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <h3>No assessment in this version</h3>
+            <p>
+              Assessment content is version-specific and cannot be added after
+              publication.
+            </p>
+          </div>
+        )}
+      </section>
+      {completionResult.data ? (
+        <section className="notice">
+          <strong>Software course completion recorded</strong>
+          <span>
+            {new Date(completionResult.data.completed_at).toLocaleString()}.
+            This is separate from certification and external TPR submission or
+            acceptance. Reporting readiness:{" "}
+            {completionResult.data.reporting_ready
+              ? "ready for manual review"
+              : "needs attention"}
+            .
+          </span>
+        </section>
+      ) : null}
     </main>
   );
 }

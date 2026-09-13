@@ -41,10 +41,11 @@
 
 ### Remaining curriculum and completion work
 
-- [ ] Immutable curriculum versions, exact-manifest reviews, retirement metadata, and theory-unit coverage blueprints.
-- [ ] Add separate protected answer keys when assessment authoring begins.
-- [ ] Learning progress, assessments, exact attempt reconstruction, grading, and idempotent completion.
-- [ ] Immutable completion identity/provider snapshots and append-only corrections.
-- [ ] Explicit manual TPR submission, acceptance, rejection/needs-attention, and correction events.
-- [ ] Tenant-safe transcript and CSV export.
+- [x] Immutable curriculum versions, exact-manifest reviews, retirement metadata, and explicit topic coverage blueprints.
+- [x] Add separate RLS-protected private answer keys and attempt payloads.
+- [x] Add server-selected assessment attempts, persisted random order, private scoring, retakes, prerequisites, and exact 80-percent boundary tests.
+- [x] Add atomic idempotent completion with immutable identity/provider/course/attempt snapshots and append-only corrections.
+- [x] Add explicit manual reporting readiness, submission, acceptance/rejection, and immutable status events without an FMCSA API.
+- [x] Add tenant-safe printable reporting history and CSV export with formula-injection neutralization.
+- [ ] Verify the assessment/completion/reporting path through hosted Auth/PostgREST with fake users.
 - [ ] Backup, restore, retention, accessibility, and two-school pilot evidence.

@@ -387,6 +387,20 @@ a:focus-visible {
   justify-content: space-between;
   gap: 1rem;
 }
+.assessment-reader {
+  max-width: 52rem;
+}
+.answer-option {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.7rem;
+  margin: 0.65rem 0;
+}
+.answer-option input[type="radio"] {
+  flex: 0 0 auto;
+  margin-top: 0.25rem;
+  width: auto;
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -419,5 +433,17 @@ a:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .spinner {
     animation: none;
+  }
+}
+@media print {
+  header,
+  .button,
+  form {
+    display: none !important;
+  }
+  .panel,
+  .notice {
+    break-inside: avoid;
+    box-shadow: none;
   }
 }

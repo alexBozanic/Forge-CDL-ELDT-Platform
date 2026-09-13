@@ -15,6 +15,7 @@ const required = [
   "STAGING_ORGANIZATION_ID",
   "STAGING_ASSIGNMENT_ID",
   "STAGING_SECOND_ASSIGNMENT_ID",
+  "STAGING_ASSESSMENT_ANSWERS",
 ];
 for (const name of required) {
   if (!process.env[name]) throw new Error(`Missing ${name}`);
@@ -127,9 +128,8 @@ const { data: manifestLessons, error: manifestError } = await student
   .from("course_version_manifest_lessons")
   .select("lesson_id, manifest_position")
   .eq("course_version_id", enrollments[0].course_version_id)
-  .order("manifest_position")
-  .limit(1);
-if (manifestError || manifestLessons?.length !== 1) {
+  .order("manifest_position");
+if (manifestError || !manifestLessons?.length) {
   throw new Error("Pinned lesson manifest was not visible through RLS");
 }
 const interactionKey = globalThis.crypto.randomUUID();
@@ -146,6 +146,17 @@ for (let attempt = 0; attempt < 2; attempt += 1) {
   );
   if (interactionError) throw new Error("Lesson interaction RPC failed");
 }
+for (const lesson of manifestLessons) {
+  const { error } = await student.rpc("record_lesson_interaction", {
+    target_enrollment_id: enrollments[0].id,
+    target_lesson_id: lesson.lesson_id,
+    target_interaction_type: "completed",
+    target_resume_position: 0,
+    request_idempotency_key: globalThis.crypto.randomUUID(),
+  });
+  if (error)
+    throw new Error("Pinned lesson prerequisite could not be recorded");
+}
 const { data: interactionEvents, error: eventsError } = await student
   .from("lesson_interaction_events")
   .select("id")
@@ -154,6 +165,57 @@ const { data: interactionEvents, error: eventsError } = await student
 if (eventsError || interactionEvents?.length !== 1) {
   throw new Error("Lesson interaction idempotency failed through PostgREST");
 }
+
+const { data: finals, error: finalError } = await student
+  .from("assessments")
+  .select("id")
+  .eq("course_version_id", enrollments[0].course_version_id)
+  .eq("kind", "final_exam");
+if (finalError || finals?.length !== 1)
+  throw new Error("Pinned final assessment was not visible through RLS");
+const { data: started, error: startError } = await student.rpc(
+  "start_assessment",
+  {
+    target_enrollment_id: enrollments[0].id,
+    target_assessment_id: finals[0].id,
+    request_idempotency_key: globalThis.crypto.randomUUID(),
+  },
+);
+if (startError || !started?.attempt_id || !started?.questions?.length)
+  throw new Error("Final assessment start failed through PostgREST");
+if (JSON.stringify(started).includes("is_correct"))
+  throw new Error("Assessment start leaked correctness metadata");
+let stagingAnswers;
+try {
+  stagingAnswers = JSON.parse(process.env.STAGING_ASSESSMENT_ANSWERS);
+} catch {
+  throw new Error("STAGING_ASSESSMENT_ANSWERS must be valid untracked JSON");
+}
+const { data: result, error: submitError } = await student.rpc(
+  "submit_assessment",
+  { target_attempt_id: started.attempt_id, submitted_answers: stagingAnswers },
+);
+if (submitError || result?.status !== "passed")
+  throw new Error("Server-scored passing final failed through PostgREST");
+const { data: completions, error: completionError } = await student
+  .from("course_completions")
+  .select("id, course_manifest_hash, reporting_ready")
+  .eq("enrollment_id", enrollments[0].id);
+if (completionError || completions?.length !== 1)
+  throw new Error("Idempotent completion was not visible through RLS");
+for (const protectedTable of [
+  "assessment_answer_keys",
+  "assessment_attempt_payloads",
+]) {
+  const { error } = await student.from(protectedTable).select("*").limit(1);
+  if (!error) throw new Error(`${protectedTable} was browser-readable`);
+}
+const { data: reporting, error: reportingError } = await schoolAdmin
+  .from("reporting_records")
+  .select("id, status, completion_id")
+  .eq("completion_id", completions[0].id);
+if (reportingError || reporting?.length !== 1)
+  throw new Error("School reporting queue was not tenant-visible");
 
 const crossToken = randomBytes(32).toString("base64url");
 const { error: crossTenantError } = await schoolAdmin.rpc(
