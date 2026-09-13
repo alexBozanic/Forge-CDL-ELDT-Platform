@@ -42,6 +42,15 @@ the pending forward migrations, and then apply `202609120004` followed by
 `202609120005`. Record the hashes and command output in the private deployment
 log. Do not hand-insert migration-history rows or use `db reset` on this project.
 
+The reviewed hashes for this checkout and the guarded operator flow are encoded
+in `scripts/reconcile-staging-migrations.sh`. Run it with no arguments first; its
+default behavior verifies local hashes and prints linked history without changing
+anything. Run `scripts/staging-reconciliation-check.sql` in a trusted SQL session
+and retain that read-only output privately before satisfying the script's explicit
+`--apply` gates. The script stops rather than accepting an unreviewed migration
+set. It never accepts or prints a database password, access token, or service-role
+key.
+
 ## New disposable project configuration
 
 1. For a new empty project only, apply `supabase/migrations/*.sql` in filename order. Do **not** use this step on the partially initialized hosted project described above. Do **not** apply `supabase/seed.sql`: it is a plain-PostgreSQL development fixture that includes a preselected fake platform administrator and is not an Auth-account bootstrap.
