@@ -59,3 +59,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./scripts/test-database.sh
+      - name: Rehearse backup and restore in disposable PostgreSQL
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          docker exec "$POSTGRES_CONTAINER" mkdir -p /tmp/forge
+          for directory in scripts tests supabase release; do
+            docker cp "$directory" "$POSTGRES_CONTAINER:/tmp/forge/$directory"
+          done
+          docker exec -e PGHOST=/var/run/postgresql -e PGUSER=postgres \
+            "$POSTGRES_CONTAINER" bash -c \
+            'cd /tmp/forge && ./scripts/rehearse-local-backup-restore.sh'
