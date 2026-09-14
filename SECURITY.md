@@ -20,6 +20,9 @@
 - Application responses deny framing through CSP `frame-ancestors` and the legacy
   frame header, disable MIME sniffing, limit referrer detail, and deny unused
   camera, geolocation, microphone, payment, and USB browser capabilities.
+- Runtime dependencies pin current stable Next.js and `eslint-config-next` at
+  16.3.5 and React/React DOM at 19.3.0. The resolved lockfile passes frozen
+  installation, production audit with no high findings, and local production checks.
 
 ## Phase 2 controls
 

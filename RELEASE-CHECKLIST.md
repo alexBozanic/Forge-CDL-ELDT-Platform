@@ -4,8 +4,9 @@ Passing local checks establishes software evidence only. It does not establish c
 
 ## Code and database
 
-- [ ] Upgrade Next.js 15.5.2 and directly related packages to a currently patched
-      stable release through the approved registry; regenerate and freeze the lockfile.
+- [x] Upgrade Next.js and matching ESLint config to current stable 16.3.5,
+      React/React DOM 19.3.0, and compatible tooling through the approved registry;
+      regenerate the lockfile and pass frozen installation.
 - [ ] Review every forward migration and verify hosted migration hashes/history.
 - [x] Operator-reported application of exact release migrations 004-007 to the
       disposable hosted project without seed/reset; migration history remains absent.

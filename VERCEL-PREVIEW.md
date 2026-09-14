@@ -18,10 +18,11 @@ real email, real student data, or a claim of curriculum/provider/state approval.
 The connected project is `forge-cdl-eldt-platform` in team
 `alexbozanics-projects`. Keep its build-ignore guard restricted to
 `VERCEL_ENV=preview`. The 2026-09-14 Preview build compiled but was blocked before
-publication because pinned Next.js `15.5.2` was identified as vulnerable. Do not
-bypass that control or retry the preview until Next.js and its directly related
-packages have been upgraded through the approved registry, the lockfile has been
-regenerated normally, and all local checks pass.
+publication because pinned Next.js `15.5.2` was identified as vulnerable. The
+branch now pins current stable Next.js and matching ESLint config at `16.3.5`,
+with React/React DOM `19.3.0`; the lockfile and full local
+checks passed. Preserve the native Update-branch workflow and verify the new
+GitHub SHA before retrying this Preview. Do not bypass the Vercel control.
 
 ## Preview environment variables
 

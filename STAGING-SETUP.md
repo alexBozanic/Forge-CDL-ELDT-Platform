@@ -132,12 +132,19 @@ origin. Hosted migrations and data were not changed: 001-007 remain manually
 applied, migration history remains absent, and Auth users remain zero. Test-inbox
 and real-browser Auth workflows remain unverified.
 
-The local repair environment attempted one normal query to the official npm
-registry for current `next`, React, and `eslint-config-next` release metadata.
-The registry returned HTTP 403 before any package could be resolved. No unsafe
-flag, alternate registry, cached-version substitution, lockfile edit, or repeated
-download was attempted. Dependency repair and preview retry are blocked until
-normal approved registry access is available.
+With user-approved registry access restored on 2026-09-14, official npm registry
+metadata identified current stable Next.js and matching `eslint-config-next` as
+`16.3.5`, and React as `19.3.0`. A trial of the maintained Next.js 15 backport was
+rejected after production audit exposed high-severity vulnerable transitive
+packages; it was not committed. Dependencies were then resolved normally from
+`registry.npmjs.org`: Next.js and its ESLint config are 16.3.5; React, React DOM,
+and their types are 19.3.0; and plugin-compatible ESLint is 9.39.5. Next.js 16's
+native flat configs replaced the legacy compatibility adapter. The lockfile was
+regenerated normally, production audit reported no high findings, then a frozen
+install, format, lint,
+typecheck, full PostgreSQL suites, migration-bundle checks, local restore,
+production build, security headers, and public/Auth-route smoke all passed. This
+is local repair evidence; the Vercel Preview has not yet been retried or published.
 
 ## Automated Auth/PostgREST test
 

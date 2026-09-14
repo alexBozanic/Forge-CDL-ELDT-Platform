@@ -7,8 +7,8 @@ milestone descended from checkpoint `3218003`.
 
 Local implementation is complete through assessment delivery, completion, and
 manual reporting. Hosted migrations 004-007 are now operator-reported as manually
-applied. The next milestone is the external integration/readiness gate: configure
-a Vercel preview after the blocked Next.js dependency is safely upgraded,
+applied. The next milestone is the external integration/readiness gate: retry the configured
+Vercel preview after the completed Next.js dependency repair is saved remotely,
 provision fake Auth users and non-delivering email, run the staging runner, and
 inspect real browsers. Do not deploy to production, reset
 hosted staging, send real email, or use real identities.
@@ -77,11 +77,13 @@ hosted staging, send real email, or use real identities.
 - Actual-browser keyboard, screen-reader, responsive, and print inspection could
   not run because this environment has no browser automation executable.
 - The Vercel Preview compiled from the connected PR4 repository but was correctly
-  refused before publication because Next.js 15.5.2 is vulnerable. One official
-  npm registry metadata request returned HTTP 403, so no patched version could be
-  verified or installed and the lockfile was left unchanged. Approved registry
-  access is now the blocking prerequisite; do not bypass Vercel or substitute an
-  unverified version.
+  refused before publication because Next.js 15.5.2 was vulnerable. After registry
+  access changed, official npm metadata and production audit led to Next.js and its matching
+  config at current stable 16.3.5, React/React DOM and types at 19.3.0, and the
+  plugin-compatible ESLint 9.39.5 line. The legacy `@eslint/eslintrc` adapter was
+  removed for Next.js 16's native flat configs. Production audit reported no high
+  vulnerabilities; frozen install and all local release checks passed.
+  A native branch update and verified GitHub SHA are required before Preview retry.
 
 ## Resume instructions
 
