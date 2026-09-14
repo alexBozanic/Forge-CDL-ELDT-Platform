@@ -1,3 +1,4 @@
+import { recordTime } from "@/lib/record-time";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
@@ -63,7 +64,7 @@ type Transcript = {
 };
 
 function date(value: string | null) {
-  return value ? new Date(value).toLocaleString() : "Not recorded";
+  return recordTime(value);
 }
 
 function fullName(identity: Snapshot) {

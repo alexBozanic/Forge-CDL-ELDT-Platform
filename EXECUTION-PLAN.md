@@ -1,5 +1,9 @@
 # Forge MVP execution plan
 
+> Current continuation: read [CONTINUATION-CHECKPOINT.md](CONTINUATION-CHECKPOINT.md)
+> first. It records the 2026-09-14 PR4 profile milestone, hosted observations,
+> local repairs, and outstanding gates. The sections below retain earlier history.
+
 Updated: 2026-09-13. Resume from branch `work` after the transcript-validation
 milestone descended from checkpoint `3218003`.
 

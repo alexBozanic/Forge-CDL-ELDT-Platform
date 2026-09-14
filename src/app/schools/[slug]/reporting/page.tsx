@@ -1,3 +1,4 @@
+import { recordTime } from "@/lib/record-time";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
@@ -64,6 +65,10 @@ export default async function ReportingPage({
   }
   return (
     <main className="container main" id="main-content">
+      <nav className="inline-form" aria-label="Reporting navigation">
+        <Link href={`/schools/${slug}`}>School workspace</Link>
+        <Link href="/dashboard">Dashboard</Link>
+      </nav>
       <p className="kicker">{org.name} · Manual reporting</p>
       <h1>Completion and TPR work queue</h1>
       <div className="notice">
@@ -98,12 +103,19 @@ export default async function ReportingPage({
                 <p>
                   Completed{" "}
                   {completion?.completed_at
-                    ? new Date(completion.completed_at).toLocaleString()
+                    ? recordTime(completion.completed_at)
                     : "unknown"}{" "}
                   · version {version?.version_number}
                 </p>
                 <p>
                   Manifest <code>{completion?.course_manifest_hash}</code>
+                </p>
+                <p>
+                  <Link
+                    href={`/schools/${slug}/students/${completion?.student_user_id}`}
+                  >
+                    View or edit student profile
+                  </Link>
                 </p>
                 {record.status === "needs_attention" ? (
                   <>
@@ -224,8 +236,7 @@ export default async function ReportingPage({
                     {record.reporting_events?.map((event) => (
                       <li key={event.id}>
                         {event.from_status ?? "created"} → {event.to_status} ·{" "}
-                        {new Date(event.occurred_at).toLocaleString()} ·{" "}
-                        {event.reason}
+                        {recordTime(event.occurred_at)} · {event.reason}
                       </li>
                     ))}
                   </ul>

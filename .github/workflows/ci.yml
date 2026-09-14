@@ -25,6 +25,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test:authoring
+      - run: pnpm test:profiles
       - run: pnpm test:migration-bundle
       - run: pnpm build
       - name: Test production HTTP security headers

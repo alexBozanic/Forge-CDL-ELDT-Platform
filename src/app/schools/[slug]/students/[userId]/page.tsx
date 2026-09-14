@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { recordTime } from "@/lib/record-time";
 import { ProfileForm } from "../../profile/profile-form";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
@@ -99,6 +101,11 @@ export default async function StudentDetailPage({
   );
   return (
     <main className="container main" id="main-content">
+      <nav className="inline-form" aria-label="Student record navigation">
+        <Link href={`/schools/${slug}`}>School workspace</Link>
+        <Link href={`/schools/${slug}/reporting`}>Reporting queue</Link>
+        <Link href="/dashboard">Dashboard</Link>
+      </nav>
       <p className="kicker">{organization.name} · Student record</p>
       <h1>
         {profile
@@ -148,10 +155,10 @@ export default async function StudentDetailPage({
                               "Manifest lesson"}
                             : {item.status} · last opened{" "}
                             {item.last_opened_at
-                              ? new Date(item.last_opened_at).toLocaleString()
+                              ? recordTime(item.last_opened_at)
                               : "not recorded"}
                             {item.completed_at
-                              ? ` · interaction completed ${new Date(item.completed_at).toLocaleString()}`
+                              ? ` · interaction completed ${recordTime(item.completed_at)}`
                               : ""}
                           </li>
                         ))}
@@ -179,10 +186,9 @@ export default async function StudentDetailPage({
                             {attempt.score_percent === null
                               ? ""
                               : ` · ${attempt.score_percent}% (${attempt.correct_count}/${attempt.question_count})`}{" "}
-                            · started{" "}
-                            {new Date(attempt.started_at).toLocaleString()}
+                            · started {recordTime(attempt.started_at)}
                             {attempt.submitted_at
-                              ? ` · submitted ${new Date(attempt.submitted_at).toLocaleString()}`
+                              ? ` · submitted ${recordTime(attempt.submitted_at)}`
                               : ""}
                           </p>
                         );
@@ -196,9 +202,8 @@ export default async function StudentDetailPage({
                         <div className="notice" key={completion.id}>
                           <strong>Software completion snapshot</strong>
                           <span>
-                            {new Date(completion.completed_at).toLocaleString()}{" "}
-                            · manifest {completion.course_manifest_hash} ·
-                            reporting{" "}
+                            {recordTime(completion.completed_at)} · manifest{" "}
+                            {completion.course_manifest_hash} · reporting{" "}
                             {completion.reporting_ready
                               ? "ready"
                               : "needs attention"}

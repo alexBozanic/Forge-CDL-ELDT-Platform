@@ -1,5 +1,6 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { type ProfileField, type ProfileValues } from "@/lib/student-profile";
 import { saveProfile } from "./actions";
 export type StudentProfile = {
   legal_first_name: string;
@@ -9,6 +10,36 @@ export type StudentProfile = {
   license_or_permit_number: string | null;
   issuing_jurisdiction: string | null;
 };
+const fields: Array<{
+  name: ProfileField;
+  label: string;
+  required?: boolean;
+  maxLength?: number;
+  type?: string;
+  pattern?: string;
+}> = [
+  {
+    name: "firstName",
+    label: "Legal first name",
+    required: true,
+    maxLength: 100,
+  },
+  { name: "middleName", label: "Legal middle name (optional)", maxLength: 100 },
+  {
+    name: "lastName",
+    label: "Legal last name",
+    required: true,
+    maxLength: 100,
+  },
+  { name: "birthDate", label: "Date of birth", type: "date" },
+  { name: "permitNumber", label: "License or permit number", maxLength: 64 },
+  {
+    name: "jurisdiction",
+    label: "Issuing jurisdiction (two-letter code)",
+    maxLength: 2,
+    pattern: "[A-Za-z]{2}",
+  },
+];
 export function ProfileForm({
   organizationId,
   userId,
@@ -21,6 +52,16 @@ export function ProfileForm({
   profile: StudentProfile | null;
 }) {
   const [state, action, pending] = useActionState(saveProfile, {});
+  // Controlled fields survive React's automatic form reset after an action,
+  // including repeated failures with unchanged server-returned values.
+  const [values, setValues] = useState<ProfileValues>({
+    firstName: profile?.legal_first_name ?? "",
+    middleName: profile?.legal_middle_name ?? "",
+    lastName: profile?.legal_last_name ?? "",
+    birthDate: profile?.date_of_birth ?? "",
+    permitNumber: profile?.license_or_permit_number ?? "",
+    jurisdiction: profile?.issuing_jurisdiction ?? "",
+  });
   return (
     <section className="panel">
       <h2>Student profile</h2>
@@ -28,68 +69,47 @@ export function ProfileForm({
         Save the student’s current details. Changes do not replace information
         in previous completion records.
       </p>
-      <form action={action} className="form-stack">
+      <form action={action} className="form-stack" aria-busy={pending}>
         <input type="hidden" name="organizationId" value={organizationId} />
         <input type="hidden" name="userId" value={userId} />
         <input type="hidden" name="slug" value={slug} />
-        <label>
-          Legal first name
-          <input
-            name="firstName"
-            required
-            maxLength={100}
-            defaultValue={profile?.legal_first_name ?? ""}
-          />
-        </label>
-        <label>
-          Legal middle name (optional)
-          <input
-            name="middleName"
-            maxLength={100}
-            defaultValue={profile?.legal_middle_name ?? ""}
-          />
-        </label>
-        <label>
-          Legal last name
-          <input
-            name="lastName"
-            required
-            maxLength={100}
-            defaultValue={profile?.legal_last_name ?? ""}
-          />
-        </label>
-        <label>
-          Date of birth
-          <input
-            name="birthDate"
-            type="date"
-            defaultValue={profile?.date_of_birth ?? ""}
-          />
-        </label>
-        <label>
-          License or permit number
-          <input
-            name="permitNumber"
-            maxLength={64}
-            defaultValue={profile?.license_or_permit_number ?? ""}
-          />
-        </label>
-        <label>
-          Issuing jurisdiction (two-letter code)
-          <input
-            name="jurisdiction"
-            pattern="[A-Za-z]{2}"
-            maxLength={2}
-            placeholder="CO"
-            defaultValue={profile?.issuing_jurisdiction ?? ""}
-          />
-        </label>
+        {fields.map(({ name, label, ...attributes }) => (
+          <label key={name}>
+            {label}
+            <input
+              {...attributes}
+              name={name}
+              value={values[name]}
+              readOnly={pending}
+              onChange={(event) =>
+                setValues({ ...values, [name]: event.target.value })
+              }
+              aria-invalid={Boolean(state.fieldErrors?.[name])}
+              aria-describedby={
+                state.fieldErrors?.[name] ? `profile-${name}-error` : undefined
+              }
+            />
+            {state.fieldErrors?.[name] ? (
+              <span id={`profile-${name}-error`} className="form-error">
+                {state.fieldErrors[name]}
+              </span>
+            ) : null}
+          </label>
+        ))}
         <button className="button" disabled={pending}>
           {pending ? "Saving…" : "Save student profile"}
         </button>
       </form>
-      {state.error ? <p role="alert">{state.error}</p> : null}
-      {state.saved ? <p role="status">Student profile saved.</p> : null}
+      {state.error ? (
+        <p role="alert" className="form-error">
+          {state.error}
+        </p>
+      ) : null}
+      {state.saved ? (
+        <p role="status" className="form-success">
+          Student profile saved.
+        </p>
+      ) : null}
     </section>
   );
 }
