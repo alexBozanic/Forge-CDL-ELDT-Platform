@@ -73,9 +73,7 @@ export async function GET(
     const c = Array.isArray(r.course_completions)
       ? r.course_completions[0]
       : r.course_completions;
-    const v = c
-      ? versions.get(c.course_version_id)
-      : undefined;
+    const v = c ? versions.get(c.course_version_id) : undefined;
     const a = Array.isArray(c?.assessment_attempts)
       ? c?.assessment_attempts[0]
       : c?.assessment_attempts;
