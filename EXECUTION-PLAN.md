@@ -8,8 +8,9 @@ milestone descended from checkpoint `3218003`.
 Local implementation is complete through assessment delivery, completion, and
 manual reporting. Hosted migrations 004-007 are now operator-reported as manually
 applied. The next milestone is the external integration/readiness gate: configure
-a Vercel preview, provision fake Auth users and non-delivering email, run the
-staging runner, and inspect real browsers. Do not deploy to production, reset
+a Vercel preview after the blocked Next.js dependency is safely upgraded,
+provision fake Auth users and non-delivering email, run the staging runner, and
+inspect real browsers. Do not deploy to production, reset
 hosted staging, send real email, or use real identities.
 
 ## Ordered work
@@ -75,6 +76,12 @@ hosted staging, send real email, or use real identities.
   release gates even after local PostgreSQL and build checks pass.
 - Actual-browser keyboard, screen-reader, responsive, and print inspection could
   not run because this environment has no browser automation executable.
+- The Vercel Preview compiled from the connected PR4 repository but was correctly
+  refused before publication because Next.js 15.5.2 is vulnerable. One official
+  npm registry metadata request returned HTTP 403, so no patched version could be
+  verified or installed and the lockfile was left unchanged. Approved registry
+  access is now the blocking prerequisite; do not bypass Vercel or substitute an
+  unverified version.
 
 ## Resume instructions
 

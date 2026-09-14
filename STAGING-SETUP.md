@@ -111,6 +111,34 @@ NEXT_PUBLIC_SITE_URL
 For the exact Vercel Preview procedure, commit pinning, callbacks, and fake Auth
 account prerequisites, follow `VERCEL-PREVIEW.md`.
 
+### Current Vercel preview state
+
+**Operator-reported evidence, 2026-09-14:** Vercel project
+`forge-cdl-eldt-platform` was created in team `alexbozanics-projects` and connected
+to GitHub. It detected Next.js, used Node.js 22 and frozen pnpm installation, and
+has an ignore command restricting builds to `VERCEL_ENV=preview`. The first
+Create Preview action was unexpectedly labeled Production and was canceled by
+that guard; nothing went live. An explicitly selected Preview redeploy compiled
+all routes and serverless outputs, then Vercel refused publication with
+`Vulnerable version of Next.js detected, please update immediately.` No preview
+was published and the block must not be bypassed.
+
+Preview-scoped values for the public Supabase URL, browser-safe publishable key,
+and `NEXT_PUBLIC_SITE_URL` were saved; no application secret was supplied. The
+assigned origin is
+`https://forge-cdl-eldt-platform-git-codex-a685d8-alexbozanics-projects.vercel.app`.
+The Supabase Site URL and exact `/auth/confirm` redirect were saved for that
+origin. Hosted migrations and data were not changed: 001-007 remain manually
+applied, migration history remains absent, and Auth users remain zero. Test-inbox
+and real-browser Auth workflows remain unverified.
+
+The local repair environment attempted one normal query to the official npm
+registry for current `next`, React, and `eslint-config-next` release metadata.
+The registry returned HTTP 403 before any package could be resolved. No unsafe
+flag, alternate registry, cached-version substitution, lockfile edit, or repeated
+download was attempted. Dependency repair and preview retry are blocked until
+normal approved registry access is available.
+
 ## Automated Auth/PostgREST test
 
 Prepare one active demo organization and assignment plus an assignment belonging to a second organization. The school-admin and student accounts must not already have memberships. Export the following untracked values without printing them:

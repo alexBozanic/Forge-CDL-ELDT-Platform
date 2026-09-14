@@ -7,13 +7,21 @@ real email, real student data, or a claim of curriculum/provider/state approval.
 ## Pin the source
 
 1. In the connected Git provider, open PR4 and verify its head branch and commit.
-   The last remotely verified release checkpoint is
-   `7a56c600511d74cc4cadbe5365612d972dc681bd`. Deploy only the reviewed PR4 head
+   The current remotely verified PR4 checkpoint is
+   `ae9327c60d1272cbfb0bc5937a74e96110d1bb23`. Deploy only the reviewed PR4 head
    commit (including subsequent committed fixes from this branch), never `main`.
 2. In Vercel, import the existing repository and select that exact PR4 branch.
    Leave the Production Branch unchanged and do not promote or alias the preview.
 3. Confirm the deployment's Git metadata shows the expected full commit SHA
    before opening it. Stop if Vercel built a different branch or commit.
+
+The connected project is `forge-cdl-eldt-platform` in team
+`alexbozanics-projects`. Keep its build-ignore guard restricted to
+`VERCEL_ENV=preview`. The 2026-09-14 Preview build compiled but was blocked before
+publication because pinned Next.js `15.5.2` was identified as vulnerable. Do not
+bypass that control or retry the preview until Next.js and its directly related
+packages have been upgraded through the approved registry, the lockfile has been
+regenerated normally, and all local checks pass.
 
 ## Preview environment variables
 
@@ -24,6 +32,10 @@ Set these three values in Vercel's **Preview** environment scope only:
 | `NEXT_PUBLIC_SUPABASE_URL`      | `https://uooiziwxmuzdbdcxblox.supabase.co`                                                                         |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The project's current browser-safe anonymous/public key, copied privately from the verified test-project dashboard |
 | `NEXT_PUBLIC_SITE_URL`          | The exact HTTPS Vercel preview origin, with no path, query, fragment, or trailing route                            |
+
+The assigned preview origin is
+`https://forge-cdl-eldt-platform-git-codex-a685d8-alexbozanics-projects.vercel.app`.
+It is configuration input only: the blocked build means no deployment is live.
 
 Despite the `NEXT_PUBLIC_` prefix, do not put secrets in these variables. Never
 configure a Supabase service-role key, database URL, invitation token, assessment

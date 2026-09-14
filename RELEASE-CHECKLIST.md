@@ -4,6 +4,8 @@ Passing local checks establishes software evidence only. It does not establish c
 
 ## Code and database
 
+- [ ] Upgrade Next.js 15.5.2 and directly related packages to a currently patched
+      stable release through the approved registry; regenerate and freeze the lockfile.
 - [ ] Review every forward migration and verify hosted migration hashes/history.
 - [x] Operator-reported application of exact release migrations 004-007 to the
       disposable hosted project without seed/reset; migration history remains absent.
@@ -30,6 +32,8 @@ Passing local checks establishes software evidence only. It does not establish c
 
 ## Product and accessibility
 
+- [ ] Publish the already-configured Vercel Preview only after the dependency
+      repair passes locally; the current build was blocked and is not live.
 - [ ] Keyboard and screen-reader walkthrough for onboarding, lessons, assessments, and reporting.
 - [ ] Inspect narrow mobile and desktop layouts in actual supported browsers.
 - [ ] Review empty/loading/error/expired-attempt states with fake data.
