@@ -146,6 +146,27 @@ typecheck, full PostgreSQL suites, migration-bundle checks, local restore,
 production build, security headers, and public/Auth-route smoke all passed. This
 is local repair evidence; the Vercel Preview has not yet been retried or published.
 
+**Operator-reported Preview evidence, 2026-09-14:** Preview deployment
+`GXhUzS2rrjrMS3ssvUHwhdZu7Sha` is Ready and a platform administrator authenticated.
+The application created fake school `Forge Demo CDL Academy` (`forge-demo`) and
+draft version `5ddc6f56-4aad-4f3a-aed7-31d64337e71d`, containing module
+`Getting started`, lesson `How this demo works`, and one-question final assessment
+`9e781fa2-5b57-4d3e-ab5f-121b343144b8` (80 percent, five minutes). No blueprint
+topic or question was persisted. An invalid `demo-purpose` question topic produced
+a raw FK `23503` whole-page error. Adding valid topic `demo_purpose` returned a
+03:10:01.669Z HTTP 500 Gateway Timeout; an earlier module add similarly timed out,
+then succeeded only after the operator verified no write and manually retried.
+
+The authoring repair validates topic syntax and positive counts before RPC,
+requires choosing a server-verified existing blueprint topic for questions,
+preserves submitted values on failure, shows accessible action/pending feedback,
+and maps database/gateway failures to a stable message without automatic retry or
+private details. Local PostgreSQL completed the topic-to-question-to-review-to-
+publish RPC workflow and rejected invalid/missing topics. No deterministic SQL or
+locking failure reproduced locally: `add_assessment_topic` performs one authorized
+insert and draft-manifest refresh. The hosted timeout remains a transient gateway
+observation, not a proven database defect, and needs one controlled Preview recheck.
+
 ## Automated Auth/PostgREST test
 
 Prepare one active demo organization and assignment plus an assignment belonging to a second organization. The school-admin and student accounts must not already have memberships. Export the following untracked values without printing them:

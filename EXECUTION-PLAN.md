@@ -84,6 +84,12 @@ hosted staging, send real email, or use real identities.
   removed for Next.js 16's native flat configs. Production audit reported no high
   vulnerabilities; frozen install and all local release checks passed.
   A native branch update and verified GitHub SHA are required before Preview retry.
+- Preview authoring exposed raw database errors and weak topic inputs. The local
+  repair validates blueprint fields, constrains questions to server-verified
+  topics, preserves form values, supplies accessible pending/error state, and
+  avoids blind retries. Local integration covers invalid/missing topics and the
+  successful topic-question-review-publication sequence. The hosted Gateway
+  Timeout did not reproduce locally and remains a Preview recheck gate.
 
 ## Resume instructions
 

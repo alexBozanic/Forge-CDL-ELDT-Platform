@@ -305,6 +305,10 @@ a:focus-visible {
   background: #fff0f0;
   color: #751717;
 }
+.form-success {
+  color: #176b36;
+  font-weight: 700;
+}
 .page-heading {
   display: flex;
   align-items: flex-start;

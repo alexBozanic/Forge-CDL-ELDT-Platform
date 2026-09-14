@@ -1,10 +1,9 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SafeMarkdown } from "@/components/safe-markdown";
 import { getAuthorizationContext } from "@/lib/auth";
 import {
   addAssessment,
-  addAssessmentQuestion,
-  addAssessmentTopic,
   addLesson,
   addModule,
   publishVersion,
@@ -14,6 +13,10 @@ import {
   saveModule,
   saveVersion,
 } from "../actions";
+import {
+  AssessmentQuestionForm,
+  AssessmentTopicForm,
+} from "./assessment-authoring-forms";
 
 export default async function CourseVersionPage({
   params,
@@ -84,6 +87,11 @@ export default async function CourseVersionPage({
   const isDraft = version.status === "draft";
   return (
     <main className="container main" id="main-content">
+      <nav className="inline-form" aria-label="Authoring navigation">
+        <Link href="/dashboard">Dashboard</Link>
+        <Link href="/platform/schools">Schools</Link>
+        <Link href="/platform/courses">Course library</Link>
+      </nav>
       <p className="kicker">
         Platform authoring ·{" "}
         {isDraft ? "Mutable draft" : "Immutable publication"}
@@ -290,72 +298,19 @@ export default async function CourseVersionPage({
                 </p>
                 {isDraft ? (
                   <>
-                    <form action={addAssessmentTopic} className="inline-form">
-                      <input
-                        type="hidden"
-                        name="versionId"
-                        value={version.id}
-                      />
-                      <input
-                        type="hidden"
-                        name="assessmentId"
-                        value={assessment.id}
-                      />
-                      <input
-                        name="topicCode"
-                        pattern="[a-z0-9]+(?:_[a-z0-9]+)*"
-                        placeholder="topic_code"
-                        required
-                      />
-                      <input
-                        name="requiredCount"
-                        type="number"
-                        min="1"
-                        placeholder="Required"
-                        required
-                      />
-                      <button className="text-button">Add topic</button>
-                    </form>
-                    <form action={addAssessmentQuestion} className="form-stack">
-                      <input
-                        type="hidden"
-                        name="versionId"
-                        value={version.id}
-                      />
-                      <input
-                        type="hidden"
-                        name="assessmentId"
-                        value={assessment.id}
-                      />
-                      <label>
-                        Topic code
-                        <input name="topicCode" required />
-                      </label>
-                      <label>
-                        Prompt
-                        <textarea name="prompt" required />
-                      </label>
-                      <label>
-                        Options, one per line
-                        <textarea name="options" rows={4} required />
-                      </label>
-                      <label>
-                        Correct option number
-                        <input
-                          name="correctOption"
-                          type="number"
-                          min="1"
-                          required
-                        />
-                      </label>
-                      <label>
-                        Review rationale (not shown during final)
-                        <textarea name="rationale" required />
-                      </label>
-                      <button className="button">
-                        Add immutable-version question
-                      </button>
-                    </form>
+                    <AssessmentTopicForm
+                      versionId={version.id}
+                      assessmentId={assessment.id}
+                    />
+                    <AssessmentQuestionForm
+                      versionId={version.id}
+                      assessmentId={assessment.id}
+                      topics={(topicsResult.data ?? [])
+                        .filter(
+                          (topic) => topic.assessment_id === assessment.id,
+                        )
+                        .map((topic) => topic.topic_code)}
+                    />
                   </>
                 ) : null}
               </article>

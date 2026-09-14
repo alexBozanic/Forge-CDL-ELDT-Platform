@@ -21,6 +21,10 @@ Passing local checks establishes software evidence only. It does not establish c
       least-capability permissions headers.
 - [x] Produce and refusal-test an inspection-only 004-007 migration bundle with
       exact hashes, source provenance, and read-only hosted verification SQL.
+- [x] Validate assessment topic/count inputs, restrict questions to existing
+      server-verified blueprint topics, and present safe accessible action errors.
+- [ ] Recheck the valid blueprint-topic action once in Preview; the prior gateway
+      timeout did not reproduce locally and no blind retry was added.
 
 ## Operations and privacy
 

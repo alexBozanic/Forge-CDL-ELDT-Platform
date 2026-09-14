@@ -153,5 +153,28 @@ reset role;
 select pg_temp.assert_true((select count(*)=1 from public.completion_corrections),'correction audit was not appended');
 do $$ begin begin update public.course_completions set reporting_ready=true; raise exception 'completion snapshot changed'; exception when sqlstate '55000' then null; end; begin update public.assessment_answers set is_correct=false; raise exception 'answer changed'; exception when sqlstate '55000' then null; end; end $$;
 
+-- Platform authoring RPCs reject invalid topics/counts and support the complete
+-- topic -> question/private key -> exact review -> publication workflow.
+insert into public.course_versions(id,course_id,version_number,status,manifest_hash,title,description,created_by)
+values('d7000000-0000-4000-8000-000000000001','cccccccc-0000-4000-8000-000000000001',3,'draft',repeat('0',64),'Authoring RPC demo','Fake authoring workflow only.','00000000-0000-4000-8000-000000000001');
+insert into public.course_modules(id,course_version_id,title,position)
+values('d7100000-0000-4000-8000-000000000001','d7000000-0000-4000-8000-000000000001','Fake module',1);
+insert into public.course_lessons(id,course_version_id,module_id,title,body_markdown,position,estimated_minutes)
+values('d7200000-0000-4000-8000-000000000001','d7000000-0000-4000-8000-000000000001','d7100000-0000-4000-8000-000000000001','Fake lesson','Fake content only.',1,1);
+insert into public.assessments(id,course_version_id,kind,title,position,question_count,passing_percent,time_limit_minutes)
+values('d7300000-0000-4000-8000-000000000001','d7000000-0000-4000-8000-000000000001','final_exam','Fake final',1,1,80,5);
+set role authenticated; select set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
+do $$ begin
+ begin perform public.add_assessment_topic('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','bad-topic',1); raise exception 'invalid topic accepted'; exception when check_violation then null; end;
+ begin perform public.add_assessment_topic('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','demo_purpose',0); raise exception 'invalid count accepted'; exception when check_violation then null; end;
+ begin perform public.add_assessment_question('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','missing_topic','Fake prompt','Fake rationale',array['No','Yes'],1); raise exception 'missing topic accepted'; exception when foreign_key_violation then null; end;
+end $$;
+select public.add_assessment_topic('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','demo_purpose',1);
+select public.add_assessment_question('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','demo_purpose','Does this fake workflow establish approval?','No. It tests software authoring only.',array['No','Yes'],1);
+select public.review_course_version('d7000000-0000-4000-8000-000000000001','approved','Fake exact-hash software review.');
+select public.publish_course_version('d7000000-0000-4000-8000-000000000001');
+select pg_temp.assert_true((select status='published' from public.course_versions where id='d7000000-0000-4000-8000-000000000001'),'valid RPC authoring workflow did not publish');
+reset role;
+
 rollback;
 \echo 'Assessment scoring, completion, reporting, and isolation assertions passed.'
