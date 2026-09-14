@@ -220,6 +220,19 @@ a:focus-visible {
 }
 .transcript-grid dd {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.transcript code {
+  overflow-wrap: anywhere;
+}
+.record-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.record-table:focus-visible {
+  outline: 0.2rem solid var(--blue);
+  outline-offset: 0.1rem;
 }
 .transcript table {
   width: 100%;
@@ -448,6 +461,13 @@ a:focus-visible {
   }
 }
 @media (max-width: 45rem) {
+  .transcript-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+  .transcript-grid dt:not(:first-child) {
+    margin-top: 0.75rem;
+  }
   .gate-grid {
     grid-template-columns: 1fr;
   }
@@ -477,6 +497,14 @@ a:focus-visible {
   }
 }
 @media print {
+  .record-table {
+    overflow: visible;
+  }
+  .transcript table {
+    table-layout: fixed;
+    overflow-wrap: anywhere;
+    font-size: 0.8rem;
+  }
   header,
   .button,
   form {

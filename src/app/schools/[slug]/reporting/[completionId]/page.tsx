@@ -180,37 +180,44 @@ export default async function TrainingTranscriptPage({
 
       <section className="panel">
         <h2>Assessment attempts</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Assessment</th>
-              <th>Attempt</th>
-              <th>Status</th>
-              <th>Score</th>
-              <th>Started</th>
-              <th>Submitted</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transcript.attempts.map((attempt) => (
-              <tr key={attempt.id}>
-                <td>
-                  {attempt.assessment_title}
-                  {attempt.qualifying ? " (qualifying)" : ""}
-                </td>
-                <td>{attempt.attempt_number}</td>
-                <td>{attempt.status}</td>
-                <td>
-                  {attempt.score_percent === null
-                    ? "Pending"
-                    : `${attempt.score_percent}% (${attempt.correct_count}/${attempt.question_count}); threshold ${attempt.passing_percent}%`}
-                </td>
-                <td>{date(attempt.started_at)}</td>
-                <td>{date(attempt.submitted_at)}</td>
+        <div
+          className="record-table"
+          role="region"
+          aria-label="Assessment attempt details"
+          tabIndex={0}
+        >
+          <table>
+            <thead>
+              <tr>
+                <th>Assessment</th>
+                <th>Attempt</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Started</th>
+                <th>Submitted</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {transcript.attempts.map((attempt) => (
+                <tr key={attempt.id}>
+                  <td>
+                    {attempt.assessment_title}
+                    {attempt.qualifying ? " (qualifying)" : ""}
+                  </td>
+                  <td>{attempt.attempt_number}</td>
+                  <td>{attempt.status}</td>
+                  <td>
+                    {attempt.score_percent === null
+                      ? "Pending"
+                      : `${attempt.score_percent}% (${attempt.correct_count}/${attempt.question_count}); threshold ${attempt.passing_percent}%`}
+                  </td>
+                  <td>{date(attempt.started_at)}</td>
+                  <td>{date(attempt.submitted_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section className="panel">
