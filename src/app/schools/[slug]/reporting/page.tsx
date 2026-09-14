@@ -34,11 +34,34 @@ export default async function ReportingPage({
   const { data: records, error } = await supabase
     .from("reporting_records")
     .select(
-      "id,status,created_at,readiness_issues,reporting_identity_snapshot,provider_snapshot,course_completions(id,student_user_id,completed_at,course_manifest_hash,course_versions(title,version_number),assessment_attempts(score_percent,submitted_at)),reporting_events(id,from_status,to_status,reason,occurred_at)",
+      "id,status,created_at,readiness_issues,reporting_identity_snapshot,provider_snapshot,course_completions(id,student_user_id,completed_at,course_manifest_hash,course_version_id,assessment_attempts(score_percent,submitted_at)),reporting_events(id,from_status,to_status,reason,occurred_at)",
     )
     .eq("organization_id", org.id)
     .order("created_at", { ascending: false });
   if (error) throw error;
+  // Completions have no direct foreign key to course_versions.
+  // Resolve only versions referenced by this tenant's RLS-filtered records.
+  const versionIds = [
+    ...new Set(
+      (records ?? []).flatMap((record) => {
+        const completion = Array.isArray(record.course_completions)
+          ? record.course_completions[0]
+          : record.course_completions;
+        return completion ? [completion.course_version_id] : [];
+      }),
+    ),
+  ];
+  const versions = new Map<string, { title: string; version_number: number }>();
+  if (versionIds.length > 0) {
+    const { data: courseVersions, error: versionsError } = await supabase
+      .from("course_versions")
+      .select("id,title,version_number")
+      .in("id", versionIds);
+    if (versionsError) throw versionsError;
+    for (const version of courseVersions ?? []) {
+      versions.set(version.id, version);
+    }
+  }
   return (
     <main className="container main" id="main-content">
       <p className="kicker">{org.name} · Manual reporting</p>
@@ -64,9 +87,9 @@ export default async function ReportingPage({
             const completion = Array.isArray(record.course_completions)
               ? record.course_completions[0]
               : record.course_completions;
-            const version = Array.isArray(completion?.course_versions)
-              ? completion?.course_versions[0]
-              : completion?.course_versions;
+            const version = completion
+              ? versions.get(completion.course_version_id)
+              : undefined;
             return (
               <article className="panel" key={record.id}>
                 <h2>
