@@ -1,3 +1,4 @@
+import { ProfileForm } from "../../profile/profile-form";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
 import { enrollStudent } from "../actions";
@@ -37,7 +38,9 @@ export default async function StudentDetailPage({
       .single(),
     supabase
       .from("student_profiles")
-      .select("legal_first_name, legal_middle_name, legal_last_name")
+      .select(
+        "legal_first_name, legal_middle_name, legal_last_name, date_of_birth, license_or_permit_number, issuing_jurisdiction",
+      )
       .eq("organization_id", organization.id)
       .eq("user_id", userId)
       .maybeSingle(),
@@ -105,6 +108,12 @@ export default async function StudentDetailPage({
       <p>
         Membership status: <strong>{membership.status}</strong>
       </p>
+      <ProfileForm
+        organizationId={organization.id}
+        userId={userId}
+        slug={slug}
+        profile={profile}
+      />
       <div className="two-column">
         <section>
           <h2>Enrollments</h2>

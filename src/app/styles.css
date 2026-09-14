@@ -488,3 +488,9 @@ a:focus-visible {
     box-shadow: none;
   }
 }
+
+/* Keep long version identifiers inside student record columns. */
+.two-column > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

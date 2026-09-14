@@ -55,6 +55,11 @@ export default async function SchoolPage({
       >
         <p className="kicker">Student workspace · Demonstration only</p>
         <h1>{organization.name}</h1>
+        <p>
+          <Link href={`/schools/${slug}/profile`}>
+            Complete or update your student profile
+          </Link>
+        </p>
         <section>
           <h2>Your assignments</h2>
           {enrollments?.length ? (

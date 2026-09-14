@@ -27,6 +27,8 @@ psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/course-delivery.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/assessments-completion.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/training-transcripts.sql
 
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/database/student-profiles.sql
+
 # Exercise redemption from two genuinely concurrent PostgreSQL sessions. The
 # first transaction holds its successful redemption open while the second waits.
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/concurrent-invitation-setup.sql
