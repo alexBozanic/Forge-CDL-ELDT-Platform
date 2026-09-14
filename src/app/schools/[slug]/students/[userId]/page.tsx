@@ -27,16 +27,7 @@ export default async function StudentDetailPage({
     .eq("slug", slug)
     .single();
   if (!organization) notFound();
-  const [
-    { data: membership },
-    { data: profile },
-    { data: enrollments },
-    { data: assignments },
-    { data: progress },
-    { data: lessons },
-    { data: attempts },
-    { data: completions },
-  ] = await Promise.all([
+  const results = await Promise.all([
     supabase
       .from("organization_memberships")
       .select("user_id, status, created_at")
@@ -53,7 +44,7 @@ export default async function StudentDetailPage({
     supabase
       .from("enrollments")
       .select(
-        "id, status, course_version_id, course_assignments(title), course_versions(title, version_number, manifest_hash)",
+        "id, status, course_version_id, course_assignments(title, course_versions(title, version_number, manifest_hash))",
       )
       .eq("organization_id", organization.id)
       .eq("student_user_id", userId),
@@ -73,7 +64,7 @@ export default async function StudentDetailPage({
     supabase
       .from("assessment_attempts")
       .select(
-        "id, enrollment_id, attempt_number, status, score_percent, question_count, correct_count, started_at, submitted_at, assessments(title, kind)",
+        "id, enrollment_id, attempt_number, status, score_percent, question_count, correct_count, started_at, submitted_at, course_version_manifest_assessments(assessments(title, kind))",
       )
       .eq("organization_id", organization.id)
       .eq("student_user_id", userId)
@@ -85,7 +76,20 @@ export default async function StudentDetailPage({
       )
       .eq("organization_id", organization.id)
       .eq("student_user_id", userId),
-  ]);
+  ] as const);
+  for (const result of results) {
+    if (result.error) throw result.error;
+  }
+  const [
+    { data: membership },
+    { data: profile },
+    { data: enrollments },
+    { data: assignments },
+    { data: progress },
+    { data: lessons },
+    { data: attempts },
+    { data: completions },
+  ] = results;
   if (!membership) notFound();
   const lessonTitles = new Map(
     (lessons ?? []).map((lesson) => [lesson.id, lesson.title]),
@@ -110,9 +114,9 @@ export default async function StudentDetailPage({
                 const assignment = Array.isArray(enrollment.course_assignments)
                   ? enrollment.course_assignments[0]
                   : enrollment.course_assignments;
-                const version = Array.isArray(enrollment.course_versions)
-                  ? enrollment.course_versions[0]
-                  : enrollment.course_versions;
+                const version = Array.isArray(assignment?.course_versions)
+                  ? assignment?.course_versions[0]
+                  : assignment?.course_versions;
                 const enrollmentProgress = progress?.filter(
                   (item) => item.enrollment_id === enrollment.id,
                 );
@@ -151,9 +155,14 @@ export default async function StudentDetailPage({
                         (attempt) => attempt.enrollment_id === enrollment.id,
                       )
                       .map((attempt) => {
-                        const assessment = Array.isArray(attempt.assessments)
-                          ? attempt.assessments[0]
-                          : attempt.assessments;
+                        const manifest = Array.isArray(
+                          attempt.course_version_manifest_assessments,
+                        )
+                          ? attempt.course_version_manifest_assessments[0]
+                          : attempt.course_version_manifest_assessments;
+                        const assessment = Array.isArray(manifest?.assessments)
+                          ? manifest?.assessments[0]
+                          : manifest?.assessments;
                         return (
                           <p key={attempt.id}>
                             {assessment?.title ?? "Assessment"} attempt{" "}
