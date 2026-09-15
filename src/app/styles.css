@@ -230,6 +230,10 @@ a:focus-visible {
   max-width: 100%;
   overflow-x: auto;
 }
+.reporting-record {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .record-table:focus-visible {
   outline: 0.2rem solid var(--blue);
   outline-offset: 0.1rem;

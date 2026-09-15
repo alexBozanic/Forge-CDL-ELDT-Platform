@@ -96,7 +96,7 @@ export default async function ReportingPage({
               ? versions.get(completion.course_version_id)
               : undefined;
             return (
-              <article className="panel" key={record.id}>
+              <article className="panel reporting-record" key={record.id}>
                 <h2>
                   {version?.title ?? "Pinned course"} · {record.status}
                 </h2>
