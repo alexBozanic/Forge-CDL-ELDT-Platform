@@ -1,5 +1,8 @@
 # Profile and reporting continuation checkpoint
 
+> Latest hosted role and reporting-ready evidence: [HOSTED-VERIFICATION.md](HOSTED-VERIFICATION.md).
+> The demo is now reporting-ready, with no external submission. This supersedes earlier needs-attention notes.
+
 ## Latest verified state — 2026-09-15 00:23 UTC
 
 This section supersedes the earlier local-only restrictions and blockers below.
