@@ -1,6 +1,6 @@
 # Forge MVP execution plan
 
-> Current continuation: read [CONTINUATION-CHECKPOINT.md](CONTINUATION-CHECKPOINT.md)
+> Current continuation: read [CURRENT-STATUS.md](CURRENT-STATUS.md)
 > first. It records the 2026-09-14 PR4 profile milestone, hosted observations,
 > local repairs, and outstanding gates. The sections below retain earlier history.
 

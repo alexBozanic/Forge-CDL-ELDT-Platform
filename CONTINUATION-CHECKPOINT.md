@@ -1,5 +1,8 @@
 # Profile and reporting continuation checkpoint
 
+> Start with [CURRENT-STATUS.md](CURRENT-STATUS.md) for the latest verified code,
+> completed PDF/dependency checks, and concrete remaining gates.
+
 > Latest hosted role and reporting-ready evidence: [HOSTED-VERIFICATION.md](HOSTED-VERIFICATION.md).
 > The demo is now reporting-ready, with no external submission. This supersedes earlier needs-attention notes.
 

@@ -1,5 +1,8 @@
 # Hosted role and reporting verification — 2026-09-15
 
+> Later dependency, PDF, and student-record verification is summarized in
+> [CURRENT-STATUS.md](CURRENT-STATUS.md). Pending items below reflect this earlier checkpoint.
+
 Latest application tested: PR4, `9a3de99` on
 `codex/resume-forge-mvp-validation-from-pr2-checkpoint`.
 Browser: authenticated Vercel Preview for Forge Demo CDL Academy (`forge-demo`).
