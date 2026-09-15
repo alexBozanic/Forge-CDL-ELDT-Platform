@@ -53,6 +53,9 @@ export default async function SchoolPage({
         }
         id="main-content"
       >
+        <nav aria-label="School navigation">
+          <Link href="/dashboard">Dashboard</Link>
+        </nav>
         <p className="kicker">Student workspace · Demonstration only</p>
         <h1>{organization.name}</h1>
         <p>
@@ -146,6 +149,9 @@ export default async function SchoolPage({
       }
       id="main-content"
     >
+      <nav aria-label="School navigation">
+        <Link href="/dashboard">Dashboard</Link>
+      </nav>
       <p className="kicker">School administration · Demonstration only</p>
       <h1>{organization.name}</h1>
       <p>

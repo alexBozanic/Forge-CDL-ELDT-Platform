@@ -4,6 +4,7 @@ import { ProfileForm } from "../../profile/profile-form";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
 import { enrollStudent } from "../actions";
+import { loadStudentMembership } from "@/lib/student-membership";
 
 export default async function StudentDetailPage({
   params,
@@ -30,14 +31,13 @@ export default async function StudentDetailPage({
     .eq("slug", slug)
     .single();
   if (!organization) notFound();
+  const membership = await loadStudentMembership(
+    supabase,
+    organization.id,
+    userId,
+  );
+  if (!membership) notFound();
   const results = await Promise.all([
-    supabase
-      .from("organization_memberships")
-      .select("user_id, status, created_at")
-      .eq("organization_id", organization.id)
-      .eq("user_id", userId)
-      .eq("role", "student")
-      .single(),
     supabase
       .from("student_profiles")
       .select(
@@ -86,7 +86,6 @@ export default async function StudentDetailPage({
     if (result.error) throw result.error;
   }
   const [
-    { data: membership },
     { data: profile },
     { data: enrollments },
     { data: assignments },
@@ -95,7 +94,6 @@ export default async function StudentDetailPage({
     { data: attempts },
     { data: completions },
   ] = results;
-  if (!membership) notFound();
   const lessonTitles = new Map(
     (lessons ?? []).map((lesson) => [lesson.id, lesson.title]),
   );
