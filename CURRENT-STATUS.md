@@ -3,6 +3,11 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest follow-up: `STUDENT-KEYBOARD-VERIFICATION.md` records the student profile
+keyboard walkthrough and completed-course resume/navigation repair. Local frozen
+install, formatting, lint, typecheck, all 15 tests, and build passed for that repair;
+its CI and Preview verification follow the earlier baseline below.
+
 ## Verified application checkpoint
 
 Application commit: `437748d`, on the existing PR4 branch
