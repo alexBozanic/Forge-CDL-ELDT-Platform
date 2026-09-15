@@ -1,5 +1,49 @@
 # Profile and reporting continuation checkpoint
 
+## Latest verified state — 2026-09-15 00:23 UTC
+
+This section supersedes the earlier local-only restrictions and blockers below.
+The user explicitly authorized pushing PR4 and its automatic Vercel Preview.
+Production deployment, merge, migration history repair, real identities, emails,
+and broader access grants remain outside this continuation.
+
+- Application code checkpoint: `df1bbe4c2eb99f82ab971c3ab8116ee475f5a0f6`.
+  PR4 remains on the original branch and is unmerged.
+- [GitHub run 34912860421](https://github.com/alexBozanic/Forge-CDL-ELDT-Platform/actions/runs/34912860421)
+  passed frozen install, format, lint, typecheck, authoring/profile tests,
+  migration-bundle checks, production build, security headers, PostgreSQL
+  integration tests, and a fresh backup/restore rehearsal.
+- CI now executes the existing recovery script inside its disposable PostgreSQL
+  service via a local Unix socket. The script's local-target guards are intact.
+  No hosted backup/restore was performed.
+- Vercel Preview `9civqj6SZZNnhE11QdP3yodNjsvN` completed for that code checkpoint.
+- Authenticated Preview browser verification passed: blank-name rejection kept
+  the other entered values, an associated first-name error was shown, pending
+  save disabled submission, and correcting back to `Demo Student` saved once.
+- Student-record/reporting navigation works. The transcript still reports the
+  original missing-name completion snapshot, version 1, 100% qualifying score,
+  and manifest. Its timestamps explicitly say UTC. Reporting remains
+  `needs_attention`; no external submission/acceptance was recorded.
+- Mobile checks exposed and repaired transcript and reporting-card overflow.
+  At a 390px browser override (375px content width), profile, transcript, and
+  reporting document widths equal the 375px viewport. Transcript identifiers
+  wrap; the assessment table is a labeled, focusable scroll region. Keyboard
+  ArrowRight moved its scroll offset while the page remained within the viewport.
+- Migrations 001-008, AGENTS, and the lockfile remain unchanged. Next.js remains
+  16.3.5. No additional Supabase migration is required for these repairs.
+
+### Next user-assisted gate
+
+Sign in as the existing fake student `student1@forge.example.invalid` in the
+in-app browser to verify self-profile access and denial of administrator pages.
+The agent has no student password and will not request it in chat. Afterward,
+repeat school-admin and second-school isolation checks with their own sessions.
+Print/PDF visual verification, controlled fake reporting-readiness testing,
+hosted backup/restore evidence, and the low Supabase dependency advisory remain
+open gates. No readiness claim for regulated use is implied.
+
+## Earlier local checkpoint (historical)
+
 Date: 2026-09-14. Branch: `codex/resume-forge-mvp-validation-from-pr2-checkpoint`.
 Starting remote commit: `2effa3c85df88e79a132dda86b584c4e2c0c74b8` (PR 4).
 
