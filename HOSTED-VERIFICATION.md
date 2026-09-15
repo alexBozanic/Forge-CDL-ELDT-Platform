@@ -1,6 +1,6 @@
 # Hosted role and reporting verification — 2026-09-15
 
-Application tested: PR4, code unchanged from `9be63e9` on
+Latest application tested: PR4, `9a3de99` on
 `codex/resume-forge-mvp-validation-from-pr2-checkpoint`.
 Browser: authenticated Vercel Preview for Forge Demo CDL Academy (`forge-demo`).
 These are fake-data software checks, not curriculum, provider, or regulatory approval.
@@ -82,16 +82,33 @@ No database functions or migrations changed. `test:transcripts` covers a
 globally visible completion requested under the wrong school, the correct school,
 missing records, and failures. CI now runs this suite.
 
-After Preview deployment, recheck both the mismatched and correct transcript
-URLs. Then use the existing `schooladmin1@forge.example.invalid` account to
-verify denial of the second-school workspace and reporting routes.
+Preview deployment `H9JRi2hqwP28ZfvHyoDsjjWYUoA3` completed. The platform-admin
+recheck returned Page not found for the mismatched URL and the intact transcript
+for the owning school. Local frozen install, formatting, lint, typecheck,
+application tests, and production build passed. GitHub application/database
+checks passed, including security headers, migration integrity, and disposable
+backup/restore.
 
-- Switch to the existing platform-admin session to inspect whether a second fake
-  test school exists and prepare cross-school isolation checks. No second-school
-  existence or permissions are assumed from the school-admin view.
+The user then signed in as `schooladmin1@forge.example.invalid`; the dashboard
+confirmed that identity and listed only Forge Demo CDL Academy. Direct navigation
+to the second school's workspace, reporting queue, and the mismatched transcript
+URL each returned Page not found. The original school's transcript, reporting
+queue, and workspace remained accessible. The transcript retained its original
+snapshot, manifest, score, completion timestamp, and ready status history.
+
+These checks establish browser-route denial for an existing school administrator
+with no membership in the second school. The second school is empty, so this is
+not a two-populated-school API/RLS test. No hosted writes occurred during this
+school-admin verification.
+
+The in-app browser's print shortcut produced no observable print preview. Actual
+printed/PDF layout remains unverified. The existing Auth/PostgREST script also
+requires credentials for four fake accounts and performs invitation/access and
+assessment mutations; it was not run against the shared Preview database.
+
 - New memberships/access grants require the user's applicable authorization;
   account passwords stay with the user. No credentials were requested or read.
-- Student CSV HTTP denial, cross-school hosted API isolation, print/PDF visual
+- Student CSV HTTP denial, two-populated-school hosted API isolation, print/PDF visual
   verification, hosted backup/recovery, and the low Supabase advisory remain open.
 - Existing GitHub CI covers application/database and disposable local backup and
   restore tests. This document records browser evidence; no code or migration

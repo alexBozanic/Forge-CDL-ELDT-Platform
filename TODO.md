@@ -1,5 +1,9 @@
 # Delivery checklist
 
+Latest hosted evidence is in `HOSTED-VERIFICATION.md`. Browser workflow and
+single-account cross-school route checks are complete for the recorded cases;
+the broader Auth/PostgREST, accessibility, and operations gates below remain open.
+
 ## Foundation
 
 - [x] Accessible demonstration shell with loading, not-found, and error states.

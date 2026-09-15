@@ -2,6 +2,11 @@
 
 Passing local checks establishes software evidence only. It does not establish curriculum approval, provider eligibility, state eligibility, certification, or authorization to use real student data.
 
+Current evidence: see `HOSTED-VERIFICATION.md` for the September 15 Preview
+checkpoint. Student and school-admin role routes, fake reporting readiness/CSV,
+and denial of the empty second school's routes passed. Direct Auth/PostgREST
+isolation, actual PDF output, and hosted recovery remain separate open gates.
+
 ## Code and database
 
 - [x] Upgrade Next.js and matching ESLint config to current stable 16.3.5,
@@ -37,8 +42,8 @@ Passing local checks establishes software evidence only. It does not establish c
 
 ## Product and accessibility
 
-- [ ] Publish the already-configured Vercel Preview only after the dependency
-      repair passes locally; the current build was blocked and is not live.
+- [x] Publish the authorized Vercel Preview after dependency repair and passing
+      checks. Latest application verification is recorded in `HOSTED-VERIFICATION.md`.
 - [ ] Keyboard and screen-reader walkthrough for onboarding, lessons, assessments, and reporting.
 - [ ] Inspect narrow mobile and desktop layouts in actual supported browsers.
 - [ ] Review empty/loading/error/expired-attempt states with fake data.
