@@ -15,6 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:profiles": "node --experimental-strip-types --test tests/application/student-profile.test.ts",
+    "test:transcripts": "node --experimental-strip-types --test tests/application/school-transcript.test.ts",
     "test:headers": "bash scripts/test-http-security-headers.sh",
     "test:authoring": "node --experimental-strip-types --test tests/application/assessment-authoring.test.ts",
     "test:migration-bundle": "bash scripts/test-staging-migration-bundle.sh",

@@ -61,6 +61,31 @@ completion snapshot. A copy is saved in the task outputs as
 
 ## Next steps and boundaries
 
+### Second-school preparation and transcript route defect
+
+The platform-admin session confirmed only `forge-demo` existed. Created one
+empty fake school, Forge Isolation Test Academy (`forge-isolation-test`), using
+Create school once. Its workspace showed no students or invitations; its
+reporting queue showed no completion records. No memberships were granted.
+
+Before repair, opening the known `forge-demo` completion ID under
+`/schools/forge-isolation-test/reporting/` displayed the original school's
+transcript to the platform admin. The RPC authorizes the completion's actual
+school, but the page did not bind the completion to the route slug. This is a
+proven route-context defect; this observation does not establish unauthorized
+data exposure to a school admin.
+
+The page now resolves the school through the authenticated RLS client, requires
+the completion ID and organization ID to match, then calls the existing
+authorized transcript RPC. Missing records and lookup/RPC errors fail closed.
+No database functions or migrations changed. `test:transcripts` covers a
+globally visible completion requested under the wrong school, the correct school,
+missing records, and failures. CI now runs this suite.
+
+After Preview deployment, recheck both the mismatched and correct transcript
+URLs. Then use the existing `schooladmin1@forge.example.invalid` account to
+verify denial of the second-school workspace and reporting routes.
+
 - Switch to the existing platform-admin session to inspect whether a second fake
   test school exists and prepare cross-school isolation checks. No second-school
   existence or permissions are assumed from the school-admin view.

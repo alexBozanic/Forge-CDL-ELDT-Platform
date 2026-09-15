@@ -2,6 +2,7 @@ import { recordTime } from "@/lib/record-time";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
+import { loadSchoolTranscript } from "@/lib/school-transcript";
 
 type Snapshot = Record<string, string | null>;
 type Transcript = {
@@ -99,10 +100,8 @@ export default async function TrainingTranscriptPage({
     });
   if (!allowed) notFound();
 
-  const { data, error } = await supabase.rpc("get_training_transcript", {
-    target_completion_id: completionId,
-  });
-  if (error || !data) notFound();
+  const data = await loadSchoolTranscript(supabase, slug, completionId);
+  if (!data) notFound();
   const transcript = data as Transcript;
   const identity = transcript.completion.student_identity_snapshot;
   const provider = transcript.completion.provider_snapshot;
