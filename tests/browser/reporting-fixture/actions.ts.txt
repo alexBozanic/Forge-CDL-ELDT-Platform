@@ -1,0 +1,10 @@
+"use server";
+export async function updateReportingIdentifiers() {
+  return { error: "Local fixture: writes disabled." };
+}
+export async function prepareReporting(_key: string) {
+  return { error: "Local fixture: writes disabled." };
+}
+export async function transitionReporting(_key: string) {
+  return { error: "Local fixture: writes disabled." };
+}

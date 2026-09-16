@@ -3,6 +3,12 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest browser verification: `REPORTING-QUEUE-BROWSER-VERIFICATION.md` records
+local unchanged-page traversal under a four-row API cap, keyboard continuation,
+end-of-list, newest reset and invalid cursor handling. `FIRST-SCHOOL-PILOT.md`
+defines the staff rehearsal and hosted acceptance gates. Queue checkpoint
+`f242ff9` passed CI `35147304530` and Preview `7vvNPjrF9A6xWyLcyJnauqgs2Wxu`.
+
 Latest reporting work queue: `REPORTING-QUEUE-PAGINATION.md` documents bounded
 newest-first pages, validated timestamp/ID cursors, smaller API-cap continuation
 and three synthetic regressions. Export checkpoint `adc913e` passed CI
