@@ -31,6 +31,11 @@ const files = [
   ],
   ["src/lib/assessment-submission.ts", "src/lib/assessment-submission.ts"],
   ["src/lib/assessment-start.ts", "src/lib/assessment-start.ts"],
+  ["src/lib/lesson-interaction.ts", "src/lib/lesson-interaction.ts"],
+  [
+    "src/app/schools/[slug]/courses/[enrollmentId]/lessons/[lessonId]/lesson-interactions.tsx",
+    "src/app/lesson-interactions.tsx",
+  ],
   ["src/app/layout.tsx", "src/app/layout.tsx"],
   ["src/app/styles.css", "src/app/styles.css"],
   ["tests/browser/assessment-fixture/page.tsx.txt", "src/app/page.tsx"],

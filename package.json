@@ -15,6 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:profiles": "node --experimental-strip-types --test tests/application/student-profile.test.ts",
+    "test:lessons": "node --experimental-strip-types --test tests/application/lesson-interaction.test.ts",
     "test:student-records": "node --experimental-strip-types --test tests/application/student-membership.test.ts",
     "test:transcripts": "node --experimental-strip-types --test tests/application/school-transcript.test.ts",
     "test:headers": "bash scripts/test-http-security-headers.sh",

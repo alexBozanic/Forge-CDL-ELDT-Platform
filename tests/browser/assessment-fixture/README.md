@@ -39,3 +39,10 @@ deploy this fixture. Stop the local server after verification.
 
 These are manual browser regression checks, not a CI browser suite or a
 screen-reader audit. Reloading clears the local fixture action count.
+
+The lesson progress fixture also uses the production client/helper. Each new
+request key fails once, then succeeds on a manual retry; server logs record keys.
+Check both resume-save and lesson-complete buttons: pending disables every lesson
+control, failure focuses a sanitized alert, retry retains the same key and success
+restores the controls and announces the outcome. Confirmed new operations use a
+new key. The initial opened interaction is also fake and does not save real data.

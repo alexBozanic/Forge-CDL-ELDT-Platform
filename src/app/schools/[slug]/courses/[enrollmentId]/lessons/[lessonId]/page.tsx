@@ -84,6 +84,8 @@ export default async function LessonPage({
       ) : null}
       <SafeMarkdown markdown={lesson.body_markdown} />
       <LessonInteractions
+        key={`${enrollment.id}:${lesson.id}`}
+        coursePath={`/schools/${slug}/courses/${enrollment.id}`}
         enrollmentId={enrollment.id}
         lessonId={lesson.id}
         positions={positions}

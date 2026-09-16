@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
+import { saveLessonInteraction } from "@/lib/lesson-interaction";
 
 export async function recordLessonInteraction(
   enrollmentId: string,
@@ -11,13 +12,16 @@ export async function recordLessonInteraction(
   idempotencyKey: string,
 ) {
   const { supabase } = await requireUser();
-  const { error } = await supabase.rpc("record_lesson_interaction", {
-    target_enrollment_id: enrollmentId,
-    target_lesson_id: lessonId,
-    target_interaction_type: interactionType,
-    target_resume_position: resumePosition,
-    request_idempotency_key: idempotencyKey,
-  });
-  if (error) throw error;
-  revalidatePath("/schools", "layout");
+  const state = await saveLessonInteraction(
+    {
+      target_enrollment_id: enrollmentId,
+      target_lesson_id: lessonId,
+      target_interaction_type: interactionType,
+      target_resume_position: resumePosition,
+      request_idempotency_key: idempotencyKey,
+    },
+    (payload) => supabase.rpc("record_lesson_interaction", payload),
+  );
+  if (state.saved) revalidatePath("/schools", "layout");
+  return state;
 }

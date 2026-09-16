@@ -28,6 +28,7 @@ jobs:
       - run: pnpm test:assessment-submission
       - run: pnpm test:assessment-start
       - run: pnpm test:profiles
+      - run: pnpm test:lessons
       - run: pnpm test:student-records
       - run: pnpm test:transcripts
       - run: pnpm test:migration-bundle

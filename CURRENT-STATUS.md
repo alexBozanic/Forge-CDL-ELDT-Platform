@@ -3,6 +3,11 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest follow-up: `LESSON-RECOVERY-VERIFICATION.md` records inline lesson save
+recovery, stable keys for manual repeats after uncertain errors, and three new
+controller tests (30 total). `TRANSCRIPT-PRINT-FIXTURE.md` records the 60-lesson
+synthetic transcript rendering check and the still-open browser PDF export gate.
+
 Latest local follow-up: `ASSESSMENT-BROWSER-VERIFICATION.md` documents a reproduced
 native radio reset defect and its fix, plus corrected answer-option layout.
 Actual browser checks now pass for keyboard selection, repeated failure answer
