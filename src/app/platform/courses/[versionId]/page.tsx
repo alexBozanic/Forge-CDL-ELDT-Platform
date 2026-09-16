@@ -1,3 +1,4 @@
+import { DraftContentForm } from "./draft-content-form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SafeMarkdown } from "@/components/safe-markdown";
@@ -132,7 +133,7 @@ export default async function CourseVersionPage({
           {modules.map((module) => (
             <article className="module-card" key={module.id}>
               {isDraft ? (
-                <form action={saveModule} className="inline-form">
+                <DraftContentForm action={saveModule} className="inline-form">
                   <input type="hidden" name="versionId" value={version.id} />
                   <input type="hidden" name="moduleId" value={module.id} />
                   <input
@@ -149,7 +150,7 @@ export default async function CourseVersionPage({
                     required
                   />
                   <button className="text-button">Save module</button>
-                </form>
+                </DraftContentForm>
               ) : (
                 <h3>
                   {module.position}. {module.title}
@@ -160,7 +161,10 @@ export default async function CourseVersionPage({
                 .map((lesson) => (
                   <div className="lesson-preview" key={lesson.id}>
                     {isDraft ? (
-                      <form action={saveLesson} className="form-stack">
+                      <DraftContentForm
+                        action={saveLesson}
+                        className="form-stack"
+                      >
                         <input
                           type="hidden"
                           name="versionId"
@@ -212,7 +216,7 @@ export default async function CourseVersionPage({
                           />
                         </label>
                         <button className="text-button">Save lesson</button>
-                      </form>
+                      </DraftContentForm>
                     ) : (
                       <>
                         <h4>{lesson.title}</h4>
@@ -223,7 +227,10 @@ export default async function CourseVersionPage({
                   </div>
                 ))}
               {isDraft ? (
-                <form action={addLesson} className="form-stack compact-editor">
+                <DraftContentForm
+                  action={addLesson}
+                  className="form-stack compact-editor"
+                >
                   <input type="hidden" name="versionId" value={version.id} />
                   <input type="hidden" name="moduleId" value={module.id} />
                   <h4>Add lesson</h4>
@@ -252,12 +259,12 @@ export default async function CourseVersionPage({
                     <textarea name="body" rows={6} required />
                   </label>
                   <button className="button">Add lesson</button>
-                </form>
+                </DraftContentForm>
               ) : null}
             </article>
           ))}
           {isDraft ? (
-            <form action={addModule} className="panel form-stack">
+            <DraftContentForm action={addModule} className="panel form-stack">
               <input type="hidden" name="versionId" value={version.id} />
               <h3>Add module</h3>
               <label>
@@ -269,7 +276,7 @@ export default async function CourseVersionPage({
                 <input name="position" type="number" min="1" required />
               </label>
               <button className="button">Add module</button>
-            </form>
+            </DraftContentForm>
           ) : null}
           <section className="panel">
             <h2>Assessments</h2>

@@ -3,6 +3,12 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest authoring follow-up: `DRAFT-CONTENT-RECOVERY.md` covers module/lesson add
+and save forms, validated payloads, retained inputs and sanitized inline errors.
+All 33 application tests and the production build pass locally. The prior lesson
+checkpoint `f9735a9` passed CI `35051707322` and Preview
+`4f6bxShorv7yDSes3QPQaUTKvmHz`.
+
 Latest follow-up: `LESSON-RECOVERY-VERIFICATION.md` records inline lesson save
 recovery, stable keys for manual repeats after uncertain errors, and three new
 controller tests (30 total). `TRANSCRIPT-PRINT-FIXTURE.md` records the 60-lesson

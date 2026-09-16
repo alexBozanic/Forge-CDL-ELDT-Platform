@@ -215,6 +215,9 @@ a:focus-visible {
   grid-template-columns: minmax(10rem, 0.35fr) 1fr;
   gap: 0.5rem 1rem;
 }
+.draft-content-fields {
+  display: contents;
+}
 .transcript-grid dt {
   font-weight: 700;
 }

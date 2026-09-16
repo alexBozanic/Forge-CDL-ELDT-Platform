@@ -5,6 +5,10 @@ import { redirect } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
 import { requiredString } from "@/lib/forms";
 import {
+  editDraftContent,
+  type DraftContentOperation,
+} from "@/lib/draft-content";
+import {
   safeAuthoringError,
   type AssessmentFormState,
   validateAssessmentQuestion,
@@ -56,52 +60,30 @@ export async function saveVersion(formData: FormData) {
   revalidatePath(`/platform/courses/${versionId}`);
 }
 
-export async function addModule(formData: FormData) {
-  const versionId = requiredString(formData, "versionId");
-  await rpc("add_course_module", {
-    target_version_id: versionId,
-    module_title: requiredString(formData, "title"),
-    module_position: Number(requiredString(formData, "position")),
-  });
-  revalidatePath(`/platform/courses/${versionId}`);
+async function editContent(operation: DraftContentOperation, form: FormData) {
+  const state = await editDraftContent(
+    operation,
+    form,
+    async (name, payload) => {
+      const supabase = await platformClient();
+      return supabase.rpc(name, payload);
+    },
+  );
+  if (state.success)
+    revalidatePath(`/platform/courses/${String(form.get("versionId")).trim()}`);
+  return state;
 }
-
-export async function saveModule(formData: FormData) {
-  const versionId = requiredString(formData, "versionId");
-  await rpc("update_course_module", {
-    target_module_id: requiredString(formData, "moduleId"),
-    module_title: requiredString(formData, "title"),
-    module_position: Number(requiredString(formData, "position")),
-  });
-  revalidatePath(`/platform/courses/${versionId}`);
+export async function addModule(form: FormData) {
+  return editContent("addModule", form);
 }
-
-function lessonValues(formData: FormData) {
-  return {
-    lesson_title: requiredString(formData, "title"),
-    lesson_body_markdown: requiredString(formData, "body"),
-    lesson_position: Number(requiredString(formData, "position")),
-    lesson_estimated_minutes: Number(requiredString(formData, "minutes")),
-  };
+export async function saveModule(form: FormData) {
+  return editContent("saveModule", form);
 }
-
-export async function addLesson(formData: FormData) {
-  const versionId = requiredString(formData, "versionId");
-  await rpc("add_course_lesson", {
-    target_version_id: versionId,
-    target_module_id: requiredString(formData, "moduleId"),
-    ...lessonValues(formData),
-  });
-  revalidatePath(`/platform/courses/${versionId}`);
+export async function addLesson(form: FormData) {
+  return editContent("addLesson", form);
 }
-
-export async function saveLesson(formData: FormData) {
-  const versionId = requiredString(formData, "versionId");
-  await rpc("update_course_lesson", {
-    target_lesson_id: requiredString(formData, "lessonId"),
-    ...lessonValues(formData),
-  });
-  revalidatePath(`/platform/courses/${versionId}`);
+export async function saveLesson(form: FormData) {
+  return editContent("saveLesson", form);
 }
 
 export async function addAssessment(formData: FormData) {

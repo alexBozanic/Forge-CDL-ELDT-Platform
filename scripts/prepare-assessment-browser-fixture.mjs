@@ -32,6 +32,11 @@ const files = [
   ["src/lib/assessment-submission.ts", "src/lib/assessment-submission.ts"],
   ["src/lib/assessment-start.ts", "src/lib/assessment-start.ts"],
   ["src/lib/lesson-interaction.ts", "src/lib/lesson-interaction.ts"],
+  ["src/lib/draft-content.ts", "src/lib/draft-content.ts"],
+  [
+    "src/app/platform/courses/[versionId]/draft-content-form.tsx",
+    "src/app/draft-content-form.tsx",
+  ],
   [
     "src/app/schools/[slug]/courses/[enrollmentId]/lessons/[lessonId]/lesson-interactions.tsx",
     "src/app/lesson-interactions.tsx",

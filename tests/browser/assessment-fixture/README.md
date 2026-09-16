@@ -42,6 +42,11 @@ screen-reader audit. Reloading clears the local fixture action count.
 
 The lesson progress fixture also uses the production client/helper. Each new
 request key fails once, then succeeds on a manual retry; server logs record keys.
+
+The draft content fixture always returns a delayed RPC error. Edit its title and
+body, submit, and check that the fieldset disables during the delay. After the
+failure, the edited values must remain and the sanitized error must receive
+focus. The fake callback never creates real draft content.
 Check both resume-save and lesson-complete buttons: pending disables every lesson
 control, failure focuses a sanitized alert, retry retains the same key and success
 restores the controls and announces the outcome. Confirmed new operations use a

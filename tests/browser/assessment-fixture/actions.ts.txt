@@ -1,4 +1,11 @@
 "use server";
+import { editDraftContent } from "@/lib/draft-content";
+export async function draftFixture(form: FormData) {
+  return editDraftContent("addLesson", form, async () => {
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    return { error: { message: "PRIVATE DRAFT DETAIL" } };
+  });
+}
 import { saveLessonInteraction } from "@/lib/lesson-interaction";
 const lessonRequests = new Map<string, number>();
 export async function recordLessonInteraction(
