@@ -21,6 +21,7 @@
     "test:school-mutations": "node --experimental-strip-types --test tests/application/school-mutation.test.ts",
     "test:reporting-mutations": "node --experimental-strip-types --test tests/application/reporting-mutation.test.ts",
     "test:course-lifecycle": "node --experimental-strip-types --test tests/application/course-lifecycle.test.ts",
+    "test:reporting-queue": "node --experimental-strip-types --test tests/application/reporting-queue.test.ts",
     "test:reporting-export": "node --experimental-strip-types --test tests/application/reporting-export.test.ts",
     "test:reporting-csv": "node --experimental-strip-types --test tests/application/reporting-csv.test.ts",
     "test:auth-actions": "node --experimental-strip-types --test tests/application/auth-action.test.ts",

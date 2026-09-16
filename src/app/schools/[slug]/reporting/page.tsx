@@ -1,3 +1,7 @@
+import {
+  decodeReportingCursor,
+  loadReportingQueue,
+} from "@/lib/reporting-queue";
 import { randomUUID } from "node:crypto";
 import { MutationForm } from "@/components/mutation-form";
 import { recordTime } from "@/lib/record-time";
@@ -11,8 +15,10 @@ import {
 } from "./actions";
 export default async function ReportingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ before?: string | string[] }>;
 }) {
   const { slug } = await params;
   const { supabase, isPlatformAdministrator, memberships } =
@@ -34,37 +40,17 @@ export default async function ReportingPage({
     .eq("slug", slug)
     .single();
   if (!org) notFound();
-  const { data: records, error } = await supabase
-    .from("reporting_records")
-    .select(
-      "id,status,created_at,readiness_issues,reporting_identity_snapshot,provider_snapshot,course_completions(id,student_user_id,completed_at,course_manifest_hash,course_version_id,assessment_attempts(score_percent,submitted_at)),reporting_events(id,from_status,to_status,reason,occurred_at)",
-    )
-    .eq("organization_id", org.id)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  // Completions have no direct foreign key to course_versions.
-  // Resolve only versions referenced by this tenant's RLS-filtered records.
-  const versionIds = [
-    ...new Set(
-      (records ?? []).flatMap((record) => {
-        const completion = Array.isArray(record.course_completions)
-          ? record.course_completions[0]
-          : record.course_completions;
-        return completion ? [completion.course_version_id] : [];
-      }),
-    ),
-  ];
-  const versions = new Map<string, { title: string; version_number: number }>();
-  if (versionIds.length > 0) {
-    const { data: courseVersions, error: versionsError } = await supabase
-      .from("course_versions")
-      .select("id,title,version_number")
-      .in("id", versionIds);
-    if (versionsError) throw versionsError;
-    for (const version of courseVersions ?? []) {
-      versions.set(version.id, version);
-    }
+  let cursor;
+  try {
+    cursor = decodeReportingCursor((await searchParams).before);
+  } catch {
+    notFound();
   }
+  const { records, versions, next } = await loadReportingQueue(
+    supabase,
+    org.id,
+    cursor,
+  );
   return (
     <main className="container main" id="main-content">
       <nav className="inline-form" aria-label="Reporting navigation">
@@ -92,6 +78,17 @@ export default async function ReportingPage({
         CSV downloads support up to 10,000 records. If the export cannot be
         completed, an error appears instead of a partial file.
       </p>
+      <p>Newest records first; up to 50 per page.</p>
+      <nav className="inline-form" aria-label="Reporting pages">
+        {cursor ? (
+          <Link href={`/schools/${slug}/reporting`}>Newest records</Link>
+        ) : null}
+        {next ? (
+          <Link href={`/schools/${slug}/reporting?before=${next}`}>
+            Older records
+          </Link>
+        ) : null}
+      </nav>
       {records?.length ? (
         <div className="list-stack">
           {records.map((record) => {
@@ -270,8 +267,12 @@ export default async function ReportingPage({
         </div>
       ) : (
         <div className="empty-state">
-          <h2>No completion records</h2>
-          <p>Passing partial work does not create reporting work.</p>
+          <h2>{cursor ? "No older records" : "No completion records"}</h2>
+          <p>
+            {cursor
+              ? "You have reached the end of this queue."
+              : "Passing partial work does not create reporting work."}
+          </p>
         </div>
       )}
     </main>

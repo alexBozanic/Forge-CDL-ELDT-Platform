@@ -3,6 +3,11 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest reporting work queue: `REPORTING-QUEUE-PAGINATION.md` documents bounded
+newest-first pages, validated timestamp/ID cursors, smaller API-cap continuation
+and three synthetic regressions. Export checkpoint `adc913e` passed CI
+`35146774061` and Preview `2fwFDsQeXKSTdgDfkTB2AVmnz3SD`.
+
 Latest export follow-up: `REPORTING-EXPORT-PAGINATION.md` documents ordered,
 tenant-scoped CSV pagination, bounded metadata batches, explicit failure instead
 of partial downloads, and five synthetic regressions. The previous CSV checkpoint
