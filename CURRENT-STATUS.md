@@ -3,6 +3,21 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Read `MVP-READINESS.md` for the current build inventory, independent development
+backlog and external acceptance gates. Instructor edits to the separate bank are
+in progress; no reviewed workbook or approval has been received.
+
+Latest verified release before the start-form follow-up: `a0fe2ab`, CI
+`35038512375`, Preview `B5iYTiA1452GjFYybPDYVmaNMUUq`. All 23 application tests,
+database integration and disposable restore passed. The browser followed View
+latest result and showed the existing passed 100% result without final answers.
+
+The assessment start follow-up adds safe inline action errors, pending state,
+course navigation and a server-generated request key bound to each rendered
+form, preserving database idempotency on manual resubmission. It adds four tests
+(27 application tests total), all passing locally with frozen install, format,
+lint, typecheck and build. CI/Preview evidence follows in the task checkpoint.
+
 Current development follow-up: `ASSESSMENT-SUBMISSION-REPAIR.md` records student
 submission error recovery, answer preservation, accessible feedback and eight
 additional application regression tests. Instructor review of the separate
@@ -19,7 +34,7 @@ keyboard walkthrough and completed-course resume/navigation repair. Local frozen
 install, formatting, lint, typecheck, all 15 tests, and build passed for that repair;
 its CI and Preview verification follow the earlier baseline below.
 
-## Verified application checkpoint
+## Earlier verified application checkpoint
 
 Application commit: `437748d`, on the existing PR4 branch
 `codex/resume-forge-mvp-validation-from-pr2-checkpoint`.

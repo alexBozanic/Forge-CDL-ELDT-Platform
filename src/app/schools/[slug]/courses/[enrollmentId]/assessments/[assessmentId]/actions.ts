@@ -1,20 +1,22 @@
 "use server";
-import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { requiredString } from "@/lib/forms";
+import {
+  requestAssessmentStart,
+  type AssessmentStartState,
+} from "@/lib/assessment-start";
 
-export async function startAssessment(formData: FormData) {
+export async function startAssessment(
+  requestKey: string,
+  _state: AssessmentStartState,
+  formData: FormData,
+): Promise<AssessmentStartState> {
   const { supabase } = await requireUser();
-  const slug = requiredString(formData, "slug");
-  const enrollmentId = requiredString(formData, "enrollmentId");
-  const { data, error } = await supabase.rpc("start_assessment", {
-    target_enrollment_id: enrollmentId,
-    target_assessment_id: requiredString(formData, "assessmentId"),
-    request_idempotency_key: randomUUID(),
-  });
-  if (error) throw error;
-  const attemptId = (data as { attempt_id?: string } | null)?.attempt_id;
-  if (!attemptId) throw new Error("Assessment could not be started");
-  redirect(`/schools/${slug}/courses/${enrollmentId}/attempts/${attemptId}`);
+  const state = await requestAssessmentStart(formData, requestKey, (payload) =>
+    supabase.rpc("start_assessment", payload),
+  );
+  if (!state.attemptId) return state;
+  redirect(
+    `/schools/${formData.get("slug")}/courses/${formData.get("enrollmentId")}/attempts/${state.attemptId}`,
+  );
 }
