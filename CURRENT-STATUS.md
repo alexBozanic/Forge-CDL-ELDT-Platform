@@ -5,7 +5,10 @@ the evidence below supersedes their older pending/blocked statements.
 
 Latest authoring follow-up: `DRAFT-CONTENT-RECOVERY.md` covers module/lesson add
 and save forms, validated payloads, retained inputs and sanitized inline errors.
-All 33 application tests and the production build pass locally. The prior lesson
+Assessment creation and metadata now use the same recovery form, with additional
+server validation and 36 passing application tests. The module/lesson checkpoint
+`35a37c5` passed CI `35052032519` and Preview `HJjC3angzfnhrtA1vQhePcGb9GXA`.
+The prior lesson
 checkpoint `f9735a9` passed CI `35051707322` and Preview
 `4f6bxShorv7yDSes3QPQaUTKvmHz`.
 

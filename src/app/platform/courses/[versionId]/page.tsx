@@ -107,7 +107,7 @@ export default async function CourseVersionPage({
       {isDraft ? (
         <section className="panel">
           <h2>Version metadata</h2>
-          <form action={saveVersion} className="form-stack">
+          <DraftContentForm action={saveVersion} className="form-stack">
             <input type="hidden" name="versionId" value={version.id} />
             <label>
               Title
@@ -122,7 +122,7 @@ export default async function CourseVersionPage({
               />
             </label>
             <button className="button">Save draft metadata</button>
-          </form>
+          </DraftContentForm>
         </section>
       ) : null}
       <div className="authoring-layout">
@@ -323,7 +323,7 @@ export default async function CourseVersionPage({
               </article>
             ))}
             {isDraft ? (
-              <form action={addAssessment} className="form-stack">
+              <DraftContentForm action={addAssessment} className="form-stack">
                 <input type="hidden" name="versionId" value={version.id} />
                 <h3>Add assessment</h3>
                 <label>
@@ -387,7 +387,7 @@ export default async function CourseVersionPage({
                   </label>
                 </div>
                 <button className="button">Add assessment</button>
-              </form>
+              </DraftContentForm>
             ) : null}
           </section>
         </section>

@@ -1,4 +1,5 @@
 "use server";
+import { saveDraftSettings } from "@/lib/draft-settings";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -50,14 +51,17 @@ export async function createRevision(formData: FormData) {
   redirect(`/platform/courses/${versionId}`);
 }
 
-export async function saveVersion(formData: FormData) {
-  const versionId = requiredString(formData, "versionId");
-  await rpc("update_course_version_draft", {
-    target_version_id: versionId,
-    version_title: requiredString(formData, "title"),
-    version_description: requiredString(formData, "description"),
+async function editSettings(kind: "metadata" | "assessment", form: FormData) {
+  const state = await saveDraftSettings(kind, form, async (name, payload) => {
+    const supabase = await platformClient();
+    return supabase.rpc(name, payload);
   });
-  revalidatePath(`/platform/courses/${versionId}`);
+  if (state.success)
+    revalidatePath(`/platform/courses/${String(form.get("versionId")).trim()}`);
+  return state;
+}
+export async function saveVersion(form: FormData) {
+  return editSettings("metadata", form);
 }
 
 async function editContent(operation: DraftContentOperation, form: FormData) {
@@ -86,28 +90,8 @@ export async function saveLesson(form: FormData) {
   return editContent("saveLesson", form);
 }
 
-export async function addAssessment(formData: FormData) {
-  const versionId = requiredString(formData, "versionId");
-  await rpc("add_assessment", {
-    target_version_id: versionId,
-    target_lesson_id:
-      formData.get("kind") === "lesson_quiz"
-        ? requiredString(formData, "lessonId")
-        : null,
-    assessment_kind: requiredString(formData, "kind"),
-    assessment_title: requiredString(formData, "title"),
-    assessment_position: Number(requiredString(formData, "position")),
-    assessment_question_count: Number(
-      requiredString(formData, "questionCount"),
-    ),
-    assessment_passing_percent: Number(
-      requiredString(formData, "passingPercent"),
-    ),
-    assessment_time_limit_minutes: Number(
-      requiredString(formData, "timeLimit"),
-    ),
-  });
-  revalidatePath(`/platform/courses/${versionId}`);
+export async function addAssessment(form: FormData) {
+  return editSettings("assessment", form);
 }
 
 export async function addAssessmentTopic(

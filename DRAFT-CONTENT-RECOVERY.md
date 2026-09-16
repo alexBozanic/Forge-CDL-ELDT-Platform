@@ -29,7 +29,15 @@ the button were disabled while pending, then restored with the sanitized error
 focused. The screenshot confirmed readable layout and retained values. This is
 local fake-callback evidence, not a hosted authoring write or screen-reader audit.
 
-Remaining raw-action paths include course creation/revision/metadata, assessment
-creation and publication/review controls, school administration and reporting.
+The settings follow-up extends the same browser-verified form wrapper to version
+metadata and assessment creation. Three additional tests (36 application tests
+total) check required descriptions, titles, numeric ranges, a chosen lesson for
+quizzes, and the existing final-exam minimum pass percent of 80. Exact quiz/final
+RPC payloads, failure sanitization and non-mutation of inputs are covered. These
+validation checks supplement the existing database constraints; they do not alter
+assessment policy or publish content.
+
+Remaining raw-action paths include course creation/revision and publication/review
+controls, school administration and reporting.
 They require their own validation and recovery review; this checkpoint does not
 claim that every mutation form has been hardened.
