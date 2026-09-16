@@ -1,3 +1,4 @@
+import { MutationForm } from "@/components/mutation-form";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getAuthorizationContext } from "@/lib/auth";
@@ -23,7 +24,7 @@ export default async function SchoolsPage() {
       <div className="two-column">
         <section className="panel">
           <h2>Create a school</h2>
-          <form action={createSchool} className="form-stack">
+          <MutationForm action={createSchool} className="form-stack">
             <label>
               Name
               <input name="name" required maxLength={160} />
@@ -39,7 +40,7 @@ export default async function SchoolsPage() {
             <button className="button" type="submit">
               Create school
             </button>
-          </form>
+          </MutationForm>
         </section>
         <section>
           <h2>Schools</h2>

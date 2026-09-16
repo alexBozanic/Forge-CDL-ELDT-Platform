@@ -44,7 +44,8 @@ Local frozen install, formatting, lint, typecheck, all application tests, offlin
 migration bundle checks and production build pass. The shell's default bash
 targets unavailable WSL; the bundle check passed using installed Git Bash.
 There is no local psql and Docker's Linux daemon is not running, so the actual
-database and restore results must be taken from CI, recorded in the task output.
+database and restore results come from CI. Run `35053334466` at `ce73dd1`
+passed both application and database jobs, including disposable restore.
 
 ## Hosted rollout gate
 

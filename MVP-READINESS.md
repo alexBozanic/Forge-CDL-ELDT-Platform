@@ -30,6 +30,12 @@ be given while curriculum and provider/state decisions remain open.
 4. Keep the existing PR branch tested and reviewable; preserve migration bytes,
    RLS, immutable history and the pinned dependency lockfile.
 
+## Hosted review/publication safeguard
+
+Migration 009 is tested in disposable PostgreSQL but not applied to Supabase.
+Review/publication now require its displayed-hash RPCs and fail closed until the
+new increment receives an authorized one-time rollout. See REVIEW-MANIFEST-GUARD.md.
+
 ## Gates requiring external input or specific authorization
 
 1. **Disposable live integration:** authorize an isolated Supabase test setup

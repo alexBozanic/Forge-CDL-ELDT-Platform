@@ -3,12 +3,18 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest creation/invitation follow-up: `CREATION-INVITATION-RECOVERY.md` records
+partial course-creation recovery, validated school/invitation inputs, retained
+emails, safe errors and actual local browser failure checks. All 53 application
+tests and required local application/build checks pass; CI for this follow-up
+will be recorded in the task output.
+
 **New hosted gate:** `REVIEW-MANIFEST-GUARD.md` describes the displayed-hash
 review/publication safeguard and new incremental migration 009. Old migrations
 001–008 are untouched. The new RPCs are not yet installed in Supabase; the app
 fails closed for review/publication until an authorized one-time rollout. The
-change has 46 passing local application tests and real PostgreSQL regressions
-scheduled in CI. Reporting checkpoint `3cc91a1` passed CI `35052820073` and
+change passed real PostgreSQL regressions and disposable restore in CI
+`35053334466` at `ce73dd1`; Preview `DyEHjuUDTVjXmAkHtj17Y2pG43Ax` completed. Reporting checkpoint `3cc91a1` passed CI `35052820073` and
 Preview `97VebWped5v3bw9ZZnhgDWwAdger`.
 
 Reporting recovery follow-up: `REPORTING-ACTION-RECOVERY.md` records validation,

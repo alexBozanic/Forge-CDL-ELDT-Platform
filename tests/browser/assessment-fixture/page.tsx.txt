@@ -1,3 +1,5 @@
+import { InvitationForm } from "./invitation-form";
+import { AdminInvitationForm } from "./admin-invitation-form";
 import { AttemptForm } from "./attempt-form";
 import { StartForm } from "./start-form";
 import { startFixture } from "./actions";
@@ -13,6 +15,15 @@ export default function Page() {
         Fake fixtures only. No authentication, database, scoring or hosted
         writes. First two submissions fail; third succeeds.
       </p>
+      <section>
+        <h2>Invitation failure fixture</h2>
+        <InvitationForm
+          organizationId={id}
+          slug="fixture"
+          assignments={[{ id, title: "Fake assignment" }]}
+        />
+        <AdminInvitationForm organizationId={id} />
+      </section>
       <section>
         <h2>Draft content fixture</h2>
         <DraftContentForm action={draftFixture} className="form-stack">

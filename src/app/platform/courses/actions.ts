@@ -5,7 +5,7 @@ import { saveCourseLifecycle } from "@/lib/course-lifecycle";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
-import { requiredString } from "@/lib/forms";
+import { createCourseDraft } from "@/lib/platform-creation";
 import {
   editDraftContent,
   type DraftContentOperation,
@@ -33,23 +33,20 @@ async function rpc(name: string, values: Record<string, unknown>) {
   return result.data;
 }
 
-export async function createCourse(formData: FormData) {
-  const courseId = await rpc("create_course", {
-    course_title: requiredString(formData, "title"),
-    course_description: requiredString(formData, "description"),
-    demo_content: formData.get("isDemo") === "on",
+async function createDraft(kind: "course" | "revision", form: FormData) {
+  const state = await createCourseDraft(kind, form, async (name, payload) => {
+    const supabase = await platformClient();
+    return supabase.rpc(name, payload);
   });
-  const versionId = await rpc("create_course_version", {
-    target_course_id: courseId,
-  });
-  redirect(`/platform/courses/${versionId}`);
+  if (state.courseCreated) revalidatePath("/platform/courses");
+  if (state.versionId) redirect(`/platform/courses/${state.versionId}`);
+  return state;
 }
-
-export async function createRevision(formData: FormData) {
-  const versionId = await rpc("create_course_version", {
-    target_course_id: requiredString(formData, "courseId"),
-  });
-  redirect(`/platform/courses/${versionId}`);
+export async function createCourse(form: FormData) {
+  return createDraft("course", form);
+}
+export async function createRevision(form: FormData) {
+  return createDraft("revision", form);
 }
 
 async function editSettings(kind: "metadata" | "assessment", form: FormData) {

@@ -22,6 +22,16 @@ await fs.mkdir(path.join(destination, "src/app"), { recursive: true });
 await fs.mkdir(path.join(destination, "src/lib"), { recursive: true });
 await fs.mkdir(path.join(destination, "src/components"), { recursive: true });
 const files = [
+  ["src/lib/invitation-request.ts", "src/lib/invitation-request.ts"],
+  [
+    "src/components/use-invitation-action.ts",
+    "src/components/use-invitation-action.ts",
+  ],
+  ["src/app/schools/[slug]/invitation-form.tsx", "src/app/invitation-form.tsx"],
+  [
+    "src/app/platform/schools/admin-invitation-form.tsx",
+    "src/app/admin-invitation-form.tsx",
+  ],
   [
     "src/app/schools/[slug]/courses/[enrollmentId]/attempts/[attemptId]/attempt-form.tsx",
     "src/app/attempt-form.tsx",

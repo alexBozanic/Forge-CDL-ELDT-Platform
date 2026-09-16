@@ -94,3 +94,24 @@ export async function startFixture(
     error: { code: "55000" },
   }));
 }
+
+import {
+  requestInvitation,
+  type InvitationResult,
+} from "@/lib/invitation-request";
+export async function createInvitation(
+  _state: InvitationResult,
+  form: FormData,
+) {
+  return requestInvitation("student", form, async () => {
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    return { error: "PRIVATE INVITATION DETAIL" };
+  });
+}
+export async function createSchoolAdminInvitation(
+  _state: InvitationResult,
+  _form: FormData,
+): Promise<InvitationResult> {
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+  throw new Error("PRIVATE TRANSPORT DETAIL");
+}
