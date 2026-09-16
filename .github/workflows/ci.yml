@@ -34,6 +34,7 @@ jobs:
       - run: pnpm test:school-mutations
       - run: pnpm test:reporting-mutations
       - run: pnpm test:course-lifecycle
+      - run: pnpm test:reporting-csv
       - run: pnpm test:auth-actions
       - run: pnpm test:password-input
       - run: pnpm test:invitations

@@ -1,9 +1,5 @@
 import { getAuthorizationContext } from "@/lib/auth";
-function csv(value: unknown) {
-  let text = String(value ?? "");
-  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
-  return `"${text.replaceAll('"', '""')}"`;
-}
+import { reportingCsvCell as csv } from "@/lib/reporting-csv";
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ slug: string }> },

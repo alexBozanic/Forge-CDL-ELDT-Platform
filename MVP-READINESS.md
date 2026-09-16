@@ -14,14 +14,16 @@ be given while curriculum and provider/state decisions remain open.
 | School administration    | Schools, invitations, assignments and student profile workflows implemented and sampled in Preview                                                              | Two populated schools and direct unauthorized API/export denial evidence                                             |
 | Curriculum authoring     | Draft modules, lessons, questions, blueprints, exact-hash review and immutable publication implemented                                                          | Instructor-approved real content and blueprint; validate ingestion before publication                                |
 | Student learning         | Version-pinned enrollment, lessons, progress and resume implemented                                                                                             | Full active-enrollment keyboard, assistive-technology and failure walkthrough                                        |
-| Assessment               | Server selection, private keys, server scoring, deadlines, retakes and immutable attempts implemented                                                           | Browser failure/pending/focus preservation checks on fake active attempts; review timing/accessibility policy        |
+| Assessment               | Server selection, private keys, server scoring, deadlines, retakes and immutable attempts implemented                                                           | Hosted active-attempt and assistive-technology checks; review timing/accessibility policy                            |
 | Completion and reporting | Immutable completion snapshots, append-only corrections, manual reporting states, CSV and printable records implemented                                         | Long-record print/PDF accessibility, direct export authorization and operating procedure sign-off                    |
 | Release quality          | Frozen install, formatting, lint, TypeScript, application tests, build, security headers, PostgreSQL suites and disposable restore pass at recorded checkpoints | Hosted recovery/monitoring/retention evidence and controlled pilot acceptance                                        |
 
 ## Software work that can continue independently
 
 1. Local fake assessment start/submission recovery browser checks passed; see
-   `ASSESSMENT-BROWSER-VERIFICATION.md`. Broader browser and assistive-technology
+   `ASSESSMENT-BROWSER-VERIFICATION.md` and `LEARNER-TRANSPORT-RECOVERY.md`.
+   Auth, invitation and topic/question local failure checks also pass at their
+   recorded checkpoints. Broader browser and assistive-technology
    coverage remains open, along with hosted active-attempt verification.
 2. Exercise long-record print layouts with synthetic data and document actual
    pagination and accessibility limitations.

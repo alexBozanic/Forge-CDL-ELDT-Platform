@@ -3,6 +3,12 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest CSV follow-up: `REPORTING-CSV-VERIFICATION.md` records coverage for
+line-feed, whitespace/control and full-width formula prefixes, quote/delimiter
+breakouts and unchanged ordinary fields. All 63 application tests, frozen install, format, lint, typecheck and production
+build pass locally. Authoring checkpoint `6e0637f` passed CI `35107415568` and
+Preview `A65y5m1Aen2zMchqpEYyXGcLMtkT`.
+
 Latest authoring transport recovery: `AUTHORING-TRANSPORT-RECOVERY.md` records
 browser-verified topic/question retention, pending fieldsets and focused safe
 errors. Learner checkpoint `9aa78de` passed CI `35107007659` and Preview
