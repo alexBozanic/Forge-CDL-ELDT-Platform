@@ -3,11 +3,16 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest password input repair: `PASSWORD-INPUT-REPAIR.md` records removal of
+credential trimming in sign-in/signup/password update. Two new regressions bring
+the application total to 55. No real credentials or accounts were used.
+
 Latest creation/invitation follow-up: `CREATION-INVITATION-RECOVERY.md` records
 partial course-creation recovery, validated school/invitation inputs, retained
 emails, safe errors and actual local browser failure checks. All 53 application
-tests and required local application/build checks pass; CI for this follow-up
-will be recorded in the task output.
+tests and required local application/build checks pass. Checkpoint `a5e8201`
+passed CI `35059533507` (application, database and restore); Preview
+`2fhY4DkhjLb43Fgyv7W7ZRGG6uPd` completed.
 
 **New hosted gate:** `REVIEW-MANIFEST-GUARD.md` describes the displayed-hash
 review/publication safeguard and new incremental migration 009. Old migrations

@@ -1,4 +1,5 @@
 "use server";
+import { readPassword } from "@/lib/password-input";
 
 import { redirect } from "next/navigation";
 import { requiredString } from "@/lib/forms";
@@ -7,7 +8,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export async function login(formData: FormData) {
   const supabase = await createSupabaseServerClient(true);
   const email = requiredString(formData, "email").toLowerCase();
-  const password = requiredString(formData, "password");
+  const password = readPassword(formData);
+  if (password === null) redirect("/login?error=invalid");
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) redirect("/login?error=invalid");
   const { data, error: validationError } = await supabase.auth.getUser();
