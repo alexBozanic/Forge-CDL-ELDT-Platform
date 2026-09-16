@@ -215,7 +215,7 @@ a:focus-visible {
   grid-template-columns: minmax(10rem, 0.35fr) 1fr;
   gap: 0.5rem 1rem;
 }
-.draft-content-fields {
+.mutation-fields {
   display: contents;
 }
 .transcript-grid dt {

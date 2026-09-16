@@ -3,6 +3,12 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+School action follow-up: `SCHOOL-ACTION-RECOVERY.md` covers five administration
+operations with validated payloads, preserved inputs and sanitized errors using
+the shared recovery form. There are now 39 passing application tests. Prior
+assessment-settings checkpoint `1ec6c49` passed CI `35052250552` and Preview
+`CSv5kDsoXnd2yTno6HovwW8wkpsa`.
+
 Latest authoring follow-up: `DRAFT-CONTENT-RECOVERY.md` covers module/lesson add
 and save forms, validated payloads, retained inputs and sanitized inline errors.
 Assessment creation and metadata now use the same recovery form, with additional

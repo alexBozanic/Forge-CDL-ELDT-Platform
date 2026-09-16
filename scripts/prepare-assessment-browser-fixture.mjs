@@ -20,6 +20,7 @@ if (
 await fs.mkdir(destination);
 await fs.mkdir(path.join(destination, "src/app"), { recursive: true });
 await fs.mkdir(path.join(destination, "src/lib"), { recursive: true });
+await fs.mkdir(path.join(destination, "src/components"), { recursive: true });
 const files = [
   [
     "src/app/schools/[slug]/courses/[enrollmentId]/attempts/[attemptId]/attempt-form.tsx",
@@ -33,6 +34,9 @@ const files = [
   ["src/lib/assessment-start.ts", "src/lib/assessment-start.ts"],
   ["src/lib/lesson-interaction.ts", "src/lib/lesson-interaction.ts"],
   ["src/lib/draft-content.ts", "src/lib/draft-content.ts"],
+  ["src/lib/mutation-feedback.ts", "src/lib/mutation-feedback.ts"],
+  ["src/lib/school-mutation.ts", "src/lib/school-mutation.ts"],
+  ["src/components/mutation-form.tsx", "src/components/mutation-form.tsx"],
   [
     "src/app/platform/courses/[versionId]/draft-content-form.tsx",
     "src/app/draft-content-form.tsx",

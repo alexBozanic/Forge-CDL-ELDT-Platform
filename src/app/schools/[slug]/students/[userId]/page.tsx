@@ -1,3 +1,4 @@
+import { MutationForm } from "@/components/mutation-form";
 import Link from "next/link";
 import { recordTime } from "@/lib/record-time";
 import { ProfileForm } from "../../profile/profile-form";
@@ -223,7 +224,7 @@ export default async function StudentDetailPage({
         <section className="panel">
           <h2>Assign published content</h2>
           {membership.status === "active" && assignments?.length ? (
-            <form action={enrollStudent} className="form-stack">
+            <MutationForm action={enrollStudent} className="form-stack">
               <input
                 type="hidden"
                 name="organizationId"
@@ -244,7 +245,7 @@ export default async function StudentDetailPage({
               <button className="button" type="submit">
                 Enroll student
               </button>
-            </form>
+            </MutationForm>
           ) : (
             <p>No active student/assignment combination is available.</p>
           )}

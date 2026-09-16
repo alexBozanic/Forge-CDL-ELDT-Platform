@@ -31,6 +31,7 @@ jobs:
       - run: pnpm test:lessons
       - run: pnpm test:draft-content
       - run: pnpm test:draft-settings
+      - run: pnpm test:school-mutations
       - run: pnpm test:student-records
       - run: pnpm test:transcripts
       - run: pnpm test:migration-bundle
