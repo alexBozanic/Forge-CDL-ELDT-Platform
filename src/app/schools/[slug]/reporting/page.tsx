@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+import { MutationForm } from "@/components/mutation-form";
 import { recordTime } from "@/lib/record-time";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -123,7 +125,7 @@ export default async function ReportingPage({
                       Missing:{" "}
                       {(record.readiness_issues as string[]).join(", ")}
                     </p>
-                    <form
+                    <MutationForm
                       action={updateReportingIdentifiers}
                       className="form-stack"
                     >
@@ -166,8 +168,10 @@ export default async function ReportingPage({
                       <button className="button secondary">
                         Save required reporting fields
                       </button>
-                    </form>
-                    <form action={prepareReporting}>
+                    </MutationForm>
+                    <MutationForm
+                      action={prepareReporting.bind(null, randomUUID())}
+                    >
                       <input type="hidden" name="slug" value={slug} />
                       <input
                         type="hidden"
@@ -177,11 +181,14 @@ export default async function ReportingPage({
                       <button className="button">
                         Review fields and mark ready
                       </button>
-                    </form>
+                    </MutationForm>
                   </>
                 ) : null}
                 {record.status === "ready" ? (
-                  <form action={transitionReporting} className="form-stack">
+                  <MutationForm
+                    action={transitionReporting.bind(null, randomUUID())}
+                    className="form-stack"
+                  >
                     <input type="hidden" name="slug" value={slug} />
                     <input type="hidden" name="reportingId" value={record.id} />
                     <input type="hidden" name="status" value="submitted" />
@@ -190,11 +197,13 @@ export default async function ReportingPage({
                       <input name="reason" required />
                     </label>
                     <button className="button">Record submitted</button>
-                  </form>
+                  </MutationForm>
                 ) : null}
                 {record.status === "submitted" ? (
                   <div className="inline-form">
-                    <form action={transitionReporting}>
+                    <MutationForm
+                      action={transitionReporting.bind(null, randomUUID())}
+                    >
                       <input type="hidden" name="slug" value={slug} />
                       <input
                         type="hidden"
@@ -209,8 +218,10 @@ export default async function ReportingPage({
                         required
                       />
                       <button className="button">Record accepted</button>
-                    </form>
-                    <form action={transitionReporting}>
+                    </MutationForm>
+                    <MutationForm
+                      action={transitionReporting.bind(null, randomUUID())}
+                    >
                       <input type="hidden" name="slug" value={slug} />
                       <input
                         type="hidden"
@@ -227,7 +238,7 @@ export default async function ReportingPage({
                       <button className="button secondary">
                         Record rejected
                       </button>
-                    </form>
+                    </MutationForm>
                   </div>
                 ) : null}
                 <details>

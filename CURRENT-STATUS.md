@@ -3,6 +3,11 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Reporting recovery follow-up: `REPORTING-ACTION-RECOVERY.md` records validation,
+retained entries, safe errors and render-bound preparation/transition request
+keys. There are 43 passing application tests. School checkpoint `49c48ca` passed
+CI `35052551062` and Preview `EsAFakYHiramhcnx37srPTbe1CW1`.
+
 School action follow-up: `SCHOOL-ACTION-RECOVERY.md` covers five administration
 operations with validated payloads, preserved inputs and sanitized errors using
 the shared recovery form. There are now 39 passing application tests. Prior
