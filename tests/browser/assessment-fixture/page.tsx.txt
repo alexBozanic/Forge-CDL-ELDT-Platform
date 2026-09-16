@@ -1,3 +1,5 @@
+import { ProfileForm } from "./profile-form";
+import { transportStartFixture } from "./actions";
 import { MutationForm } from "@/components/mutation-form";
 import { authFailureFixture, redirectFixture } from "./actions";
 import { InvitationForm } from "./invitation-form";
@@ -17,6 +19,22 @@ export default function Page() {
         Fake fixtures only. No authentication, database, scoring or hosted
         writes. First two submissions fail; third succeeds.
       </p>
+      <section>
+        <h2>Profile transport fixture</h2>
+        <ProfileForm
+          organizationId={id}
+          userId={id}
+          slug="fixture"
+          profile={null}
+        />
+        <h2>Start transport fixture</h2>
+        <StartForm
+          slug="fixture"
+          enrollmentId={id}
+          assessmentId={id}
+          start={transportStartFixture}
+        />
+      </section>
       <section>
         <h2>Local authentication failure fixture</h2>
         <MutationForm action={authFailureFixture} className="form-stack">

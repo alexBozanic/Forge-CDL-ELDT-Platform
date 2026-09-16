@@ -1,6 +1,11 @@
 "use client";
+import { unstable_rethrow } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
-import type { SelectedQuestion } from "@/lib/assessment-submission";
+import {
+  submissionFailure,
+  type SubmissionState,
+  type SelectedQuestion,
+} from "@/lib/assessment-submission";
 import { submitAssessment } from "./actions";
 
 export function AttemptForm({
@@ -14,7 +19,17 @@ export function AttemptForm({
   attemptId: string;
   questions: SelectedQuestion[];
 }) {
-  const [state, action, pending] = useActionState(submitAssessment, {});
+  const [state, action, pending] = useActionState<SubmissionState, FormData>(
+    async (previous, form) => {
+      try {
+        return await submitAssessment(previous, form);
+      } catch (error) {
+        unstable_rethrow(error);
+        return { error: submissionFailure };
+      }
+    },
+    {},
+  );
   // React's post-action native reset can clear radio DOM state even when the
   // controlled value has not changed. Cancel that reset below as well.
   const [answers, setAnswers] = useState<Record<string, string>>({});

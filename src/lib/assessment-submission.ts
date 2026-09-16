@@ -16,7 +16,7 @@ type Attempt = {
 };
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const terminalStatuses = new Set(["passed", "failed", "expired"]);
-const failure =
+export const submissionFailure =
   "We could not confirm your submission. Your choices remain on this page. Open the attempt status in a new tab to check whether a result was saved before trying again. No automatic retry was made.";
 
 // Callbacks use the caller's authenticated client. The database still owns
@@ -43,7 +43,7 @@ export async function submitAttempt(
     return { error: "Reopen this assessment from your course to continue." };
   try {
     const { data: attempt, error } = await load(attemptId);
-    if (error) return { error: failure };
+    if (error) return { error: submissionFailure };
     if (
       !attempt ||
       attempt.id !== attemptId ||
@@ -83,9 +83,9 @@ export async function submitAttempt(
       submitted_answers: answers,
     });
     if (result.error || !terminalStatuses.has(result.data?.status ?? ""))
-      return { error: failure };
+      return { error: submissionFailure };
     return { submitted: true };
   } catch {
-    return { error: failure };
+    return { error: submissionFailure };
   }
 }

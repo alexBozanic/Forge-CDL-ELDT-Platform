@@ -62,12 +62,14 @@ const questions = [
     ],
   },
 ];
+let submissionCalls = 0;
 export async function submitAssessment(
-  state: SubmissionState & { fixtureCount?: number },
+  _state: SubmissionState & { fixtureCount?: number },
   form: FormData,
 ) {
-  const count = (state.fixtureCount ?? 0) + 1;
+  const count = ++submissionCalls;
   await new Promise((resolve) => setTimeout(resolve, 4000));
+  if (count === 1) throw new Error("PRIVATE SUBMISSION TRANSPORT DETAIL");
   const result = await submitAttempt(
     form,
     async () => ({
@@ -126,4 +128,20 @@ export async function authFailureFixture(form: FormData) {
 }
 export async function redirectFixture(): Promise<{ error?: string }> {
   redirect("/?fixture=redirected");
+}
+
+import type { ProfileState } from "@/lib/student-profile";
+export async function saveProfile(
+  _state: ProfileState,
+  _form: FormData,
+): Promise<ProfileState> {
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+  throw new Error("PRIVATE PROFILE TRANSPORT DETAIL");
+}
+export async function transportStartFixture(
+  _state: AssessmentStartState,
+  _form: FormData,
+): Promise<AssessmentStartState> {
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+  throw new Error("PRIVATE START TRANSPORT DETAIL");
 }

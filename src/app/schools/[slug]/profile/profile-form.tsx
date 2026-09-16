@@ -1,6 +1,11 @@
 "use client";
-import { useActionState, useState } from "react";
-import { type ProfileField, type ProfileValues } from "@/lib/student-profile";
+import { unstable_rethrow } from "next/navigation";
+import { useActionState, useState, useEffect, useRef } from "react";
+import {
+  type ProfileState,
+  type ProfileField,
+  type ProfileValues,
+} from "@/lib/student-profile";
 import { saveProfile } from "./actions";
 export type StudentProfile = {
   legal_first_name: string;
@@ -51,7 +56,24 @@ export function ProfileForm({
   slug: string;
   profile: StudentProfile | null;
 }) {
-  const [state, action, pending] = useActionState(saveProfile, {});
+  const [state, action, pending] = useActionState<ProfileState, FormData>(
+    async (previous, form) => {
+      try {
+        return await saveProfile(previous, form);
+      } catch (error) {
+        unstable_rethrow(error);
+        return {
+          error:
+            "We could not confirm the profile save. Your entries remain here. Check the current profile before trying again. No automatic retry was made.",
+        };
+      }
+    },
+    {},
+  );
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (state.error) errorRef.current?.focus();
+  }, [state]);
   // Controlled fields survive React's automatic form reset after an action,
   // including repeated failures with unchanged server-returned values.
   const [values, setValues] = useState<ProfileValues>({
@@ -69,7 +91,12 @@ export function ProfileForm({
         Save the student’s current details. Changes do not replace information
         in previous completion records.
       </p>
-      <form action={action} className="form-stack" aria-busy={pending}>
+      <form
+        action={action}
+        className="form-stack"
+        aria-busy={pending}
+        onReset={(event) => event.preventDefault()}
+      >
         <input type="hidden" name="organizationId" value={organizationId} />
         <input type="hidden" name="userId" value={userId} />
         <input type="hidden" name="slug" value={slug} />
@@ -101,7 +128,7 @@ export function ProfileForm({
         </button>
       </form>
       {state.error ? (
-        <p role="alert" className="form-error">
+        <p ref={errorRef} tabIndex={-1} role="alert" className="form-error">
           {state.error}
         </p>
       ) : null}

@@ -27,7 +27,7 @@ deploy this fixture. Stop the local server after verification.
 4. After failure, both selections must remain visibly checked, the count must
    agree, and focus must move to the sanitized error summary. Private fixture
    details must not appear.
-5. Submit manually again. The identical second failure must preserve selections
+5. Submit manually again. The second, returned RPC failure must preserve selections
    and focus the summary again. There must be no automatic resubmission.
 6. Submit manually a third time. The fake success must show Submission confirmed,
    disabled controls and the result link. This does not prove a saved database
@@ -38,16 +38,29 @@ deploy this fixture. Stop the local server after verification.
    clickable label area rather than an oversized centered input.
 
 These are manual browser regression checks, not a CI browser suite or a
-screen-reader audit. Reloading clears the local fixture action count.
+screen-reader audit. Restart the fixture server to reset the submission count.
+The first submission throws a transport-style error; the second returns an RPC
+error; the third returns fake success.
 
 The lesson progress fixture also uses the production client/helper. Each new
 request key fails once, then succeeds on a manual retry; server logs record keys.
-
-The draft content fixture always returns a delayed RPC error. Edit its title and
-body, submit, and check that the fieldset disables during the delay. After the
-failure, the edited values must remain and the sanitized error must receive
-focus. The fake callback never creates real draft content.
 Check both resume-save and lesson-complete buttons: pending disables every lesson
 control, failure focuses a sanitized alert, retry retains the same key and success
 restores the controls and announces the outcome. Confirmed new operations use a
 new key. The initial opened interaction is also fake and does not save real data.
+
+The draft content fixture always returns a delayed RPC error. Edit its title and
+body, submit, and check that the fieldset disables during the delay. After the
+failure, edited values must remain and the sanitized error must receive focus.
+
+The profile transport fixture throws after four seconds. Enter fake names and
+optional fake permit/jurisdiction values; verify readonly pending fields, retained
+values and a focused error after failure. The Start transport fixture similarly
+throws and must restore its button and show a focused recovery link/message.
+
+The auth fixture uses synthetic default credentials and no provider connection.
+Edit only the fake email, submit, and check retained fields and focused error.
+The separate success-redirect control must reach /?fixture=redirected without
+showing a false failure. Invitation fixtures use example.invalid addresses only;
+student failure is returned, administrator failure is thrown. Emails/assignment
+must survive, controls must disable while pending and errors must receive focus.

@@ -3,6 +3,12 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest learner transport recovery: `LEARNER-TRANSPORT-RECOVERY.md` records
+browser-verified input/answer retention and focused errors when profile, assessment
+start and submission actions throw before returning state. All 60 application
+tests and local required build checks pass. Auth checkpoint `6497f37` passed CI
+`35060395397` and Preview `4TJ5DXw1YUir3uepxdVo9oVcuDGZ`.
+
 Latest auth recovery: `AUTH-ACTION-RECOVERY.md` records inline failure handling,
 confirmed sign-out, private signup/recovery outcomes, invitation acceptance
 recovery, and the browser-reproduced/fixed false error after successful redirect.

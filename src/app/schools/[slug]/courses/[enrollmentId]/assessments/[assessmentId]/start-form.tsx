@@ -1,6 +1,10 @@
 "use client";
+import { unstable_rethrow } from "next/navigation";
 import { useActionState, useEffect, useRef } from "react";
-import type { AssessmentStartState } from "@/lib/assessment-start";
+import {
+  startFailure,
+  type AssessmentStartState,
+} from "@/lib/assessment-start";
 
 export function StartForm({
   slug,
@@ -16,7 +20,17 @@ export function StartForm({
     form: FormData,
   ) => Promise<AssessmentStartState>;
 }) {
-  const [state, action, pending] = useActionState(start, {});
+  const [state, action, pending] = useActionState<
+    AssessmentStartState,
+    FormData
+  >(async (previous, form) => {
+    try {
+      return await start(previous, form);
+    } catch (error) {
+      unstable_rethrow(error);
+      return { error: startFailure };
+    }
+  }, {});
   const error = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
     if (state.error) error.current?.focus();
