@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { recordTime } from "@/lib/record-time";
 
 export default async function StudentCoursePage({
   params,
@@ -92,7 +93,15 @@ export default async function StudentCoursePage({
     (progressResult.data ?? []).map((item) => [item.lesson_id, item]),
   );
   const firstLesson = lessonsResult.data?.[0]?.lesson_id;
-  const resumeLesson = progressResult.data?.[0]?.lesson_id ?? firstLesson;
+  const accessibleLessonIds = new Set(
+    (lessonsResult.data ?? []).map((lesson) => lesson.lesson_id),
+  );
+  const resumeLesson =
+    enrollment.status === "active"
+      ? (progressResult.data?.find((item) =>
+          accessibleLessonIds.has(item.lesson_id),
+        )?.lesson_id ?? firstLesson)
+      : undefined;
   const assignment = Array.isArray(enrollment.course_assignments)
     ? enrollment.course_assignments[0]
     : enrollment.course_assignments;
@@ -107,6 +116,10 @@ export default async function StudentCoursePage({
       }
       id="main-content"
     >
+      <nav className="inline-form" aria-label="Course navigation">
+        <Link href={`/schools/${slug}`}>School workspace</Link>
+        <Link href="/dashboard">Dashboard</Link>
+      </nav>
       <p className="kicker">
         {organization.name} · Assigned version{" "}
         {versionResult.data.version_number}
@@ -134,6 +147,13 @@ export default async function StudentCoursePage({
       ) : null}
       <section>
         <h2>{assignment?.title ?? "Course outline"}</h2>
+        {!modulesResult.data?.length ? (
+          <p>
+            {enrollment.status === "completed"
+              ? "This enrollment is completed. Lesson access requires an active enrollment; your assessment results and completion record remain below."
+              : "No lessons are available for this enrollment."}
+          </p>
+        ) : null}
         {modulesResult.data?.map((module) => (
           <article className="module-card" key={module.id}>
             <h3>
@@ -159,7 +179,7 @@ export default async function StudentCoursePage({
                       <span>
                         {state?.status ?? "not started"}
                         {state?.completed_at
-                          ? ` · ${new Date(state.completed_at).toLocaleString()}`
+                          ? ` · ${recordTime(state.completed_at)}`
                           : ""}
                       </span>
                     </Link>
@@ -202,8 +222,19 @@ export default async function StudentCoursePage({
                   <Link className="button secondary" href={destination}>
                     {latest?.status === "in_progress"
                       ? "Resume attempt"
-                      : "Start another attempt"}
+                      : latest
+                        ? "Start another attempt"
+                        : "Start assessment"}
                   </Link>
+                  {latest && latest.status !== "in_progress" ? (
+                    <p>
+                      <Link
+                        href={`/schools/${slug}/courses/${enrollment.id}/attempts/${latest.id}`}
+                      >
+                        View latest result
+                      </Link>
+                    </p>
+                  ) : null}
                 </article>
               );
             })}
@@ -222,9 +253,9 @@ export default async function StudentCoursePage({
         <section className="notice">
           <strong>Software course completion recorded</strong>
           <span>
-            {new Date(completionResult.data.completed_at).toLocaleString()}.
-            This is separate from certification and external TPR submission or
-            acceptance. Reporting readiness:{" "}
+            {recordTime(completionResult.data.completed_at)}. This is separate
+            from certification and external TPR submission or acceptance.
+            Reporting readiness at completion:{" "}
             {completionResult.data.reporting_ready
               ? "ready for manual review"
               : "needs attention"}

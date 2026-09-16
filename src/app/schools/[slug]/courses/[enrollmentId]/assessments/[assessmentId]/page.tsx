@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { randomUUID } from "node:crypto";
 import { requireUser } from "@/lib/auth";
 import { startAssessment } from "./actions";
+import { StartForm } from "./start-form";
 
 export default async function AssessmentStartPage({
   params,
@@ -29,6 +32,11 @@ export default async function AssessmentStartPage({
     <main className="container main" id="main-content">
       <p className="kicker">Version-pinned assessment</p>
       <h1>{assessment.title}</h1>
+      <p>
+        <Link href={`/schools/${slug}/courses/${enrollmentId}`}>
+          Return to course
+        </Link>
+      </p>
       <div className="notice">
         <strong>
           {assessment.kind === "final_exam"
@@ -47,12 +55,12 @@ export default async function AssessmentStartPage({
         selection and option order. Required lessons must be recorded before a
         final can start.
       </p>
-      <form action={startAssessment}>
-        <input type="hidden" name="slug" value={slug} />
-        <input type="hidden" name="enrollmentId" value={enrollmentId} />
-        <input type="hidden" name="assessmentId" value={assessmentId} />
-        <button className="button">Start assessment</button>
-      </form>
+      <StartForm
+        slug={slug}
+        enrollmentId={enrollmentId}
+        assessmentId={assessmentId}
+        start={startAssessment.bind(null, randomUUID())}
+      />
     </main>
   );
 }

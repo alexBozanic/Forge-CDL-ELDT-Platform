@@ -16,6 +16,7 @@ if [[ -z "${DATABASE_URL:-}" ]]; then
 fi
 
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/bootstrap.sql
+./scripts/test-read-only-schema-inspection.sh
 for migration in supabase/migrations/*.sql; do
   psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f "${migration}"
 done
@@ -24,6 +25,9 @@ psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/rls.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/phase_two.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/course-delivery.sql
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/assessments-completion.sql
+psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f tests/database/training-transcripts.sql
+
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/database/student-profiles.sql
 
 # Exercise redemption from two genuinely concurrent PostgreSQL sessions. The
 # first transaction holds its successful redemption open while the second waits.

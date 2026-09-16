@@ -1,14 +1,20 @@
 # Forge MVP execution plan
 
-Updated: 2026-09-12. Resume from branch `work` after commit `042d043`.
+> Current continuation: read [CURRENT-STATUS.md](CURRENT-STATUS.md)
+> first. It records the 2026-09-14 PR4 profile milestone, hosted observations,
+> local repairs, and outstanding gates. The sections below retain earlier history.
+
+Updated: 2026-09-13. Resume from branch `work` after the transcript-validation
+milestone descended from checkpoint `3218003`.
 
 ## Current milestone
 
 Local implementation is complete through assessment delivery, completion, and
-manual reporting. The next milestone is the external integration/readiness gate:
-reconcile hosted migration history, apply reviewed forward migrations 004-006,
-provision fake Auth users and non-delivering email, run the staging runner, inspect
-real browsers, and rehearse backup/restore. Do not deploy to production, reset
+manual reporting. Hosted migrations 004-007 are now operator-reported as manually
+applied. The next milestone is the external integration/readiness gate: retry the configured
+Vercel preview after the completed Next.js dependency repair is saved remotely,
+provision fake Auth users and non-delivering email, run the staging runner, and
+inspect real browsers. Do not deploy to production, reset
 hosted staging, send real email, or use real identities.
 
 ## Ordered work
@@ -41,22 +47,59 @@ hosted staging, send real email, or use real identities.
 - The optimized production server returned HTTP 200 for `/` and `/login` via
   local curl. No browser automation was available, so visual/mobile inspection
   and protected-session navigation remain external gates.
+- The continuation verified migration 006 before editing, added migration 007's
+  tenant-authorized printable transcript, and passed a fresh disposable
+  PostgreSQL 16 run. Coverage now explicitly includes persisted randomized
+  order, invalid/foreign options, expired attempts, submitted replay, revoked
+  memberships, transcript isolation, lesson timestamps, every attempt, pinned
+  version/hash, immutable snapshots, and correction/reporting history.
+- Release hardening now emits and production-smoke-tests anti-framing, no-sniff,
+  referrer, and least-capability permissions headers. Browser roles can no longer
+  select submitted assessment answers; aggregate outcomes remain available.
+- The checked-in inspection-only 004-007 bundle passed exact-inventory/hash,
+  transaction-boundary, missing/unexpected file, mismatch, and no-mutation-command
+  tests. Its read-only SQL still requires a trusted operator to verify the actual
+  hosted target and archive evidence.
+- The read-only hosted inspection now handles both absent and present migration
+  history without mutation, with both paths covered against local PostgreSQL.
+- A dump/restore rehearsal using existing fake fixtures passed between two fresh
+  disposable local PostgreSQL databases, including functions, RLS counts,
+  completion, enrollment/audit history, and protected answer grants. This is only
+  local recovery evidence, not hosted backup/PITR evidence.
 
 ## External blockers
 
 - This process has no Supabase variables, CLI, Docker, browser automation, or
   hosted Auth test credentials. A single allowlisted HTTPS probe failed at the
   CONNECT tunnel with HTTP 403; do not retry or infer availability from another runtime.
-- Hosted project `uooiziwxmuzdbdcxblox` has only migrations 001-003 plus manually
-  enabled private throttle RLS. Reconcile hashes/history exactly as described in
-  `STAGING-SETUP.md`; never reset it or blindly replay migrations.
+- Operator-reported hosted evidence says exact release migrations 004-007 were
+  manually applied successfully on 2026-09-13 and the expected RLS/grant posture
+  was observed. Migration history remains absent; do not replay migrations or
+  manufacture history.
 - Hosted Auth/PostgREST/email/browser, backup/restore, and deployment remain
   release gates even after local PostgreSQL and build checks pass.
+- Actual-browser keyboard, screen-reader, responsive, and print inspection could
+  not run because this environment has no browser automation executable.
+- The Vercel Preview compiled from the connected PR4 repository but was correctly
+  refused before publication because Next.js 15.5.2 was vulnerable. After registry
+  access changed, official npm metadata and production audit led to Next.js and its matching
+  config at current stable 16.3.5, React/React DOM and types at 19.3.0, and the
+  plugin-compatible ESLint 9.39.5 line. The legacy `@eslint/eslintrc` adapter was
+  removed for Next.js 16's native flat configs. Production audit reported no high
+  vulnerabilities; frozen install and all local release checks passed.
+  A native branch update and verified GitHub SHA are required before Preview retry.
+- Preview authoring exposed raw database errors and weak topic inputs. The local
+  repair validates blueprint fields, constrains questions to server-verified
+  topics, preserves form values, supplies accessible pending/error state, and
+  avoids blind retries. Local integration covers invalid/missing topics and the
+  successful topic-question-review-publication sequence. The hosted Gateway
+  Timeout did not reproduce locally and remains a Preview recheck gate.
 
 ## Resume instructions
 
 Read `AGENTS.md`, this file, `ARCHITECTURE.md`, `TODO.md`, `SECURITY.md`, and
-`STAGING-SETUP.md`; inspect `git status` and recent commits. Resume with the
-hash/history reconciliation in `STAGING-SETUP.md`, not `db reset` or blind push.
-After migrations 004-006 are reviewed/applied and fake credentials are supplied,
-run `node scripts/test-supabase-e2e.mjs`, then browser and backup/restore gates.
+`STAGING-SETUP.md`; inspect `git status` and recent commits. Do not reconcile
+history, reset, seed, or replay the manually applied hosted migrations.
+After the exact preview, non-delivering inbox, and confirmed fake credentials are
+supplied, run `node scripts/test-supabase-e2e.mjs`, then the browser and hosted
+backup/restore gates.

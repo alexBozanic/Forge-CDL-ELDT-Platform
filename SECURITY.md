@@ -17,6 +17,12 @@
 - Audit history is update/delete-denied to application roles.
 - Development data is obviously fake and contains no SSNs or live credentials.
 - Student profile reads and writes require an active tenant-matched membership; suspended and removed memberships no longer authorize profile access.
+- Application responses deny framing through CSP `frame-ancestors` and the legacy
+  frame header, disable MIME sniffing, limit referrer detail, and deny unused
+  camera, geolocation, microphone, payment, and USB browser capabilities.
+- Runtime dependencies pin current stable Next.js and `eslint-config-next` at
+  16.3.5 and React/React DOM at 19.3.0. The resolved lockfile passes frozen
+  installation, production audit with no high findings, and local production checks.
 
 ## Phase 2 controls
 
@@ -45,6 +51,10 @@
 - Operations: configure Auth abuse protection and edge/IP rate limits, monitor invitation failures, and rehearse account recovery.
 - Curriculum governance: define and verify formal reviewer qualifications and theory-unit blueprint content. Existing review records are software workflow evidence only.
 - Assessments use private RLS-protected answer keys and attempt payloads, server selection/grading, exact persisted option order, row locks, and integer threshold comparisons. Students cannot select their score or read submitted final payloads.
+- Browser roles cannot select submitted assessment-answer rows. Administrators
+  receive aggregate attempt outcomes and tenant-authorized transcripts instead,
+  preventing answer selections and correctness flags from becoming an indirect
+  answer-key channel.
 - Completion checks pinned lesson prerequisites and a passing final in one idempotent transaction, then freezes identity/provider/course/attempt snapshots. Corrections append records instead of rewriting history.
 - Reporting keeps needs-attention, ready, submitted, accepted, and rejected distinct, requires actor/time/reason events, performs no FMCSA call, and neutralizes spreadsheet formulas in tenant-scoped CSV exports.
 - Storage: private buckets, tenant-aware authorization, short-lived signed URLs, restricted content types and sizes.
@@ -52,7 +62,7 @@
 
 ## Sessions
 
-The implementation follows the locally installed `@supabase/ssr` source and type declarations rather than inventing an authentication API. Public project coordinates are the only browser-safe configuration. Online official documentation remained unavailable, and neither a local Supabase CLI nor a hosted test project was available; therefore Auth password flows, JWT issuance/refresh, cookie flags, PostgREST RPC exposure, and email verification still require end-to-end confirmation before a real pilot.
+The implementation follows the locally installed `@supabase/ssr` source and type declarations rather than inventing an authentication API. Public project coordinates are the only browser-safe configuration. The hosted disposable schema has now been inspected, but the project has no Auth users or completed Auth/PostgREST flow. Auth password flows, JWT issuance/refresh, cookie flags, PostgREST RPC exposure, and email verification still require end-to-end confirmation with confirmed fake identities and a non-delivering inbox before a real pilot.
 
 ## Testing standard
 

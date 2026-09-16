@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export default function SchoolError({
   reset,
 }: {
@@ -17,6 +19,9 @@ export default function SchoolError({
           <button className="button" onClick={reset}>
             Try again
           </button>
+          <Link className="button secondary" href="/dashboard">
+            Return to dashboard
+          </Link>
         </div>
       </div>
     </main>

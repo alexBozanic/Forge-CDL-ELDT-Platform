@@ -53,8 +53,16 @@ export default async function SchoolPage({
         }
         id="main-content"
       >
+        <nav aria-label="School navigation">
+          <Link href="/dashboard">Dashboard</Link>
+        </nav>
         <p className="kicker">Student workspace · Demonstration only</p>
         <h1>{organization.name}</h1>
+        <p>
+          <Link href={`/schools/${slug}/profile`}>
+            Complete or update your student profile
+          </Link>
+        </p>
         <section>
           <h2>Your assignments</h2>
           {enrollments?.length ? (
@@ -141,6 +149,9 @@ export default async function SchoolPage({
       }
       id="main-content"
     >
+      <nav aria-label="School navigation">
+        <Link href="/dashboard">Dashboard</Link>
+      </nav>
       <p className="kicker">School administration · Demonstration only</p>
       <h1>{organization.name}</h1>
       <p>

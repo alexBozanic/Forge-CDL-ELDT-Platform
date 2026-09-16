@@ -31,10 +31,33 @@ export async function GET(
   const { data, error } = await supabase
     .from("reporting_records")
     .select(
-      "id,status,created_at,reporting_identity_snapshot,provider_snapshot,course_completions(completed_at,course_manifest_hash,course_versions(title,version_number),assessment_attempts(score_percent,submitted_at))",
+      "id,status,created_at,reporting_identity_snapshot,provider_snapshot,course_completions(completed_at,course_manifest_hash,course_version_id,assessment_attempts(score_percent,submitted_at))",
     )
     .eq("organization_id", org.id);
   if (error) throw error;
+  // Completions have no direct foreign key to course_versions.
+  // Resolve only versions referenced by this tenant's RLS-filtered records.
+  const versionIds = [
+    ...new Set(
+      (data ?? []).flatMap((record) => {
+        const completion = Array.isArray(record.course_completions)
+          ? record.course_completions[0]
+          : record.course_completions;
+        return completion ? [completion.course_version_id] : [];
+      }),
+    ),
+  ];
+  const versions = new Map<string, { title: string; version_number: number }>();
+  if (versionIds.length > 0) {
+    const { data: courseVersions, error: versionsError } = await supabase
+      .from("course_versions")
+      .select("id,title,version_number")
+      .in("id", versionIds);
+    if (versionsError) throw versionsError;
+    for (const version of courseVersions ?? []) {
+      versions.set(version.id, version);
+    }
+  }
   const header = [
     "record_id",
     "status",
@@ -50,9 +73,7 @@ export async function GET(
     const c = Array.isArray(r.course_completions)
       ? r.course_completions[0]
       : r.course_completions;
-    const v = Array.isArray(c?.course_versions)
-      ? c?.course_versions[0]
-      : c?.course_versions;
+    const v = c ? versions.get(c.course_version_id) : undefined;
     const a = Array.isArray(c?.assessment_attempts)
       ? c?.assessment_attempts[0]
       : c?.assessment_attempts;

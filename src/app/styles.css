@@ -210,6 +210,60 @@ a:focus-visible {
   color: #34445c;
   font-size: 0.875rem;
 }
+.transcript-grid {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.35fr) 1fr;
+  gap: 0.5rem 1rem;
+}
+.transcript-grid dt {
+  font-weight: 700;
+}
+.transcript-grid dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.transcript code {
+  overflow-wrap: anywhere;
+}
+.record-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.reporting-record {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.record-table:focus-visible {
+  outline: 0.2rem solid var(--blue);
+  outline-offset: 0.1rem;
+}
+.transcript table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.transcript th,
+.transcript td {
+  padding: 0.6rem;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+@media print {
+  .site-header,
+  .site-footer,
+  .print-hidden {
+    display: none;
+  }
+  .transcript {
+    max-width: none;
+  }
+  .transcript .panel,
+  .transcript .notice {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+}
 .auth-shell {
   display: grid;
   place-items: center;
@@ -267,6 +321,10 @@ a:focus-visible {
   border-left: 0.3rem solid #a92323;
   background: #fff0f0;
   color: #751717;
+}
+.form-success {
+  color: #176b36;
+  font-weight: 700;
 }
 .page-heading {
   display: flex;
@@ -407,6 +465,13 @@ a:focus-visible {
   }
 }
 @media (max-width: 45rem) {
+  .transcript-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+  .transcript-grid dt:not(:first-child) {
+    margin-top: 0.75rem;
+  }
   .gate-grid {
     grid-template-columns: 1fr;
   }
@@ -436,6 +501,14 @@ a:focus-visible {
   }
 }
 @media print {
+  .record-table {
+    overflow: visible;
+  }
+  .transcript table {
+    table-layout: fixed;
+    overflow-wrap: anywhere;
+    font-size: 0.8rem;
+  }
   header,
   .button,
   form {
@@ -446,4 +519,10 @@ a:focus-visible {
     break-inside: avoid;
     box-shadow: none;
   }
+}
+
+/* Keep long version identifiers inside student record columns. */
+.two-column > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
