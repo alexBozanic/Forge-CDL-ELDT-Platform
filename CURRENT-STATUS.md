@@ -3,6 +3,14 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+**New hosted gate:** `REVIEW-MANIFEST-GUARD.md` describes the displayed-hash
+review/publication safeguard and new incremental migration 009. Old migrations
+001–008 are untouched. The new RPCs are not yet installed in Supabase; the app
+fails closed for review/publication until an authorized one-time rollout. The
+change has 46 passing local application tests and real PostgreSQL regressions
+scheduled in CI. Reporting checkpoint `3cc91a1` passed CI `35052820073` and
+Preview `97VebWped5v3bw9ZZnhgDWwAdger`.
+
 Reporting recovery follow-up: `REPORTING-ACTION-RECOVERY.md` records validation,
 retained entries, safe errors and render-bound preparation/transition request
 keys. There are 43 passing application tests. School checkpoint `49c48ca` passed

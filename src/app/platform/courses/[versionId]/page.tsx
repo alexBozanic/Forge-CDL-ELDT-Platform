@@ -1,3 +1,4 @@
+import { MutationForm } from "@/components/mutation-form";
 import { DraftContentForm } from "./draft-content-form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -411,7 +412,12 @@ export default async function CourseVersionPage({
           ))}
           {isDraft ? (
             <>
-              <form action={reviewVersion} className="form-stack">
+              <MutationForm action={reviewVersion} className="form-stack">
+                <input
+                  type="hidden"
+                  name="manifestHash"
+                  value={version.manifest_hash}
+                />
                 <input type="hidden" name="versionId" value={version.id} />
                 <label>
                   Decision
@@ -429,14 +435,19 @@ export default async function CourseVersionPage({
                 <button className="button secondary">
                   Record exact-hash review
                 </button>
-              </form>
-              <form action={publishVersion}>
+              </MutationForm>
+              <MutationForm action={publishVersion}>
+                <input
+                  type="hidden"
+                  name="manifestHash"
+                  value={version.manifest_hash}
+                />
                 <input type="hidden" name="versionId" value={version.id} />
                 <button className="button">Publish immutable version</button>
-              </form>
+              </MutationForm>
             </>
           ) : version.status === "published" ? (
-            <form action={retireVersion} className="form-stack">
+            <MutationForm action={retireVersion} className="form-stack">
               <input type="hidden" name="versionId" value={version.id} />
               <label>
                 Retirement reason
@@ -445,7 +456,7 @@ export default async function CourseVersionPage({
               <button className="button secondary">
                 Retire for future assignment
               </button>
-            </form>
+            </MutationForm>
           ) : (
             <p>Retired: {version.retirement_reason}</p>
           )}

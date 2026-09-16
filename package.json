@@ -20,6 +20,7 @@
     "test:draft-settings": "node --experimental-strip-types --test tests/application/draft-settings.test.ts",
     "test:school-mutations": "node --experimental-strip-types --test tests/application/school-mutation.test.ts",
     "test:reporting-mutations": "node --experimental-strip-types --test tests/application/reporting-mutation.test.ts",
+    "test:course-lifecycle": "node --experimental-strip-types --test tests/application/course-lifecycle.test.ts",
     "test:student-records": "node --experimental-strip-types --test tests/application/student-membership.test.ts",
     "test:transcripts": "node --experimental-strip-types --test tests/application/school-transcript.test.ts",
     "test:headers": "bash scripts/test-http-security-headers.sh",

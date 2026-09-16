@@ -1,5 +1,6 @@
 "use server";
 import { saveDraftSettings } from "@/lib/draft-settings";
+import { saveCourseLifecycle } from "@/lib/course-lifecycle";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -190,27 +191,28 @@ export async function addAssessmentQuestion(
   }
 }
 
-export async function reviewVersion(formData: FormData) {
-  const versionId = requiredString(formData, "versionId");
-  await rpc("review_course_version", {
-    target_version_id: versionId,
-    review_decision: requiredString(formData, "decision"),
-    review_notes: requiredString(formData, "notes"),
-  });
-  revalidatePath(`/platform/courses/${versionId}`);
+async function lifecycle(
+  operation: "review" | "publish" | "retire",
+  form: FormData,
+) {
+  const state = await saveCourseLifecycle(
+    operation,
+    form,
+    async (name, payload) => {
+      const supabase = await platformClient();
+      return supabase.rpc(name, payload);
+    },
+  );
+  if (state.success)
+    revalidatePath(`/platform/courses/${String(form.get("versionId")).trim()}`);
+  return state;
 }
-
-export async function publishVersion(formData: FormData) {
-  const versionId = requiredString(formData, "versionId");
-  await rpc("publish_course_version", { target_version_id: versionId });
-  revalidatePath(`/platform/courses/${versionId}`);
+export async function reviewVersion(form: FormData) {
+  return lifecycle("review", form);
 }
-
-export async function retireVersion(formData: FormData) {
-  const versionId = requiredString(formData, "versionId");
-  await rpc("retire_course_version", {
-    target_version_id: versionId,
-    reason: requiredString(formData, "reason"),
-  });
-  revalidatePath(`/platform/courses/${versionId}`);
+export async function publishVersion(form: FormData) {
+  return lifecycle("publish", form);
+}
+export async function retireVersion(form: FormData) {
+  return lifecycle("retire", form);
 }

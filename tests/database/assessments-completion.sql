@@ -1,4 +1,17 @@
 begin;
+-- Happy-path fixtures explicitly pass the hash currently loaded by the test.
+-- Stale editor behavior is covered separately in review-manifest-preconditions.sql.
+create or replace function pg_temp.review_current_fixture(version_id uuid, decision public.curriculum_review_decision, notes text)
+returns uuid language sql as $$
+  select public.review_course_version_at_hash(version_id,
+    (select manifest_hash from public.course_versions where id = version_id), decision, notes);
+$$;
+create or replace function pg_temp.publish_current_fixture(version_id uuid)
+returns text language sql as $$
+  select public.publish_course_version_at_hash(version_id,
+    (select manifest_hash from public.course_versions where id = version_id));
+$$;
+
 create or replace function pg_temp.assert_true(ok boolean, message text) returns void language plpgsql as $$ begin if not coalesce(ok,false) then raise exception 'assertion failed: %',message; end if; end $$;
 create or replace function pg_temp.expect_invalid_submission(attempt_id uuid, answers jsonb) returns void language plpgsql as $$ begin begin perform public.submit_assessment(attempt_id,answers); raise exception 'invalid assessment submission was accepted'; exception when sqlstate '22023' then null; end; end $$;
 
@@ -37,8 +50,8 @@ update private.assessment_answer_keys set correct_option_id='d6610000-0000-4000-
 where course_version_id='d6000000-0000-4000-8000-000000000001' and question_id='d6410000-0000-4000-8000-000000000001';
 
 set role authenticated; select set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
-select public.review_course_version('d6000000-0000-4000-8000-000000000001','approved','Software test review only; no approval claim.');
-select public.publish_course_version('d6000000-0000-4000-8000-000000000001');
+select pg_temp.review_current_fixture('d6000000-0000-4000-8000-000000000001','approved','Software test review only; no approval claim.');
+select pg_temp.publish_current_fixture('d6000000-0000-4000-8000-000000000001');
 reset role;
 select pg_temp.assert_true((select manifest_hash from public.course_versions where id='d6000000-0000-4000-8000-000000000001') <> (select manifest_hash from public.course_versions where id='dddddddd-0000-4000-8000-000000000001'),'revision overwrote historical manifest');
 
@@ -171,8 +184,8 @@ do $$ begin
 end $$;
 select public.add_assessment_topic('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','demo_purpose',1);
 select public.add_assessment_question('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','demo_purpose','Does this fake workflow establish approval?','No. It tests software authoring only.',array['No','Yes'],1);
-select public.review_course_version('d7000000-0000-4000-8000-000000000001','approved','Fake exact-hash software review.');
-select public.publish_course_version('d7000000-0000-4000-8000-000000000001');
+select pg_temp.review_current_fixture('d7000000-0000-4000-8000-000000000001','approved','Fake exact-hash software review.');
+select pg_temp.publish_current_fixture('d7000000-0000-4000-8000-000000000001');
 select pg_temp.assert_true((select status='published' from public.course_versions where id='d7000000-0000-4000-8000-000000000001'),'valid RPC authoring workflow did not publish');
 reset role;
 

@@ -7,6 +7,7 @@ readonly source_dir="${1:-supabase/migrations}"
 readonly output_dir="${2:-release/staging-migration-bundle}"
 
 declare -Ar expected_hashes=(
+  [202609160009_review_manifest_preconditions.sql]='1b642e3ac074e634d38991f25ba8aa6ea69781e8a58246260fd1692499cb3974'
   [202609140008_student_profiles.sql]='4c79b882b13e3176dff670638bf703fdc0ce1c1092c1a2823d10c5e41fc5903c'
   [202609120001_foundation.sql]='2831f5ab9525e2ac5b5a2e9f68ec1b37eca54928cae86e4b5197b35fb6fa85f7'
   [202609120002_identity_invitations_enrollment.sql]='e45c0ae8c99f0c0f5e089e46353fa63c66fbb866f03c78b803c73b096fd45faa'
@@ -54,6 +55,8 @@ d93b3492bcd1f9b6c3c9fe5571c40651e7a9cac139020b68022f983866059da3  202609120004_c
 bcf7565ac5536215dede126fe4c952ab0324cff45226ec6f3bfe4bc5326a00dc  202609120007_training_transcripts.sql
 
 4c79b882b13e3176dff670638bf703fdc0ce1c1092c1a2823d10c5e41fc5903c  202609140008_student_profiles.sql (separate incremental migration, not included in this legacy bundle)
+
+1b642e3ac074e634d38991f25ba8aa6ea69781e8a58246260fd1692499cb3974  202609160009_review_manifest_preconditions.sql (separate incremental migration, not included in this legacy bundle)
 
 Release files 004-007 retain their own BEGIN/COMMIT transaction boundaries. An operator reports they were manually applied on 2026-09-13; do not replay them. Follow the controlled gates and current state in STAGING-SETUP.md.
 No command in this bundle repairs migration history, pushes migrations, or derives authorization from environment-string assertions.

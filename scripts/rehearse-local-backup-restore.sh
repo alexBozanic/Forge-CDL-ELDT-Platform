@@ -39,6 +39,10 @@ psql "${admin_args[@]}" -d "$restore_database" -v ON_ERROR_STOP=1 <<'SQL'
 do $$
 begin
   if to_regprocedure('public.get_training_transcript(uuid)') is null then raise exception 'transcript RPC missing after restore'; end if;
+  if to_regprocedure('public.review_course_version_at_hash(uuid,text,public.curriculum_review_decision,text)') is null
+    or to_regprocedure('public.publish_course_version_at_hash(uuid,text)') is null then raise exception 'manifest precondition RPC missing after restore'; end if;
+  if has_function_privilege('authenticated','public.review_course_version(uuid,public.curriculum_review_decision,text)','execute')
+    or has_function_privilege('authenticated','public.publish_course_version(uuid)','execute') then raise exception 'legacy manifest bypass restored incorrectly'; end if;
   if (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace
       where n.nspname='public' and c.relkind='r' and c.relrowsecurity) <> 28 then raise exception 'public RLS table count changed after restore'; end if;
   if (select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace

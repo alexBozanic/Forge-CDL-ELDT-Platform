@@ -33,6 +33,7 @@ jobs:
       - run: pnpm test:draft-settings
       - run: pnpm test:school-mutations
       - run: pnpm test:reporting-mutations
+      - run: pnpm test:course-lifecycle
       - run: pnpm test:student-records
       - run: pnpm test:transcripts
       - run: pnpm test:migration-bundle

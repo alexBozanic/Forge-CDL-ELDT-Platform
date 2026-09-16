@@ -1,4 +1,17 @@
 begin;
+-- Happy-path fixtures explicitly pass the hash currently loaded by the test.
+-- Stale editor behavior is covered separately in review-manifest-preconditions.sql.
+create or replace function pg_temp.review_current_fixture(version_id uuid, decision public.curriculum_review_decision, notes text)
+returns uuid language sql as $$
+  select public.review_course_version_at_hash(version_id,
+    (select manifest_hash from public.course_versions where id = version_id), decision, notes);
+$$;
+create or replace function pg_temp.publish_current_fixture(version_id uuid)
+returns text language sql as $$
+  select public.publish_course_version_at_hash(version_id,
+    (select manifest_hash from public.course_versions where id = version_id));
+$$;
+
 
 create or replace function pg_temp.assert_true(condition boolean, message text)
 returns void language plpgsql as $$ begin
@@ -25,8 +38,8 @@ insert into private.assessment_answer_keys(course_version_id,question_id,correct
 values('e6000000-0000-4000-8000-000000000001','e6400000-0000-4000-8000-000000000001','e6600000-0000-4000-8000-000000000001');
 set role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
-select public.review_course_version('e6000000-0000-4000-8000-000000000001','approved','Fake transcript review.');
-select public.publish_course_version('e6000000-0000-4000-8000-000000000001');
+select pg_temp.review_current_fixture('e6000000-0000-4000-8000-000000000001','approved','Fake transcript review.');
+select pg_temp.publish_current_fixture('e6000000-0000-4000-8000-000000000001');
 reset role;
 insert into public.course_assignments(id,organization_id,course_version_id,title,created_by) values
 ('e6700000-0000-4000-8000-000000000001','aaaaaaaa-0000-4000-8000-000000000001','e6000000-0000-4000-8000-000000000001','Transcript demo assignment','10000000-0000-4000-8000-000000000001');
