@@ -1,0 +1,21 @@
+"use server";
+import { submitAttempt, type SubmissionState } from "@/lib/assessment-submission";
+import { requestAssessmentStart, type AssessmentStartState } from "@/lib/assessment-start";
+const id = "00000000-0000-4000-8000-000000000001";
+const questions = [
+  { question_id: "q1", prompt: "Local fixture: choose a color", options: [{ option_id: "blue", text: "Blue" }, { option_id: "green", text: "Green" }] },
+  { question_id: "q2", prompt: "Local fixture: choose a shape", options: [{ option_id: "circle", text: "Circle" }, { option_id: "square", text: "Square" }] },
+];
+export async function submitAssessment(state: SubmissionState & { fixtureCount?: number }, form: FormData) {
+  const count = (state.fixtureCount ?? 0) + 1;
+  await new Promise(resolve => setTimeout(resolve, 4000));
+  const result = await submitAttempt(form,
+    async () => ({ data: { id, enrollment_id: id, status: "in_progress", questions }, error: null }),
+    async () => count < 3 ? { data: null, error: { message: "PRIVATE FIXTURE DATABASE DETAIL" } } : { data: { status: "passed" }, error: null });
+  console.log(`Local submission fixture call ${count}: ${result.submitted ? "confirmed" : "error"}`);
+  return { ...result, fixtureCount: count };
+}
+export async function startFixture(_state: AssessmentStartState, form: FormData) {
+  await new Promise(resolve => setTimeout(resolve, 4000));
+  return requestAssessmentStart(form, id, async () => ({ data: null, error: { code: "55000" } }));
+}

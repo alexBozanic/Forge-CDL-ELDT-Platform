@@ -15,7 +15,8 @@ export function AttemptForm({
   questions: SelectedQuestion[];
 }) {
   const [state, action, pending] = useActionState(submitAssessment, {});
-  // Controlled radios survive React's post-action form reset after failures.
+  // React's post-action native reset can clear radio DOM state even when the
+  // controlled value has not changed. Cancel that reset below as well.
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const errorSummary = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -23,7 +24,12 @@ export function AttemptForm({
   }, [state]);
   const attemptPath = `/schools/${slug}/courses/${enrollmentId}/attempts/${attemptId}`;
   return (
-    <form action={action} className="form-stack" aria-busy={pending}>
+    <form
+      action={action}
+      className="form-stack"
+      aria-busy={pending}
+      onReset={(event) => event.preventDefault()}
+    >
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="enrollmentId" value={enrollmentId} />
       <input type="hidden" name="attemptId" value={attemptId} />

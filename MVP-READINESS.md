@@ -20,8 +20,9 @@ be given while curriculum and provider/state decisions remain open.
 
 ## Software work that can continue independently
 
-1. Finish the assessment start/submission recovery verification using local fake
-   fixtures; address concrete accessibility failures without changing grading.
+1. Local fake assessment start/submission recovery browser checks passed; see
+   `ASSESSMENT-BROWSER-VERIFICATION.md`. Broader browser and assistive-technology
+   coverage remains open, along with hosted active-attempt verification.
 2. Exercise long-record print layouts with synthetic data and document actual
    pagination and accessibility limitations.
 3. Review remaining form/action error paths and fix reproducible failures, with

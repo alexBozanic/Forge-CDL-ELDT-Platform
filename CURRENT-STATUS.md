@@ -3,6 +3,17 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest local follow-up: `ASSESSMENT-BROWSER-VERIFICATION.md` documents a reproduced
+native radio reset defect and its fix, plus corrected answer-option layout.
+Actual browser checks now pass for keyboard selection, repeated failure answer
+preservation, pending controls, focus and mocked confirmation. All 27 application
+tests and the production build pass. Hosted integration and screen-reader
+verification remain separate gates. The reproducible fixture lives outside the
+application and never writes hosted data.
+
+Previous verified branch checkpoint: `e8c6196`, CI `35039071644` passed application,
+database and restore; Preview `C4cC4f4sHA3HJnEvjRJ2WtCzhcow` was Ready.
+
 Read `MVP-READINESS.md` for the current build inventory, independent development
 backlog and external acceptance gates. Instructor edits to the separate bank are
 in progress; no reviewed workbook or approval has been received.

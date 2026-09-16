@@ -1,0 +1,15 @@
+import { AttemptForm } from "./attempt-form";
+import { StartForm } from "./start-form";
+import { startFixture } from "./actions";
+const id = "00000000-0000-4000-8000-000000000001";
+export default function Page() {
+  return <main className="container main" id="main-content">
+    <h1>Local assessment form verification</h1>
+    <p>Fake fixtures only. No authentication, database, scoring or hosted writes. First two submissions fail; third succeeds.</p>
+    <section><h2>Submission fixture</h2><AttemptForm slug="fixture" enrollmentId={id} attemptId={id} questions={[
+      { question_id: "q1", prompt: "Local fixture: choose a color", options: [{ option_id: "blue", text: "Blue" }, { option_id: "green", text: "Green" }] },
+      { question_id: "q2", prompt: "Local fixture: choose a shape", options: [{ option_id: "circle", text: "Circle" }, { option_id: "square", text: "Square" }] },
+    ]} /></section>
+    <section><h2>Start fixture</h2><StartForm slug="fixture" enrollmentId={id} assessmentId={id} start={startFixture} /></section>
+  </main>;
+}
