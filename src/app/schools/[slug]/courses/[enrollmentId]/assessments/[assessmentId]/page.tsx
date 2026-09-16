@@ -1,3 +1,4 @@
+import { loadSchoolEnrollment } from "@/lib/school-enrollment";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
@@ -12,12 +13,12 @@ export default async function AssessmentStartPage({
 }) {
   const { slug, enrollmentId, assessmentId } = await params;
   const { supabase, user } = await requireUser();
-  const { data: enrollment } = await supabase
-    .from("enrollments")
-    .select("id, course_version_id, status")
-    .eq("id", enrollmentId)
-    .eq("student_user_id", user.id)
-    .single();
+  const enrollment = await loadSchoolEnrollment(
+    supabase,
+    slug,
+    enrollmentId,
+    user.id,
+  );
   if (!enrollment) notFound();
   const { data: assessment } = await supabase
     .from("assessments")

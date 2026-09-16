@@ -1,3 +1,4 @@
+import { loadSchoolEnrollment } from "@/lib/school-enrollment";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
@@ -10,7 +11,9 @@ export default async function AttemptPage({
   params: Promise<{ slug: string; enrollmentId: string; attemptId: string }>;
 }) {
   const { slug, enrollmentId, attemptId } = await params;
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
+  if (!(await loadSchoolEnrollment(supabase, slug, enrollmentId, user.id)))
+    notFound();
   const { data: attempt, error } = await supabase.rpc(
     "get_assessment_attempt",
     {

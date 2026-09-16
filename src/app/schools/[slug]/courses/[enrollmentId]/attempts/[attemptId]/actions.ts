@@ -1,4 +1,5 @@
 "use server";
+import { loadSchoolEnrollment } from "@/lib/school-enrollment";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import {
@@ -9,10 +10,19 @@ export async function submitAssessment(
   _state: SubmissionState,
   formData: FormData,
 ): Promise<SubmissionState> {
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
   const state = await submitAttempt(
     formData,
-    (id) => supabase.rpc("get_assessment_attempt", { target_attempt_id: id }),
+    async (id) => {
+      const enrollment = await loadSchoolEnrollment(
+        supabase,
+        formData.get("slug"),
+        formData.get("enrollmentId"),
+        user.id,
+      );
+      if (!enrollment) return { data: null, error: "Unavailable enrollment" };
+      return supabase.rpc("get_assessment_attempt", { target_attempt_id: id });
+    },
     (payload) => supabase.rpc("submit_assessment", payload),
   );
   if (state.submitted) {

@@ -3,6 +3,12 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest assessment route repair: `ASSESSMENT-SCHOOL-CONTEXT.md` records school
+and learner binding on assessment pages and start/submit actions. Previous
+checkpoint `3a89ce4` passed CI `35150301025` and Preview
+`Ehpfywx2EiuVRan7wjgrNWyWRN3g`. Taylor's fake-data rehearsal is set up; learner
+account switch remains pending.
+
 Latest browser verification: `REPORTING-QUEUE-BROWSER-VERIFICATION.md` records
 local unchanged-page traversal under a four-row API cap, keyboard continuation,
 end-of-list, newest reset and invalid cursor handling. `FIRST-SCHOOL-PILOT.md`

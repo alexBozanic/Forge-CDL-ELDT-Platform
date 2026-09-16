@@ -29,6 +29,7 @@
     "test:invitations": "node --experimental-strip-types --test tests/application/invitation-request.test.ts",
     "test:platform-creation": "node --experimental-strip-types --test tests/application/platform-creation.test.ts",
     "test:student-records": "node --experimental-strip-types --test tests/application/student-membership.test.ts",
+    "test:school-enrollment": "node --experimental-strip-types --test tests/application/school-enrollment.test.ts",
     "test:transcripts": "node --experimental-strip-types --test tests/application/school-transcript.test.ts",
     "test:headers": "bash scripts/test-http-security-headers.sh",
     "test:authoring": "node --experimental-strip-types --test tests/application/assessment-authoring.test.ts",

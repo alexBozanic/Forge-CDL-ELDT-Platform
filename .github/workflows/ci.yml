@@ -42,6 +42,7 @@ jobs:
       - run: pnpm test:invitations
       - run: pnpm test:platform-creation
       - run: pnpm test:student-records
+      - run: pnpm test:school-enrollment
       - run: pnpm test:transcripts
       - run: pnpm test:migration-bundle
       - run: pnpm build
