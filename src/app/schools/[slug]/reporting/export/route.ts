@@ -1,3 +1,4 @@
+import { loadReportingExport } from "@/lib/reporting-export";
 import { getAuthorizationContext } from "@/lib/auth";
 import { reportingCsvCell as csv } from "@/lib/reporting-csv";
 export async function GET(
@@ -24,36 +25,13 @@ export async function GET(
     .eq("slug", slug)
     .single();
   if (!org) return new Response("Not found", { status: 404 });
-  const { data, error } = await supabase
-    .from("reporting_records")
-    .select(
-      "id,status,created_at,reporting_identity_snapshot,provider_snapshot,course_completions(completed_at,course_manifest_hash,course_version_id,assessment_attempts(score_percent,submitted_at))",
-    )
-    .eq("organization_id", org.id);
-  if (error) throw error;
-  // Completions have no direct foreign key to course_versions.
-  // Resolve only versions referenced by this tenant's RLS-filtered records.
-  const versionIds = [
-    ...new Set(
-      (data ?? []).flatMap((record) => {
-        const completion = Array.isArray(record.course_completions)
-          ? record.course_completions[0]
-          : record.course_completions;
-        return completion ? [completion.course_version_id] : [];
-      }),
-    ),
-  ];
-  const versions = new Map<string, { title: string; version_number: number }>();
-  if (versionIds.length > 0) {
-    const { data: courseVersions, error: versionsError } = await supabase
-      .from("course_versions")
-      .select("id,title,version_number")
-      .in("id", versionIds);
-    if (versionsError) throw versionsError;
-    for (const version of courseVersions ?? []) {
-      versions.set(version.id, version);
-    }
-  }
+  const exported = await loadReportingExport(
+    supabase,
+    org.id,
+    new Date().toISOString(),
+  );
+  if (exported.error) return exportFailure(exported.error);
+  const { rows: data, versions } = exported;
   const header = [
     "record_id",
     "status",
@@ -105,4 +83,19 @@ export async function GET(
       "cache-control": "private, no-store",
     },
   });
+}
+
+function exportFailure(reason: "unavailable" | "too_large") {
+  return new Response(
+    reason === "too_large"
+      ? "This export exceeds the current 10,000-record limit. Contact support for a larger export. No partial file was generated."
+      : "The export could not be completed. Try again later. No partial file was generated.",
+    {
+      status: reason === "too_large" ? 413 : 503,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "cache-control": "private, no-store",
+      },
+    },
+  );
 }

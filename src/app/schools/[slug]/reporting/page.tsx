@@ -88,6 +88,10 @@ export default async function ReportingPage({
           Download tenant-safe CSV
         </Link>
       </p>
+      <p>
+        CSV downloads support up to 10,000 records. If the export cannot be
+        completed, an error appears instead of a partial file.
+      </p>
       {records?.length ? (
         <div className="list-stack">
           {records.map((record) => {

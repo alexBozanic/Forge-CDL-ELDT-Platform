@@ -3,6 +3,12 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest export follow-up: `REPORTING-EXPORT-PAGINATION.md` documents ordered,
+tenant-scoped CSV pagination, bounded metadata batches, explicit failure instead
+of partial downloads, and five synthetic regressions. The previous CSV checkpoint
+`4e43486` passed CI `35107756461` and Preview
+`5d7QqavySFWpXeqSwF57gCxmcUf8`. Hosted export isolation remains unverified.
+
 Latest CSV follow-up: `REPORTING-CSV-VERIFICATION.md` records coverage for
 line-feed, whitespace/control and full-width formula prefixes, quote/delimiter
 breakouts and unchanged ordinary fields. All 63 application tests, frozen install, format, lint, typecheck and production
