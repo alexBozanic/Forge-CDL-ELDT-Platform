@@ -145,3 +145,22 @@ export async function transportStartFixture(
   await new Promise((resolve) => setTimeout(resolve, 4000));
   throw new Error("PRIVATE START TRANSPORT DETAIL");
 }
+
+import {
+  safeAuthoringError,
+  type AssessmentFormState,
+} from "@/lib/assessment-authoring";
+export async function addAssessmentTopic(
+  _state: AssessmentFormState,
+  _form: FormData,
+): Promise<AssessmentFormState> {
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+  throw new Error("PRIVATE TOPIC TRANSPORT DETAIL");
+}
+export async function addAssessmentQuestion(
+  _state: AssessmentFormState,
+  _form: FormData,
+): Promise<AssessmentFormState> {
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+  return { error: safeAuthoringError() };
+}

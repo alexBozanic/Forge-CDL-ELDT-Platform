@@ -64,3 +64,9 @@ The separate success-redirect control must reach /?fixture=redirected without
 showing a false failure. Invitation fixtures use example.invalid addresses only;
 student failure is returned, administrator failure is thrown. Emails/assignment
 must survive, controls must disable while pending and errors must receive focus.
+
+The assessment-authoring section throws on topic submission and returns a safe
+error on question submission. Enter fake_topic/count 1, then a synthetic question
+with two options, correct option 1 and rationale. Check all fields disable while
+pending, all values remain after failure, and the error receives focus. No draft
+content or answer key is written.

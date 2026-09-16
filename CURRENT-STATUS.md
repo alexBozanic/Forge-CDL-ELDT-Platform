@@ -3,6 +3,11 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest authoring transport recovery: `AUTHORING-TRANSPORT-RECOVERY.md` records
+browser-verified topic/question retention, pending fieldsets and focused safe
+errors. Learner checkpoint `9aa78de` passed CI `35107007659` and Preview
+`719qqNwU23tup2uLhETg1kpjUP1Q`.
+
 Latest learner transport recovery: `LEARNER-TRANSPORT-RECOVERY.md` records
 browser-verified input/answer retention and focused errors when profile, assessment
 start and submission actions throw before returning state. All 60 application

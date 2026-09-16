@@ -64,5 +64,5 @@ export function validateAssessmentQuestion(
 }
 
 export function safeAuthoringError() {
-  return "The change could not be saved. No automatic retry was attempted. Verify the draft state, then try again if it is safe.";
+  return "We could not confirm whether the change was saved. No automatic retry was attempted. Verify the draft state, then try again if it is safe.";
 }

@@ -1,3 +1,7 @@
+import {
+  AssessmentTopicForm,
+  AssessmentQuestionForm,
+} from "./editor/assessment-authoring-forms";
 import { ProfileForm } from "./profile-form";
 import { transportStartFixture } from "./actions";
 import { MutationForm } from "@/components/mutation-form";
@@ -19,6 +23,15 @@ export default function Page() {
         Fake fixtures only. No authentication, database, scoring or hosted
         writes. First two submissions fail; third succeeds.
       </p>
+      <section>
+        <h2>Assessment authoring transport fixture</h2>
+        <AssessmentTopicForm versionId={id} assessmentId={id} />
+        <AssessmentQuestionForm
+          versionId={id}
+          assessmentId={id}
+          topics={["fake_topic"]}
+        />
+      </section>
       <section>
         <h2>Profile transport fixture</h2>
         <ProfileForm

@@ -22,6 +22,11 @@ await fs.mkdir(path.join(destination, "src/app"), { recursive: true });
 await fs.mkdir(path.join(destination, "src/lib"), { recursive: true });
 await fs.mkdir(path.join(destination, "src/components"), { recursive: true });
 const files = [
+  ["src/lib/assessment-authoring.ts", "src/lib/assessment-authoring.ts"],
+  [
+    "src/app/platform/courses/[versionId]/assessment-authoring-forms.tsx",
+    "src/app/editor/assessment-authoring-forms.tsx",
+  ],
   ["src/lib/student-profile.ts", "src/lib/student-profile.ts"],
   [
     "src/app/schools/[slug]/profile/profile-form.tsx",
@@ -70,6 +75,9 @@ const files = [
 const hashes = [];
 for (const [source, target] of files) {
   const contents = await fs.readFile(path.join(root, source));
+  await fs.mkdir(path.dirname(path.join(destination, target)), {
+    recursive: true,
+  });
   await fs.writeFile(path.join(destination, target), contents);
   hashes.push({
     source,
