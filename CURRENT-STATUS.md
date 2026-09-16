@@ -3,6 +3,12 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Current development follow-up: `ASSESSMENT-SUBMISSION-REPAIR.md` records student
+submission error recovery, answer preservation, accessible feedback and eight
+additional application regression tests. Instructor review of the separate
+120-question draft workbook is now proceeding in parallel; no content has been
+imported or approved by this software work.
+
 Latest follow-up: `STUDENT-KEYBOARD-VERIFICATION.md` records the student profile
 keyboard walkthrough and completed-course resume/navigation repair. Local frozen
 install, formatting, lint, typecheck, all 15 tests, and build passed for that repair;

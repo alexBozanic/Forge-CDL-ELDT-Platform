@@ -25,6 +25,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test:authoring
+      - run: pnpm test:assessment-submission
       - run: pnpm test:profiles
       - run: pnpm test:student-records
       - run: pnpm test:transcripts

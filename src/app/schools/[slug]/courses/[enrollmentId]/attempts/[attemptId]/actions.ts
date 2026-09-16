@@ -1,20 +1,24 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import { requiredString } from "@/lib/forms";
-export async function submitAssessment(formData: FormData) {
+import {
+  submitAttempt,
+  type SubmissionState,
+} from "@/lib/assessment-submission";
+export async function submitAssessment(
+  _state: SubmissionState,
+  formData: FormData,
+): Promise<SubmissionState> {
   const { supabase } = await requireUser();
-  const attemptId = requiredString(formData, "attemptId");
-  const answers: Record<string, string> = {};
-  for (const [key, value] of formData.entries())
-    if (key.startsWith("question:") && typeof value === "string")
-      answers[key.slice(9)] = value;
-  const { error } = await supabase.rpc("submit_assessment", {
-    target_attempt_id: attemptId,
-    submitted_answers: answers,
-  });
-  if (error) throw error;
-  revalidatePath(
-    `/schools/${requiredString(formData, "slug")}/courses/${requiredString(formData, "enrollmentId")}/attempts/${attemptId}`,
+  const state = await submitAttempt(
+    formData,
+    (id) => supabase.rpc("get_assessment_attempt", { target_attempt_id: id }),
+    (payload) => supabase.rpc("submit_assessment", payload),
   );
+  if (state.submitted) {
+    const coursePath = `/schools/${formData.get("slug")}/courses/${formData.get("enrollmentId")}`;
+    revalidatePath(`${coursePath}/attempts/${formData.get("attemptId")}`);
+    revalidatePath(coursePath);
+  }
+  return state;
 }
