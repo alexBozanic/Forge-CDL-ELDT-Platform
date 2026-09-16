@@ -3,6 +3,12 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest auth recovery: `AUTH-ACTION-RECOVERY.md` records inline failure handling,
+confirmed sign-out, private signup/recovery outcomes, invitation acceptance
+recovery, and the browser-reproduced/fixed false error after successful redirect.
+There are 60 application tests. Previous checkpoint `e12580a` passed CI
+`35059716119` and Preview `GJrLMB1WCyj9rrUTyDMyQLgy1BEt`.
+
 Latest password input repair: `PASSWORD-INPUT-REPAIR.md` records removal of
 credential trimming in sign-in/signup/password update. Two new regressions bring
 the application total to 55. No real credentials or accounts were used.

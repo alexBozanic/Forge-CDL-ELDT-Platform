@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { MutationForm } from "@/components/mutation-form";
+import { authTransportFailure } from "@/lib/auth-action";
 import { requireUser } from "@/lib/auth";
 import { acceptInvitation } from "./actions";
 
@@ -23,7 +26,12 @@ export default async function AcceptInvitationPage({
             belongs to another email.
           </p>
         ) : null}
-        <form action={acceptInvitation} className="form-stack">
+        <MutationForm
+          failureMessage={authTransportFailure}
+          pendingMessage="Processing request..."
+          action={acceptInvitation}
+          className="form-stack"
+        >
           <label>
             Invitation token
             <input name="token" required autoComplete="off" />
@@ -31,7 +39,10 @@ export default async function AcceptInvitationPage({
           <button className="button" type="submit">
             Accept invitation
           </button>
-        </form>
+        </MutationForm>
+        <p>
+          <Link href="/dashboard">Check school access on your dashboard</Link>
+        </p>
       </section>
     </main>
   );

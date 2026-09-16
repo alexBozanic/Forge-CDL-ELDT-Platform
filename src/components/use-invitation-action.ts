@@ -1,4 +1,5 @@
 "use client";
+import { unstable_rethrow } from "next/navigation";
 import { useActionState, useEffect, useRef } from "react";
 import {
   invitationFailure,
@@ -16,7 +17,8 @@ export function useInvitationAction(
       try {
         // Do not send a previously displayed secret back with the next request.
         return await action({}, form);
-      } catch {
+      } catch (error) {
+        unstable_rethrow(error);
         return { error: invitationFailure };
       }
     },

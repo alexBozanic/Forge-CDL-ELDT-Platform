@@ -115,3 +115,15 @@ export async function createSchoolAdminInvitation(
   await new Promise((resolve) => setTimeout(resolve, 4000));
   throw new Error("PRIVATE TRANSPORT DETAIL");
 }
+
+import { runAuthAction } from "@/lib/auth-action";
+import { redirect } from "next/navigation";
+export async function authFailureFixture(form: FormData) {
+  return runAuthAction("login", form, async () => {
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    throw new Error("PRIVATE FAKE AUTH DETAIL");
+  });
+}
+export async function redirectFixture(): Promise<{ error?: string }> {
+  redirect("/?fixture=redirected");
+}

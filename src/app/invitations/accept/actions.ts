@@ -1,18 +1,15 @@
 "use server";
-
 import { createHash } from "node:crypto";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { requiredString } from "@/lib/forms";
-
-export async function acceptInvitation(formData: FormData) {
+import { redeemInvitation } from "@/lib/auth-action";
+export async function acceptInvitation(form: FormData) {
   const { supabase } = await requireUser();
-  const tokenHash = createHash("sha256")
-    .update(requiredString(formData, "token"))
-    .digest("hex");
-  const { data, error } = await supabase.rpc("accept_student_invitation", {
-    invitation_token_hash: tokenHash,
-  });
-  if (error || !data) redirect("/invitations/accept?error=invalid");
-  redirect("/dashboard");
+  const state = await redeemInvitation(form, (token) =>
+    supabase.rpc("accept_student_invitation", {
+      invitation_token_hash: createHash("sha256").update(token).digest("hex"),
+    }),
+  );
+  if (state.complete) redirect("/dashboard");
+  return state;
 }

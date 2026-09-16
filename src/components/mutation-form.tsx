@@ -1,4 +1,5 @@
 "use client";
+import { unstable_rethrow } from "next/navigation";
 import { useActionState, useEffect, useRef, type ReactNode } from "react";
 import { mutationFailure, type MutationState } from "@/lib/mutation-feedback";
 
@@ -19,7 +20,8 @@ export function MutationForm({
     async (_previous: MutationState, form: FormData) => {
       try {
         return await action(form);
-      } catch {
+      } catch (error) {
+        unstable_rethrow(error);
         return { error: failureMessage };
       }
     },

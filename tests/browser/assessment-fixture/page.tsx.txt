@@ -1,3 +1,5 @@
+import { MutationForm } from "@/components/mutation-form";
+import { authFailureFixture, redirectFixture } from "./actions";
 import { InvitationForm } from "./invitation-form";
 import { AdminInvitationForm } from "./admin-invitation-form";
 import { AttemptForm } from "./attempt-form";
@@ -15,6 +17,33 @@ export default function Page() {
         Fake fixtures only. No authentication, database, scoring or hosted
         writes. First two submissions fail; third succeeds.
       </p>
+      <section>
+        <h2>Local authentication failure fixture</h2>
+        <MutationForm action={authFailureFixture} className="form-stack">
+          <label>
+            Fake auth email
+            <input
+              name="email"
+              type="email"
+              defaultValue="fake@example.invalid"
+              required
+            />
+          </label>
+          <label>
+            Fake auth password
+            <input
+              name="password"
+              type="password"
+              defaultValue="synthetic fixture only"
+              required
+            />
+          </label>
+          <button>Test fake auth failure</button>
+        </MutationForm>
+        <MutationForm action={redirectFixture}>
+          <button>Test local success redirect</button>
+        </MutationForm>
+      </section>
       <section>
         <h2>Invitation failure fixture</h2>
         <InvitationForm

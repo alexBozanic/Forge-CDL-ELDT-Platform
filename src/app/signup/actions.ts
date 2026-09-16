@@ -1,23 +1,23 @@
 "use server";
-import { readPassword } from "@/lib/password-input";
-
 import { redirect } from "next/navigation";
-import { requiredString } from "@/lib/forms";
+import { runAuthAction } from "@/lib/auth-action";
 import { getSiteUrl } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-export async function signup(formData: FormData) {
-  const email = requiredString(formData, "email").toLowerCase();
-  const password = readPassword(formData);
-  if (password === null || password.length < 12)
-    redirect("/signup?error=password");
-  const supabase = await createSupabaseServerClient(true);
-  await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${getSiteUrl()}/auth/confirm?next=/invitations/accept`,
+export async function signup(form: FormData) {
+  const state = await runAuthAction(
+    "signup",
+    form,
+    async ({ email, password }) => {
+      const supabase = await createSupabaseServerClient(true);
+      return supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${getSiteUrl()}/auth/confirm?next=/invitations/accept`,
+        },
+      });
     },
-  });
-  redirect("/signup?sent=1");
+  );
+  if (state.complete) redirect("/signup?sent=1");
+  return state;
 }

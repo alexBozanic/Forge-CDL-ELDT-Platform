@@ -1,3 +1,5 @@
+import { MutationForm } from "@/components/mutation-form";
+import { authTransportFailure } from "@/lib/auth-action";
 import { requireUser } from "@/lib/auth";
 import { updatePassword } from "./actions";
 
@@ -20,7 +22,12 @@ export default async function UpdatePasswordPage({
             try again.
           </p>
         ) : null}
-        <form action={updatePassword} className="form-stack">
+        <MutationForm
+          failureMessage={authTransportFailure}
+          pendingMessage="Processing request..."
+          action={updatePassword}
+          className="form-stack"
+        >
           <label>
             New password
             <input
@@ -34,7 +41,7 @@ export default async function UpdatePasswordPage({
           <button className="button" type="submit">
             Update password
           </button>
-        </form>
+        </MutationForm>
       </section>
     </main>
   );

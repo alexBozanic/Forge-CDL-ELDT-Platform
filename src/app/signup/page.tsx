@@ -1,3 +1,5 @@
+import { MutationForm } from "@/components/mutation-form";
+import { authTransportFailure } from "@/lib/auth-action";
 import Link from "next/link";
 import { signup } from "./actions";
 
@@ -26,7 +28,12 @@ export default async function SignupPage({
             </span>
           </div>
         ) : (
-          <form action={signup} className="form-stack">
+          <MutationForm
+            failureMessage={authTransportFailure}
+            pendingMessage="Processing request..."
+            action={signup}
+            className="form-stack"
+          >
             {error ? (
               <p className="form-error">
                 Use a password with at least 12 characters.
@@ -49,7 +56,7 @@ export default async function SignupPage({
             <button className="button" type="submit">
               Create account
             </button>
-          </form>
+          </MutationForm>
         )}
         <p>
           <Link href="/login">Return to sign in</Link>

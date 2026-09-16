@@ -1,24 +1,30 @@
 "use server";
-import { readPassword } from "@/lib/password-input";
-
 import { redirect } from "next/navigation";
-import { requiredString } from "@/lib/forms";
+import { runAuthAction } from "@/lib/auth-action";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-export async function login(formData: FormData) {
-  const supabase = await createSupabaseServerClient(true);
-  const email = requiredString(formData, "email").toLowerCase();
-  const password = readPassword(formData);
-  if (password === null) redirect("/login?error=invalid");
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) redirect("/login?error=invalid");
-  const { data, error: validationError } = await supabase.auth.getUser();
-  if (validationError || !data.user) redirect("/login?error=invalid");
-  redirect("/dashboard");
+export async function login(form: FormData) {
+  const state = await runAuthAction(
+    "login",
+    form,
+    async ({ email, password }) => {
+      const supabase = await createSupabaseServerClient(true);
+      const result = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (result.error) return result;
+      const validation = await supabase.auth.getUser();
+      return { error: validation.error || !validation.data.user };
+    },
+  );
+  if (state.complete) redirect("/dashboard");
+  return state;
 }
-
 export async function logout() {
-  const supabase = await createSupabaseServerClient(true);
-  await supabase.auth.signOut();
-  redirect("/login");
+  const state = await runAuthAction("logout", new FormData(), async () => {
+    const supabase = await createSupabaseServerClient(true);
+    return supabase.auth.signOut();
+  });
+  if (state.complete) redirect("/login");
+  return state;
 }

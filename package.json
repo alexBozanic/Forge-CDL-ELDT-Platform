@@ -21,6 +21,7 @@
     "test:school-mutations": "node --experimental-strip-types --test tests/application/school-mutation.test.ts",
     "test:reporting-mutations": "node --experimental-strip-types --test tests/application/reporting-mutation.test.ts",
     "test:course-lifecycle": "node --experimental-strip-types --test tests/application/course-lifecycle.test.ts",
+    "test:auth-actions": "node --experimental-strip-types --test tests/application/auth-action.test.ts",
     "test:password-input": "node --experimental-strip-types --test tests/application/password-input.test.ts",
     "test:invitations": "node --experimental-strip-types --test tests/application/invitation-request.test.ts",
     "test:platform-creation": "node --experimental-strip-types --test tests/application/platform-creation.test.ts",
