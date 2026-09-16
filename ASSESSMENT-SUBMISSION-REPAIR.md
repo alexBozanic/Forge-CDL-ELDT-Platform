@@ -27,8 +27,15 @@ RLS, authentication, attempt locks and migration files are unchanged.
 - The offline migration-bundle refusal tests passed.
 - Local PostgreSQL execution stopped before connecting: `psql` is unavailable.
   CI must supply the real PostgreSQL integration and disposable restore gates.
-- Build, production HTTP smoke and CI results are recorded in the continuation
-  checkpoint once their runs finish.
+- Production build and local HTTP security-header smoke passed.
+- Commit `0492635` passed CI run `35038329859`: all application gates,
+  PostgreSQL suites and disposable backup/restore. Preview deployment
+  `3VNiSwZs8rZ1gtFDHrnJB9MMdhDM` completed.
+
+The read-only student browser follow-up showed a passed attempt summary but no
+link to reopen its result. The course now offers View latest result alongside
+the existing retake action; a first attempt is labeled Start assessment.
+No retake, completion change or other hosted mutation was performed.
 
 The tests above exercise the submission controller, not live Auth/PostgREST
 isolation or interactive browser behavior. A keyboard/screen-reader walkthrough

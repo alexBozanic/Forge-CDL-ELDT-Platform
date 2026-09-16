@@ -222,8 +222,19 @@ export default async function StudentCoursePage({
                   <Link className="button secondary" href={destination}>
                     {latest?.status === "in_progress"
                       ? "Resume attempt"
-                      : "Start another attempt"}
+                      : latest
+                        ? "Start another attempt"
+                        : "Start assessment"}
                   </Link>
+                  {latest && latest.status !== "in_progress" ? (
+                    <p>
+                      <Link
+                        href={`/schools/${slug}/courses/${enrollment.id}/attempts/${latest.id}`}
+                      >
+                        View latest result
+                      </Link>
+                    </p>
+                  ) : null}
                 </article>
               );
             })}

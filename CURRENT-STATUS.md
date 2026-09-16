@@ -9,6 +9,11 @@ additional application regression tests. Instructor review of the separate
 120-question draft workbook is now proceeding in parallel; no content has been
 imported or approved by this software work.
 
+Submission repair commit `0492635` passed CI `35038329859` (application,
+PostgreSQL, and disposable restore) and Preview deployment
+`3VNiSwZs8rZ1gtFDHrnJB9MMdhDM`. The subsequent result-navigation follow-up adds
+a direct link from the course to the student's latest saved attempt.
+
 Latest follow-up: `STUDENT-KEYBOARD-VERIFICATION.md` records the student profile
 keyboard walkthrough and completed-course resume/navigation repair. Local frozen
 install, formatting, lint, typecheck, all 15 tests, and build passed for that repair;
