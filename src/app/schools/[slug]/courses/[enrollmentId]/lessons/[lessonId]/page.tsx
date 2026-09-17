@@ -45,6 +45,10 @@ export default async function LessonPage({
       .eq("lesson_id", lessonId)
       .maybeSingle(),
   ]);
+  // An unavailable read is not an empty progress record. Do not mount the
+  // interaction controls (which record an open) with an unknown saved state.
+  if (lessonResult.error || manifestResult.error || progressResult.error)
+    throw new Error("Lesson information is temporarily unavailable.");
   const lesson = lessonResult.data;
   const manifest = manifestResult.data ?? [];
   const index = manifest.findIndex((item) => item.lesson_id === lessonId);

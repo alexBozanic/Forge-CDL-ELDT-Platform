@@ -6,6 +6,12 @@ milestone is a staff-only rehearsal, not real student enrollment or regulated
 training. Question-bank review is nearing completion per the operator; no edited
 workbook or instructor approval has yet been received in this task.
 
+The authorized rehearsal for Taylor's CDL Training has since passed using the
+existing Forge Demo workspace and synthetic learner: lesson through assessment,
+completion, administrator transcript, CSV and a two-page saved PDF. This supports
+a staff walkthrough now. It does not establish the broader acceptance session
+below. See `LESSON-READ-RECOVERY.md` for the checkpoint and remaining limitations.
+
 ## Three stages
 
 | Stage                     | Participants and data                                                                                          | Entry condition                                                                                                          | Exit evidence                                                                 |
@@ -63,7 +69,8 @@ state eligibility; those remain school decisions outside software test acceptanc
 - Hosted backup/recovery, monitoring, retention and support need a named owner
   and evidence; local restore tests do not prove hosted recovery.
 - Instructor output and full curriculum acceptance are pending.
-- Actual PDF and assistive-technology evidence remain pending.
+- Short saved PDF layout passed. Long-record PDF and assistive-technology
+  evidence remain pending.
 - Merge and production deployment remain separate decisions.
 
 The operator's next useful handoff is the edited workbook, the first school's

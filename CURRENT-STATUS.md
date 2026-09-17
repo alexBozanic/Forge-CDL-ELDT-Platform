@@ -3,6 +3,14 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+Latest lesson recovery: `LESSON-READ-RECOVERY.md` records prevention of false
+"not started" progress after failed reads, sanitized recovery and three actual-page
+render regressions (77 application tests total). The Taylor's fake-data learner,
+administrator, CSV and short saved-PDF rehearsal has passed at `10eca43`, CI
+`35153968466`, Preview `7hTzuzueVsEAdCV3t5uTPWJGAyQE`. No account switch is
+pending for that completed rehearsal. Long PDF and broader hosted acceptance
+remain separate gates.
+
 Latest assessment route repair: `ASSESSMENT-SCHOOL-CONTEXT.md` records school
 and learner binding on assessment pages and start/submit actions. Previous
 checkpoint `3a89ce4` passed CI `35150301025` and Preview
