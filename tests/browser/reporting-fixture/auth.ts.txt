@@ -1,0 +1,102 @@
+// Synthetic local data only. No network client or credentials.
+const id = (n: number) =>
+  `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+const time = "2026-09-16T01:02:03.123456+00:00";
+const records = Array.from({ length: 11 }, (_, i) => ({
+  id: id(i),
+  created_at: time,
+  organization_id: "fake-school",
+  status: "accepted",
+  readiness_issues: [],
+  reporting_events: [],
+  course_completions: {
+    id: id(i),
+    student_user_id: id(500),
+    completed_at: time,
+    course_manifest_hash: "a".repeat(64),
+    course_version_id: id(i),
+  },
+}));
+const versions = records.map((r, i) => ({
+  id: r.id,
+  title: `Synthetic course ${i}`,
+  version_number: 1,
+}));
+export async function getAuthorizationContext() {
+  return {
+    isPlatformAdministrator: false,
+    memberships: [
+      {
+        organizations: { slug: "fake-school" },
+        role: "school_admin",
+        status: "active",
+      },
+    ],
+    supabase: {
+      from(table: string) {
+        let rows: any[] =
+          table === "reporting_records" ? [...records] : [...versions];
+        let limit = 4;
+        const q = {
+          select() {
+            return q;
+          },
+          eq(key: string, value: string) {
+            if (table !== "organizations")
+              rows = rows.filter((r) => r[key] === value);
+            return q;
+          },
+          single() {
+            return Promise.resolve({
+              data: {
+                id: "fake-school",
+                name: "LOCAL SYNTHETIC SCHOOL",
+                provider_identifier: "FAKE",
+              },
+              error: null,
+            });
+          },
+          order(key: string, options: { ascending: boolean }) {
+            rows.sort(
+              (a, b) =>
+                (options.ascending ? 1 : -1) *
+                String(a[key]).localeCompare(String(b[key])),
+            );
+            return q;
+          },
+          limit(n: number) {
+            limit = Math.min(n, 4);
+            return q;
+          },
+          in(key: string, values: string[]) {
+            rows = rows.filter((r) => values.includes(r[key]));
+            return q;
+          },
+          gt(key: string, value: string) {
+            rows = rows.filter((r) => r[key] > value);
+            return q;
+          },
+          or(filter: string) {
+            const m =
+              /^created_at.lt.([^,]+),and\(created_at.eq.([^,]+),id.lt.([^)]+)\)$/.exec(
+                filter,
+              );
+            if (!m) throw Error("Invalid fixture filter");
+            rows = rows.filter(
+              (r) =>
+                r.created_at < m[1] || (r.created_at === m[2] && r.id < m[3]),
+            );
+            return q;
+          },
+          then(resolve: any) {
+            return Promise.resolve({
+              data: rows.slice(0, limit),
+              error: null,
+            }).then(resolve);
+          },
+        };
+        return q;
+      },
+    },
+  };
+}

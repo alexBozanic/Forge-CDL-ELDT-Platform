@@ -1,3 +1,4 @@
+import { MutationForm } from "@/components/mutation-form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
@@ -53,8 +54,16 @@ export default async function SchoolPage({
         }
         id="main-content"
       >
+        <nav aria-label="School navigation">
+          <Link href="/dashboard">Dashboard</Link>
+        </nav>
         <p className="kicker">Student workspace · Demonstration only</p>
         <h1>{organization.name}</h1>
+        <p>
+          <Link href={`/schools/${slug}/profile`}>
+            Complete or update your student profile
+          </Link>
+        </p>
         <section>
           <h2>Your assignments</h2>
           {enrollments?.length ? (
@@ -141,6 +150,9 @@ export default async function SchoolPage({
       }
       id="main-content"
     >
+      <nav aria-label="School navigation">
+        <Link href="/dashboard">Dashboard</Link>
+      </nav>
       <p className="kicker">School administration · Demonstration only</p>
       <h1>{organization.name}</h1>
       <p>
@@ -194,7 +206,7 @@ export default async function SchoolPage({
             Choose an existing published version. School administrators cannot
             edit master curriculum.
           </p>
-          <form action={createAssignment} className="form-stack">
+          <MutationForm action={createAssignment} className="form-stack">
             <input
               type="hidden"
               name="organizationId"
@@ -229,14 +241,17 @@ export default async function SchoolPage({
               </select>
             </label>
             <button className="button">Create assignment</button>
-          </form>
+          </MutationForm>
           <div className="list-stack assignment-list">
             {assignmentsResult.data?.map((assignment) => (
               <div className="list-row" key={assignment.id}>
                 <span>{assignment.title}</span>
                 <strong>{assignment.active ? "active" : "withdrawn"}</strong>
                 {assignment.active ? (
-                  <form action={withdrawAssignment} className="inline-form">
+                  <MutationForm
+                    action={withdrawAssignment}
+                    className="inline-form"
+                  >
                     <input type="hidden" name="slug" value={slug} />
                     <input
                       type="hidden"
@@ -250,7 +265,7 @@ export default async function SchoolPage({
                       required
                     />
                     <button className="text-button">Withdraw</button>
-                  </form>
+                  </MutationForm>
                 ) : null}
               </div>
             ))}
@@ -265,7 +280,7 @@ export default async function SchoolPage({
                   <span>{invitation.email}</span>
                   <strong>{invitation.status}</strong>
                   {invitation.status === "pending" ? (
-                    <form action={revokeInvitation}>
+                    <MutationForm action={revokeInvitation}>
                       <input
                         type="hidden"
                         name="invitationId"
@@ -275,7 +290,7 @@ export default async function SchoolPage({
                       <button className="text-button" type="submit">
                         Revoke
                       </button>
-                    </form>
+                    </MutationForm>
                   ) : null}
                 </div>
               ))}
@@ -286,7 +301,7 @@ export default async function SchoolPage({
         </section>
         <section className="panel">
           <h2>School settings</h2>
-          <form action={updateSchoolSettings} className="form-stack">
+          <MutationForm action={updateSchoolSettings} className="form-stack">
             <input
               type="hidden"
               name="organizationId"
@@ -326,7 +341,7 @@ export default async function SchoolPage({
             <button className="button" type="submit">
               Save settings
             </button>
-          </form>
+          </MutationForm>
         </section>
       </div>
     </main>

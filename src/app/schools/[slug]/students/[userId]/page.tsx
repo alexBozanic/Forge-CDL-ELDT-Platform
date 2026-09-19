@@ -1,6 +1,11 @@
+import { MutationForm } from "@/components/mutation-form";
+import Link from "next/link";
+import { recordTime } from "@/lib/record-time";
+import { ProfileForm } from "../../profile/profile-form";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
 import { enrollStudent } from "../actions";
+import { loadStudentMembership } from "@/lib/student-membership";
 
 export default async function StudentDetailPage({
   params,
@@ -27,33 +32,25 @@ export default async function StudentDetailPage({
     .eq("slug", slug)
     .single();
   if (!organization) notFound();
-  const [
-    { data: membership },
-    { data: profile },
-    { data: enrollments },
-    { data: assignments },
-    { data: progress },
-    { data: lessons },
-    { data: attempts },
-    { data: completions },
-  ] = await Promise.all([
-    supabase
-      .from("organization_memberships")
-      .select("user_id, status, created_at")
-      .eq("organization_id", organization.id)
-      .eq("user_id", userId)
-      .eq("role", "student")
-      .single(),
+  const membership = await loadStudentMembership(
+    supabase,
+    organization.id,
+    userId,
+  );
+  if (!membership) notFound();
+  const results = await Promise.all([
     supabase
       .from("student_profiles")
-      .select("legal_first_name, legal_middle_name, legal_last_name")
+      .select(
+        "legal_first_name, legal_middle_name, legal_last_name, date_of_birth, license_or_permit_number, issuing_jurisdiction",
+      )
       .eq("organization_id", organization.id)
       .eq("user_id", userId)
       .maybeSingle(),
     supabase
       .from("enrollments")
       .select(
-        "id, status, course_version_id, course_assignments(title), course_versions(title, version_number, manifest_hash)",
+        "id, status, course_version_id, course_assignments(title, course_versions(title, version_number, manifest_hash))",
       )
       .eq("organization_id", organization.id)
       .eq("student_user_id", userId),
@@ -73,7 +70,7 @@ export default async function StudentDetailPage({
     supabase
       .from("assessment_attempts")
       .select(
-        "id, enrollment_id, attempt_number, status, score_percent, question_count, correct_count, started_at, submitted_at, assessments(title, kind)",
+        "id, enrollment_id, attempt_number, status, score_percent, question_count, correct_count, started_at, submitted_at, course_version_manifest_assessments(assessments(title, kind))",
       )
       .eq("organization_id", organization.id)
       .eq("student_user_id", userId)
@@ -85,13 +82,29 @@ export default async function StudentDetailPage({
       )
       .eq("organization_id", organization.id)
       .eq("student_user_id", userId),
-  ]);
-  if (!membership) notFound();
+  ] as const);
+  for (const result of results) {
+    if (result.error) throw result.error;
+  }
+  const [
+    { data: profile },
+    { data: enrollments },
+    { data: assignments },
+    { data: progress },
+    { data: lessons },
+    { data: attempts },
+    { data: completions },
+  ] = results;
   const lessonTitles = new Map(
     (lessons ?? []).map((lesson) => [lesson.id, lesson.title]),
   );
   return (
     <main className="container main" id="main-content">
+      <nav className="inline-form" aria-label="Student record navigation">
+        <Link href={`/schools/${slug}`}>School workspace</Link>
+        <Link href={`/schools/${slug}/reporting`}>Reporting queue</Link>
+        <Link href="/dashboard">Dashboard</Link>
+      </nav>
       <p className="kicker">{organization.name} · Student record</p>
       <h1>
         {profile
@@ -101,6 +114,12 @@ export default async function StudentDetailPage({
       <p>
         Membership status: <strong>{membership.status}</strong>
       </p>
+      <ProfileForm
+        organizationId={organization.id}
+        userId={userId}
+        slug={slug}
+        profile={profile}
+      />
       <div className="two-column">
         <section>
           <h2>Enrollments</h2>
@@ -110,9 +129,9 @@ export default async function StudentDetailPage({
                 const assignment = Array.isArray(enrollment.course_assignments)
                   ? enrollment.course_assignments[0]
                   : enrollment.course_assignments;
-                const version = Array.isArray(enrollment.course_versions)
-                  ? enrollment.course_versions[0]
-                  : enrollment.course_versions;
+                const version = Array.isArray(assignment?.course_versions)
+                  ? assignment?.course_versions[0]
+                  : assignment?.course_versions;
                 const enrollmentProgress = progress?.filter(
                   (item) => item.enrollment_id === enrollment.id,
                 );
@@ -135,10 +154,10 @@ export default async function StudentDetailPage({
                               "Manifest lesson"}
                             : {item.status} · last opened{" "}
                             {item.last_opened_at
-                              ? new Date(item.last_opened_at).toLocaleString()
+                              ? recordTime(item.last_opened_at)
                               : "not recorded"}
                             {item.completed_at
-                              ? ` · interaction completed ${new Date(item.completed_at).toLocaleString()}`
+                              ? ` · interaction completed ${recordTime(item.completed_at)}`
                               : ""}
                           </li>
                         ))}
@@ -151,9 +170,14 @@ export default async function StudentDetailPage({
                         (attempt) => attempt.enrollment_id === enrollment.id,
                       )
                       .map((attempt) => {
-                        const assessment = Array.isArray(attempt.assessments)
-                          ? attempt.assessments[0]
-                          : attempt.assessments;
+                        const manifest = Array.isArray(
+                          attempt.course_version_manifest_assessments,
+                        )
+                          ? attempt.course_version_manifest_assessments[0]
+                          : attempt.course_version_manifest_assessments;
+                        const assessment = Array.isArray(manifest?.assessments)
+                          ? manifest?.assessments[0]
+                          : manifest?.assessments;
                         return (
                           <p key={attempt.id}>
                             {assessment?.title ?? "Assessment"} attempt{" "}
@@ -161,10 +185,9 @@ export default async function StudentDetailPage({
                             {attempt.score_percent === null
                               ? ""
                               : ` · ${attempt.score_percent}% (${attempt.correct_count}/${attempt.question_count})`}{" "}
-                            · started{" "}
-                            {new Date(attempt.started_at).toLocaleString()}
+                            · started {recordTime(attempt.started_at)}
                             {attempt.submitted_at
-                              ? ` · submitted ${new Date(attempt.submitted_at).toLocaleString()}`
+                              ? ` · submitted ${recordTime(attempt.submitted_at)}`
                               : ""}
                           </p>
                         );
@@ -178,9 +201,8 @@ export default async function StudentDetailPage({
                         <div className="notice" key={completion.id}>
                           <strong>Software completion snapshot</strong>
                           <span>
-                            {new Date(completion.completed_at).toLocaleString()}{" "}
-                            · manifest {completion.course_manifest_hash} ·
-                            reporting{" "}
+                            {recordTime(completion.completed_at)} · manifest{" "}
+                            {completion.course_manifest_hash} · reporting{" "}
                             {completion.reporting_ready
                               ? "ready"
                               : "needs attention"}
@@ -202,7 +224,7 @@ export default async function StudentDetailPage({
         <section className="panel">
           <h2>Assign published content</h2>
           {membership.status === "active" && assignments?.length ? (
-            <form action={enrollStudent} className="form-stack">
+            <MutationForm action={enrollStudent} className="form-stack">
               <input
                 type="hidden"
                 name="organizationId"
@@ -223,7 +245,7 @@ export default async function StudentDetailPage({
               <button className="button" type="submit">
                 Enroll student
               </button>
-            </form>
+            </MutationForm>
           ) : (
             <p>No active student/assignment combination is available.</p>
           )}

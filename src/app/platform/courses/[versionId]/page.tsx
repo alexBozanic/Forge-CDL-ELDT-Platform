@@ -1,10 +1,11 @@
+import { MutationForm } from "@/components/mutation-form";
+import { DraftContentForm } from "./draft-content-form";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SafeMarkdown } from "@/components/safe-markdown";
 import { getAuthorizationContext } from "@/lib/auth";
 import {
   addAssessment,
-  addAssessmentQuestion,
-  addAssessmentTopic,
   addLesson,
   addModule,
   publishVersion,
@@ -14,6 +15,10 @@ import {
   saveModule,
   saveVersion,
 } from "../actions";
+import {
+  AssessmentQuestionForm,
+  AssessmentTopicForm,
+} from "./assessment-authoring-forms";
 
 export default async function CourseVersionPage({
   params,
@@ -84,6 +89,11 @@ export default async function CourseVersionPage({
   const isDraft = version.status === "draft";
   return (
     <main className="container main" id="main-content">
+      <nav className="inline-form" aria-label="Authoring navigation">
+        <Link href="/dashboard">Dashboard</Link>
+        <Link href="/platform/schools">Schools</Link>
+        <Link href="/platform/courses">Course library</Link>
+      </nav>
       <p className="kicker">
         Platform authoring ·{" "}
         {isDraft ? "Mutable draft" : "Immutable publication"}
@@ -98,7 +108,7 @@ export default async function CourseVersionPage({
       {isDraft ? (
         <section className="panel">
           <h2>Version metadata</h2>
-          <form action={saveVersion} className="form-stack">
+          <DraftContentForm action={saveVersion} className="form-stack">
             <input type="hidden" name="versionId" value={version.id} />
             <label>
               Title
@@ -113,7 +123,7 @@ export default async function CourseVersionPage({
               />
             </label>
             <button className="button">Save draft metadata</button>
-          </form>
+          </DraftContentForm>
         </section>
       ) : null}
       <div className="authoring-layout">
@@ -124,7 +134,7 @@ export default async function CourseVersionPage({
           {modules.map((module) => (
             <article className="module-card" key={module.id}>
               {isDraft ? (
-                <form action={saveModule} className="inline-form">
+                <DraftContentForm action={saveModule} className="inline-form">
                   <input type="hidden" name="versionId" value={version.id} />
                   <input type="hidden" name="moduleId" value={module.id} />
                   <input
@@ -141,7 +151,7 @@ export default async function CourseVersionPage({
                     required
                   />
                   <button className="text-button">Save module</button>
-                </form>
+                </DraftContentForm>
               ) : (
                 <h3>
                   {module.position}. {module.title}
@@ -152,7 +162,10 @@ export default async function CourseVersionPage({
                 .map((lesson) => (
                   <div className="lesson-preview" key={lesson.id}>
                     {isDraft ? (
-                      <form action={saveLesson} className="form-stack">
+                      <DraftContentForm
+                        action={saveLesson}
+                        className="form-stack"
+                      >
                         <input
                           type="hidden"
                           name="versionId"
@@ -204,7 +217,7 @@ export default async function CourseVersionPage({
                           />
                         </label>
                         <button className="text-button">Save lesson</button>
-                      </form>
+                      </DraftContentForm>
                     ) : (
                       <>
                         <h4>{lesson.title}</h4>
@@ -215,7 +228,10 @@ export default async function CourseVersionPage({
                   </div>
                 ))}
               {isDraft ? (
-                <form action={addLesson} className="form-stack compact-editor">
+                <DraftContentForm
+                  action={addLesson}
+                  className="form-stack compact-editor"
+                >
                   <input type="hidden" name="versionId" value={version.id} />
                   <input type="hidden" name="moduleId" value={module.id} />
                   <h4>Add lesson</h4>
@@ -244,12 +260,12 @@ export default async function CourseVersionPage({
                     <textarea name="body" rows={6} required />
                   </label>
                   <button className="button">Add lesson</button>
-                </form>
+                </DraftContentForm>
               ) : null}
             </article>
           ))}
           {isDraft ? (
-            <form action={addModule} className="panel form-stack">
+            <DraftContentForm action={addModule} className="panel form-stack">
               <input type="hidden" name="versionId" value={version.id} />
               <h3>Add module</h3>
               <label>
@@ -261,7 +277,7 @@ export default async function CourseVersionPage({
                 <input name="position" type="number" min="1" required />
               </label>
               <button className="button">Add module</button>
-            </form>
+            </DraftContentForm>
           ) : null}
           <section className="panel">
             <h2>Assessments</h2>
@@ -290,78 +306,25 @@ export default async function CourseVersionPage({
                 </p>
                 {isDraft ? (
                   <>
-                    <form action={addAssessmentTopic} className="inline-form">
-                      <input
-                        type="hidden"
-                        name="versionId"
-                        value={version.id}
-                      />
-                      <input
-                        type="hidden"
-                        name="assessmentId"
-                        value={assessment.id}
-                      />
-                      <input
-                        name="topicCode"
-                        pattern="[a-z0-9]+(?:_[a-z0-9]+)*"
-                        placeholder="topic_code"
-                        required
-                      />
-                      <input
-                        name="requiredCount"
-                        type="number"
-                        min="1"
-                        placeholder="Required"
-                        required
-                      />
-                      <button className="text-button">Add topic</button>
-                    </form>
-                    <form action={addAssessmentQuestion} className="form-stack">
-                      <input
-                        type="hidden"
-                        name="versionId"
-                        value={version.id}
-                      />
-                      <input
-                        type="hidden"
-                        name="assessmentId"
-                        value={assessment.id}
-                      />
-                      <label>
-                        Topic code
-                        <input name="topicCode" required />
-                      </label>
-                      <label>
-                        Prompt
-                        <textarea name="prompt" required />
-                      </label>
-                      <label>
-                        Options, one per line
-                        <textarea name="options" rows={4} required />
-                      </label>
-                      <label>
-                        Correct option number
-                        <input
-                          name="correctOption"
-                          type="number"
-                          min="1"
-                          required
-                        />
-                      </label>
-                      <label>
-                        Review rationale (not shown during final)
-                        <textarea name="rationale" required />
-                      </label>
-                      <button className="button">
-                        Add immutable-version question
-                      </button>
-                    </form>
+                    <AssessmentTopicForm
+                      versionId={version.id}
+                      assessmentId={assessment.id}
+                    />
+                    <AssessmentQuestionForm
+                      versionId={version.id}
+                      assessmentId={assessment.id}
+                      topics={(topicsResult.data ?? [])
+                        .filter(
+                          (topic) => topic.assessment_id === assessment.id,
+                        )
+                        .map((topic) => topic.topic_code)}
+                    />
                   </>
                 ) : null}
               </article>
             ))}
             {isDraft ? (
-              <form action={addAssessment} className="form-stack">
+              <DraftContentForm action={addAssessment} className="form-stack">
                 <input type="hidden" name="versionId" value={version.id} />
                 <h3>Add assessment</h3>
                 <label>
@@ -425,7 +388,7 @@ export default async function CourseVersionPage({
                   </label>
                 </div>
                 <button className="button">Add assessment</button>
-              </form>
+              </DraftContentForm>
             ) : null}
           </section>
         </section>
@@ -449,7 +412,12 @@ export default async function CourseVersionPage({
           ))}
           {isDraft ? (
             <>
-              <form action={reviewVersion} className="form-stack">
+              <MutationForm action={reviewVersion} className="form-stack">
+                <input
+                  type="hidden"
+                  name="manifestHash"
+                  value={version.manifest_hash}
+                />
                 <input type="hidden" name="versionId" value={version.id} />
                 <label>
                   Decision
@@ -467,14 +435,19 @@ export default async function CourseVersionPage({
                 <button className="button secondary">
                   Record exact-hash review
                 </button>
-              </form>
-              <form action={publishVersion}>
+              </MutationForm>
+              <MutationForm action={publishVersion}>
+                <input
+                  type="hidden"
+                  name="manifestHash"
+                  value={version.manifest_hash}
+                />
                 <input type="hidden" name="versionId" value={version.id} />
                 <button className="button">Publish immutable version</button>
-              </form>
+              </MutationForm>
             </>
           ) : version.status === "published" ? (
-            <form action={retireVersion} className="form-stack">
+            <MutationForm action={retireVersion} className="form-stack">
               <input type="hidden" name="versionId" value={version.id} />
               <label>
                 Retirement reason
@@ -483,7 +456,7 @@ export default async function CourseVersionPage({
               <button className="button secondary">
                 Retire for future assignment
               </button>
-            </form>
+            </MutationForm>
           ) : (
             <p>Retired: {version.retirement_reason}</p>
           )}

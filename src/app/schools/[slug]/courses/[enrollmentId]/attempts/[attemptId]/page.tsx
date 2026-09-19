@@ -1,19 +1,19 @@
+import { loadSchoolEnrollment } from "@/lib/school-enrollment";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { submitAssessment } from "./actions";
-type SelectedQuestion = {
-  question_id: string;
-  prompt: string;
-  options: { option_id: string; text: string }[];
-};
+import { recordTime } from "@/lib/record-time";
+import type { SelectedQuestion } from "@/lib/assessment-submission";
+import { AttemptForm } from "./attempt-form";
 export default async function AttemptPage({
   params,
 }: {
   params: Promise<{ slug: string; enrollmentId: string; attemptId: string }>;
 }) {
   const { slug, enrollmentId, attemptId } = await params;
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
+  if (!(await loadSchoolEnrollment(supabase, slug, enrollmentId, user.id)))
+    notFound();
   const { data: attempt, error } = await supabase.rpc(
     "get_assessment_attempt",
     {
@@ -30,32 +30,30 @@ export default async function AttemptPage({
   return (
     <main className="container main assessment-reader" id="main-content">
       <p className="kicker">{assessment?.title ?? "Assessment"}</p>
-      <h1>Attempt result</h1>
+      <h1>
+        {attempt.status === "in_progress"
+          ? "Answer your assessment"
+          : "Attempt result"}
+      </h1>
+      <p>
+        <Link href={`/schools/${slug}/courses/${enrollmentId}`}>
+          Return to course
+        </Link>
+      </p>
       {attempt.status === "in_progress" ? (
-        <form action={submitAssessment} className="form-stack">
-          <input type="hidden" name="slug" value={slug} />
-          <input type="hidden" name="enrollmentId" value={enrollmentId} />
-          <input type="hidden" name="attemptId" value={attempt.id} />
-          {questions.map((question, index) => (
-            <fieldset className="panel" key={question.question_id}>
-              <legend>
-                {index + 1}. {question.prompt}
-              </legend>
-              {question.options.map((option) => (
-                <label className="answer-option" key={option.option_id}>
-                  <input
-                    type="radio"
-                    name={`question:${question.question_id}`}
-                    value={option.option_id}
-                    required
-                  />
-                  {option.text}
-                </label>
-              ))}
-            </fieldset>
-          ))}
-          <button className="button">Submit answers for server scoring</button>
-        </form>
+        <>
+          <p>
+            Submit before {recordTime(attempt.expires_at)}. The time limit
+            continues if you leave this page. Choices are kept here after a
+            submission error, but are not saved when you leave or reload.
+          </p>
+          <AttemptForm
+            slug={slug}
+            enrollmentId={enrollmentId}
+            attemptId={attempt.id}
+            questions={questions}
+          />
+        </>
       ) : (
         <section className="panel">
           <h2>{attempt.status}</h2>

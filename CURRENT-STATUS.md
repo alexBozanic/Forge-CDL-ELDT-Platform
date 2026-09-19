@@ -1,0 +1,211 @@
+# Current Forge software verification status
+
+This is the continuation entry point. Earlier checkpoint documents retain history;
+the evidence below supersedes their older pending/blocked statements.
+
+September 19 curriculum follow-up: `CURRICULUM-RENDERING.md` records support for
+the incoming lessons' headings, emphasis and numbered lists, with three safe
+rendering regressions (80 application tests total). The user now confirms
+instructor approval of both supplied content packages. They are staged locally;
+full-course hosted import and exam settings remain outstanding. Do not infer that
+the current one-question demo already contains the approved full curriculum.
+
+Latest lesson recovery: `LESSON-READ-RECOVERY.md` records prevention of false
+"not started" progress after failed reads, sanitized recovery and three actual-page
+render regressions (77 application tests total). The Taylor's fake-data learner,
+administrator, CSV and short saved-PDF rehearsal has passed at `10eca43`, CI
+`35153968466`, Preview `7hTzuzueVsEAdCV3t5uTPWJGAyQE`. No account switch is
+pending for that completed rehearsal. Long PDF and broader hosted acceptance
+remain separate gates.
+
+Latest assessment route repair: `ASSESSMENT-SCHOOL-CONTEXT.md` records school
+and learner binding on assessment pages and start/submit actions. Previous
+checkpoint `3a89ce4` passed CI `35150301025` and Preview
+`Ehpfywx2EiuVRan7wjgrNWyWRN3g`. Taylor's fake-data rehearsal is set up; learner
+account switch remains pending.
+
+Latest browser verification: `REPORTING-QUEUE-BROWSER-VERIFICATION.md` records
+local unchanged-page traversal under a four-row API cap, keyboard continuation,
+end-of-list, newest reset and invalid cursor handling. `FIRST-SCHOOL-PILOT.md`
+defines the staff rehearsal and hosted acceptance gates. Queue checkpoint
+`f242ff9` passed CI `35147304530` and Preview `7vvNPjrF9A6xWyLcyJnauqgs2Wxu`.
+
+Latest reporting work queue: `REPORTING-QUEUE-PAGINATION.md` documents bounded
+newest-first pages, validated timestamp/ID cursors, smaller API-cap continuation
+and three synthetic regressions. Export checkpoint `adc913e` passed CI
+`35146774061` and Preview `2fwFDsQeXKSTdgDfkTB2AVmnz3SD`.
+
+Latest export follow-up: `REPORTING-EXPORT-PAGINATION.md` documents ordered,
+tenant-scoped CSV pagination, bounded metadata batches, explicit failure instead
+of partial downloads, and five synthetic regressions. The previous CSV checkpoint
+`4e43486` passed CI `35107756461` and Preview
+`5d7QqavySFWpXeqSwF57gCxmcUf8`. Hosted export isolation remains unverified.
+
+Latest CSV follow-up: `REPORTING-CSV-VERIFICATION.md` records coverage for
+line-feed, whitespace/control and full-width formula prefixes, quote/delimiter
+breakouts and unchanged ordinary fields. All 63 application tests, frozen install, format, lint, typecheck and production
+build pass locally. Authoring checkpoint `6e0637f` passed CI `35107415568` and
+Preview `A65y5m1Aen2zMchqpEYyXGcLMtkT`.
+
+Latest authoring transport recovery: `AUTHORING-TRANSPORT-RECOVERY.md` records
+browser-verified topic/question retention, pending fieldsets and focused safe
+errors. Learner checkpoint `9aa78de` passed CI `35107007659` and Preview
+`719qqNwU23tup2uLhETg1kpjUP1Q`.
+
+Latest learner transport recovery: `LEARNER-TRANSPORT-RECOVERY.md` records
+browser-verified input/answer retention and focused errors when profile, assessment
+start and submission actions throw before returning state. All 60 application
+tests and local required build checks pass. Auth checkpoint `6497f37` passed CI
+`35060395397` and Preview `4TJ5DXw1YUir3uepxdVo9oVcuDGZ`.
+
+Latest auth recovery: `AUTH-ACTION-RECOVERY.md` records inline failure handling,
+confirmed sign-out, private signup/recovery outcomes, invitation acceptance
+recovery, and the browser-reproduced/fixed false error after successful redirect.
+There are 60 application tests. Previous checkpoint `e12580a` passed CI
+`35059716119` and Preview `GJrLMB1WCyj9rrUTyDMyQLgy1BEt`.
+
+Latest password input repair: `PASSWORD-INPUT-REPAIR.md` records removal of
+credential trimming in sign-in/signup/password update. Two new regressions bring
+the application total to 55. No real credentials or accounts were used.
+
+Latest creation/invitation follow-up: `CREATION-INVITATION-RECOVERY.md` records
+partial course-creation recovery, validated school/invitation inputs, retained
+emails, safe errors and actual local browser failure checks. All 53 application
+tests and required local application/build checks pass. Checkpoint `a5e8201`
+passed CI `35059533507` (application, database and restore); Preview
+`2fhY4DkhjLb43Fgyv7W7ZRGG6uPd` completed.
+
+**New hosted gate:** `REVIEW-MANIFEST-GUARD.md` describes the displayed-hash
+review/publication safeguard and new incremental migration 009. Old migrations
+001–008 are untouched. The new RPCs are not yet installed in Supabase; the app
+fails closed for review/publication until an authorized one-time rollout. The
+change passed real PostgreSQL regressions and disposable restore in CI
+`35053334466` at `ce73dd1`; Preview `DyEHjuUDTVjXmAkHtj17Y2pG43Ax` completed. Reporting checkpoint `3cc91a1` passed CI `35052820073` and
+Preview `97VebWped5v3bw9ZZnhgDWwAdger`.
+
+Reporting recovery follow-up: `REPORTING-ACTION-RECOVERY.md` records validation,
+retained entries, safe errors and render-bound preparation/transition request
+keys. There are 43 passing application tests. School checkpoint `49c48ca` passed
+CI `35052551062` and Preview `EsAFakYHiramhcnx37srPTbe1CW1`.
+
+School action follow-up: `SCHOOL-ACTION-RECOVERY.md` covers five administration
+operations with validated payloads, preserved inputs and sanitized errors using
+the shared recovery form. There are now 39 passing application tests. Prior
+assessment-settings checkpoint `1ec6c49` passed CI `35052250552` and Preview
+`CSv5kDsoXnd2yTno6HovwW8wkpsa`.
+
+Latest authoring follow-up: `DRAFT-CONTENT-RECOVERY.md` covers module/lesson add
+and save forms, validated payloads, retained inputs and sanitized inline errors.
+Assessment creation and metadata now use the same recovery form, with additional
+server validation and 36 passing application tests. The module/lesson checkpoint
+`35a37c5` passed CI `35052032519` and Preview `HJjC3angzfnhrtA1vQhePcGb9GXA`.
+The prior lesson
+checkpoint `f9735a9` passed CI `35051707322` and Preview
+`4f6bxShorv7yDSes3QPQaUTKvmHz`.
+
+Latest follow-up: `LESSON-RECOVERY-VERIFICATION.md` records inline lesson save
+recovery, stable keys for manual repeats after uncertain errors, and three new
+controller tests (30 total). `TRANSCRIPT-PRINT-FIXTURE.md` records the 60-lesson
+synthetic transcript rendering check and the still-open browser PDF export gate.
+
+Latest local follow-up: `ASSESSMENT-BROWSER-VERIFICATION.md` documents a reproduced
+native radio reset defect and its fix, plus corrected answer-option layout.
+Actual browser checks now pass for keyboard selection, repeated failure answer
+preservation, pending controls, focus and mocked confirmation. All 27 application
+tests and the production build pass. Hosted integration and screen-reader
+verification remain separate gates. The reproducible fixture lives outside the
+application and never writes hosted data.
+
+Previous verified branch checkpoint: `e8c6196`, CI `35039071644` passed application,
+database and restore; Preview `C4cC4f4sHA3HJnEvjRJ2WtCzhcow` was Ready.
+
+Read `MVP-READINESS.md` for the current build inventory, independent development
+backlog and external acceptance gates. Instructor edits to the separate bank are
+in progress; no reviewed workbook or approval has been received.
+
+Latest verified release before the start-form follow-up: `a0fe2ab`, CI
+`35038512375`, Preview `B5iYTiA1452GjFYybPDYVmaNMUUq`. All 23 application tests,
+database integration and disposable restore passed. The browser followed View
+latest result and showed the existing passed 100% result without final answers.
+
+The assessment start follow-up adds safe inline action errors, pending state,
+course navigation and a server-generated request key bound to each rendered
+form, preserving database idempotency on manual resubmission. It adds four tests
+(27 application tests total), all passing locally with frozen install, format,
+lint, typecheck and build. CI/Preview evidence follows in the task checkpoint.
+
+Current development follow-up: `ASSESSMENT-SUBMISSION-REPAIR.md` records student
+submission error recovery, answer preservation, accessible feedback and eight
+additional application regression tests. Instructor review of the separate
+120-question draft workbook is now proceeding in parallel; no content has been
+imported or approved by this software work.
+
+Submission repair commit `0492635` passed CI `35038329859` (application,
+PostgreSQL, and disposable restore) and Preview deployment
+`3VNiSwZs8rZ1gtFDHrnJB9MMdhDM`. The subsequent result-navigation follow-up adds
+a direct link from the course to the student's latest saved attempt.
+
+Latest follow-up: `STUDENT-KEYBOARD-VERIFICATION.md` records the student profile
+keyboard walkthrough and completed-course resume/navigation repair. Local frozen
+install, formatting, lint, typecheck, all 15 tests, and build passed for that repair;
+its CI and Preview verification follow the earlier baseline below.
+
+## Earlier verified application checkpoint
+
+Application commit: `437748d`, on the existing PR4 branch
+`codex/resume-forge-mvp-validation-from-pr2-checkpoint`.
+
+- CI run `35034214220` passed application and database jobs: frozen install,
+  formatting, lint, typecheck, all 15 application tests, migration-bundle checks,
+  build, HTTP security headers, PostgreSQL suites, and disposable backup/restore.
+- Preview deployment `88pNDQPTaBX9oBU33TKmuU7kiR8h` completed.
+- A missing student UUID now returns Page not found; the existing Demo Student
+  profile and history still load. The new school Dashboard link was focused with
+  Tab and activated with Enter. No hosted writes were needed for these checks.
+- Supabase JS 2.50.0 and its regenerated lockfile were explicitly approved by the
+  user. Commit `4830810` resolved the low auth-js advisory. Full and production
+  audits reported zero known vulnerabilities at that checkpoint.
+- The supplied two-page PDF was rendered and visually inspected. Application
+  content fits; browser print decorations can be disabled to remove their
+  clipped date header/truncated URL footer. Long-record pagination and PDF text
+  accessibility are not established by this sample.
+- Prior browser checks verified student/school-admin routes, current-profile
+  preservation, the immutable completion snapshot, fake reporting readiness,
+  CSV download, mobile layouts, and the transcript table's keyboard scrolling.
+- The existing school admin cannot open the empty second school's workspace,
+  reporting queue, or mismatched transcript URL. This is browser-route evidence,
+  not a two-populated-school direct API test.
+
+See `HOSTED-VERIFICATION.md`, `DEPENDENCY-REPAIR.md`, and
+`STUDENT-RECORD-REPAIR.md` for the relevant changes and evidence. Task outputs
+contain the PDF inspection and post-deployment verification reports.
+
+## Concrete remaining gates
+
+1. **Direct Auth/PostgREST isolation.** The existing staging runner needs four
+   confirmed fake accounts and creates invitations/access, attempts, and reporting
+   records. Do not run it against the shared Preview under a read-only scope.
+   Use a separately authorized disposable Supabase environment and fixture setup;
+   credentials must remain in a local secret store, never in chat or tracked files.
+   Local Docker/PostgreSQL were unavailable in this workspace; CI's PostgreSQL
+   service does not supply Supabase Auth/PostgREST.
+2. **Export HTTP denial.** Student export navigation and the latest school-admin
+   navigation to the other school's export were blocked by the browser client.
+   No HTTP authorization result was observable. Source inspection confirms role
+   and tenant filtering, but this does not replace the missing runtime evidence.
+3. **Hosted recovery and operations.** Disposable database backup/restore passed;
+   hosted recovery, retention decisions, Auth abuse controls, and monitoring still
+   require operator evidence and separate authorization for service changes.
+4. **Broader accessibility.** Complete the remaining student/assessment keyboard
+   and screen-reader walkthrough and long-record/PDF accessibility checks. Existing
+   navigation/mobile evidence is limited to the recorded paths and sample data.
+5. **External decisions.** Curriculum review, provider eligibility, and state
+   requirements are separate from software validation and are not inferred.
+
+## Continuing safely
+
+No production deployment, merge, hosted migration replay/reset/history repair,
+new account/access grants, real data, emails, or external reporting is authorized
+by this status document. Preserve migrations 001–008, AGENTS, Next.js 16.3.5, and
+the newly verified lockfile. The fake reporting record remains ready, with no
+submitted or accepted event. Do not invent more mutations to demonstrate progress.

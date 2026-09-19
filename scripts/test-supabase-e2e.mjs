@@ -204,6 +204,7 @@ const { data: completions, error: completionError } = await student
 if (completionError || completions?.length !== 1)
   throw new Error("Idempotent completion was not visible through RLS");
 for (const protectedTable of [
+  "assessment_answers",
   "assessment_answer_keys",
   "assessment_attempt_payloads",
 ]) {

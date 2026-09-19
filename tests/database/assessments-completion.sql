@@ -1,5 +1,19 @@
 begin;
+-- Happy-path fixtures explicitly pass the hash currently loaded by the test.
+-- Stale editor behavior is covered separately in review-manifest-preconditions.sql.
+create or replace function pg_temp.review_current_fixture(version_id uuid, decision public.curriculum_review_decision, notes text)
+returns uuid language sql as $$
+  select public.review_course_version_at_hash(version_id,
+    (select manifest_hash from public.course_versions where id = version_id), decision, notes);
+$$;
+create or replace function pg_temp.publish_current_fixture(version_id uuid)
+returns text language sql as $$
+  select public.publish_course_version_at_hash(version_id,
+    (select manifest_hash from public.course_versions where id = version_id));
+$$;
+
 create or replace function pg_temp.assert_true(ok boolean, message text) returns void language plpgsql as $$ begin if not coalesce(ok,false) then raise exception 'assertion failed: %',message; end if; end $$;
+create or replace function pg_temp.expect_invalid_submission(attempt_id uuid, answers jsonb) returns void language plpgsql as $$ begin begin perform public.submit_assessment(attempt_id,answers); raise exception 'invalid assessment submission was accepted'; exception when sqlstate '22023' then null; end; end $$;
 
 -- A new version carries assessment content; the already-published seed version remains untouched.
 insert into public.course_versions(id,course_id,version_number,status,manifest_hash,title,description,created_by)
@@ -36,8 +50,8 @@ update private.assessment_answer_keys set correct_option_id='d6610000-0000-4000-
 where course_version_id='d6000000-0000-4000-8000-000000000001' and question_id='d6410000-0000-4000-8000-000000000001';
 
 set role authenticated; select set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
-select public.review_course_version('d6000000-0000-4000-8000-000000000001','approved','Software test review only; no approval claim.');
-select public.publish_course_version('d6000000-0000-4000-8000-000000000001');
+select pg_temp.review_current_fixture('d6000000-0000-4000-8000-000000000001','approved','Software test review only; no approval claim.');
+select pg_temp.publish_current_fixture('d6000000-0000-4000-8000-000000000001');
 reset role;
 select pg_temp.assert_true((select manifest_hash from public.course_versions where id='d6000000-0000-4000-8000-000000000001') <> (select manifest_hash from public.course_versions where id='dddddddd-0000-4000-8000-000000000001'),'revision overwrote historical manifest');
 
@@ -53,8 +67,26 @@ set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000
 do $$ begin begin perform public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000001'); raise exception 'final opened before prerequisites'; exception when sqlstate '55000' then null; end; end $$;
 select public.record_lesson_interaction('d6800000-0000-4000-8000-000000000001','d6200000-0000-4000-8000-000000000001','completed',0,'d6900000-0000-4000-8000-000000000002');
 select (public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000003')->>'attempt_id')::uuid as first_attempt \gset
+select public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000003')->'questions' as replayed_questions \gset
 reset role;
 select pg_temp.assert_true((select jsonb_array_length(selected_questions)=5 from private.assessment_attempt_payloads where attempt_id=:'first_attempt'),'blueprint did not select exact question count');
+select pg_temp.assert_true((select selected_questions=:'replayed_questions'::jsonb from private.assessment_attempt_payloads where attempt_id=:'first_attempt'),'idempotent start did not preserve randomized question and option order');
+set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
+-- A same-version option for a different question and an unselected question are rejected atomically.
+select pg_temp.expect_invalid_submission(:'first_attempt',jsonb_build_object(
+   'd6410000-0000-4000-8000-000000000001','d6620000-0000-4000-8000-000000000001',
+   'd6420000-0000-4000-8000-000000000001','d6620000-0000-4000-8000-000000000001',
+   'd6430000-0000-4000-8000-000000000001','d6630000-0000-4000-8000-000000000001',
+   'd6440000-0000-4000-8000-000000000001','d6640000-0000-4000-8000-000000000001',
+   'd6450000-0000-4000-8000-000000000001','d6650000-0000-4000-8000-000000000001'));
+select pg_temp.expect_invalid_submission(:'first_attempt',jsonb_build_object(
+   '00000000-0000-4000-8000-000000000001','d6610000-0000-4000-8000-000000000001',
+   'd6420000-0000-4000-8000-000000000001','d6620000-0000-4000-8000-000000000001',
+   'd6430000-0000-4000-8000-000000000001','d6630000-0000-4000-8000-000000000001',
+   'd6440000-0000-4000-8000-000000000001','d6640000-0000-4000-8000-000000000001',
+   'd6450000-0000-4000-8000-000000000001','d6650000-0000-4000-8000-000000000001'));
+reset role;
+select pg_temp.assert_true(not exists(select 1 from public.assessment_answers where attempt_id=:'first_attempt'),'invalid answers were partially persisted');
 set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
 -- 3/5 = 60, below the exact 80 threshold.
 select public.submit_assessment(:'first_attempt',jsonb_build_object(
@@ -64,6 +96,7 @@ select public.submit_assessment(:'first_attempt',jsonb_build_object(
 'd6440000-0000-4000-8000-000000000001','d6540000-0000-4000-8000-000000000001',
 'd6450000-0000-4000-8000-000000000001','d6550000-0000-4000-8000-000000000001'));
 select pg_temp.assert_true((select status='failed' and score_percent=60 from public.assessment_attempts where id=:'first_attempt'),'below-threshold score was wrong');
+select pg_temp.assert_true(public.submit_assessment(:'first_attempt','{}'::jsonb)->>'status'='failed','submitted-attempt replay changed the result');
 select pg_temp.assert_true(public.get_assessment_attempt(:'first_attempt')->'questions'='null'::jsonb,'submitted final payload remained student-readable');
 select pg_temp.assert_true(not exists(select 1 from public.course_completions where enrollment_id='d6800000-0000-4000-8000-000000000001'),'failed attempt completed enrollment');
 -- Retake at exactly 4/5 = 80 passes and creates one completion/needs-attention record.
@@ -88,6 +121,21 @@ select public.submit_assessment(:'high_attempt',jsonb_build_object(
 select pg_temp.assert_true((select status='passed' and score_percent=100 from public.assessment_attempts where id=:'high_attempt'),'above-threshold score was wrong');
 select pg_temp.assert_true((select count(*)=1 from public.course_completions where enrollment_id='d6800000-0000-4000-8000-000000000001'),'retake duplicated completion');
 reset role;
+
+-- Expiry is server-enforced, and revoked memberships cannot read or start attempts.
+set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
+select (public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000006')->>'attempt_id')::uuid as expired_attempt \gset
+reset role;
+update public.assessment_attempts set expires_at=statement_timestamp()-interval '1 second' where id=:'expired_attempt';
+set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
+select pg_temp.assert_true(public.submit_assessment(:'expired_attempt','{}'::jsonb)->>'status'='expired','expired attempt was accepted');
+reset role;
+update public.organization_memberships set status='suspended' where organization_id='aaaaaaaa-0000-4000-8000-000000000001' and user_id='10000000-0000-4000-8000-000000000002';
+set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
+select pg_temp.assert_true(public.get_assessment_attempt(:'expired_attempt') is null,'revoked membership retained attempt access');
+do $$ begin begin perform public.start_assessment('d6800000-0000-4000-8000-000000000001','d6300000-0000-4000-8000-000000000001','d6900000-0000-4000-8000-000000000007'); raise exception 'revoked membership started attempt'; exception when insufficient_privilege then null; end; end $$;
+reset role;
+update public.organization_memberships set status='active' where organization_id='aaaaaaaa-0000-4000-8000-000000000001' and user_id='10000000-0000-4000-8000-000000000002';
 
 -- Keys are inaccessible and another tenant cannot see or mutate Northstar history.
 set role authenticated; select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
@@ -117,6 +165,29 @@ select pg_temp.assert_true((select count(*)=3 from public.reporting_events where
 reset role;
 select pg_temp.assert_true((select count(*)=1 from public.completion_corrections),'correction audit was not appended');
 do $$ begin begin update public.course_completions set reporting_ready=true; raise exception 'completion snapshot changed'; exception when sqlstate '55000' then null; end; begin update public.assessment_answers set is_correct=false; raise exception 'answer changed'; exception when sqlstate '55000' then null; end; end $$;
+
+-- Platform authoring RPCs reject invalid topics/counts and support the complete
+-- topic -> question/private key -> exact review -> publication workflow.
+insert into public.course_versions(id,course_id,version_number,status,manifest_hash,title,description,created_by)
+values('d7000000-0000-4000-8000-000000000001','cccccccc-0000-4000-8000-000000000001',3,'draft',repeat('0',64),'Authoring RPC demo','Fake authoring workflow only.','00000000-0000-4000-8000-000000000001');
+insert into public.course_modules(id,course_version_id,title,position)
+values('d7100000-0000-4000-8000-000000000001','d7000000-0000-4000-8000-000000000001','Fake module',1);
+insert into public.course_lessons(id,course_version_id,module_id,title,body_markdown,position,estimated_minutes)
+values('d7200000-0000-4000-8000-000000000001','d7000000-0000-4000-8000-000000000001','d7100000-0000-4000-8000-000000000001','Fake lesson','Fake content only.',1,1);
+insert into public.assessments(id,course_version_id,kind,title,position,question_count,passing_percent,time_limit_minutes)
+values('d7300000-0000-4000-8000-000000000001','d7000000-0000-4000-8000-000000000001','final_exam','Fake final',1,1,80,5);
+set role authenticated; select set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000001',true);
+do $$ begin
+ begin perform public.add_assessment_topic('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','bad-topic',1); raise exception 'invalid topic accepted'; exception when check_violation then null; end;
+ begin perform public.add_assessment_topic('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','demo_purpose',0); raise exception 'invalid count accepted'; exception when check_violation then null; end;
+ begin perform public.add_assessment_question('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','missing_topic','Fake prompt','Fake rationale',array['No','Yes'],1); raise exception 'missing topic accepted'; exception when foreign_key_violation then null; end;
+end $$;
+select public.add_assessment_topic('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','demo_purpose',1);
+select public.add_assessment_question('d7000000-0000-4000-8000-000000000001','d7300000-0000-4000-8000-000000000001','demo_purpose','Does this fake workflow establish approval?','No. It tests software authoring only.',array['No','Yes'],1);
+select pg_temp.review_current_fixture('d7000000-0000-4000-8000-000000000001','approved','Fake exact-hash software review.');
+select pg_temp.publish_current_fixture('d7000000-0000-4000-8000-000000000001');
+select pg_temp.assert_true((select status='published' from public.course_versions where id='d7000000-0000-4000-8000-000000000001'),'valid RPC authoring workflow did not publish');
+reset role;
 
 rollback;
 \echo 'Assessment scoring, completion, reporting, and isolation assertions passed.'

@@ -1,0 +1,174 @@
+import {
+  AssessmentTopicForm,
+  AssessmentQuestionForm,
+} from "./editor/assessment-authoring-forms";
+import { ProfileForm } from "./profile-form";
+import { transportStartFixture } from "./actions";
+import { MutationForm } from "@/components/mutation-form";
+import { authFailureFixture, redirectFixture } from "./actions";
+import { InvitationForm } from "./invitation-form";
+import { AdminInvitationForm } from "./admin-invitation-form";
+import { AttemptForm } from "./attempt-form";
+import { StartForm } from "./start-form";
+import { startFixture } from "./actions";
+import { LessonInteractions } from "./lesson-interactions";
+import { DraftContentForm } from "./draft-content-form";
+import { draftFixture } from "./actions";
+const id = "00000000-0000-4000-8000-000000000001";
+export default function Page() {
+  return (
+    <main className="container main" id="main-content">
+      <h1>Local assessment form verification</h1>
+      <p>
+        Fake fixtures only. No authentication, database, scoring or hosted
+        writes. First two submissions fail; third succeeds.
+      </p>
+      <section>
+        <h2>Assessment authoring transport fixture</h2>
+        <AssessmentTopicForm versionId={id} assessmentId={id} />
+        <AssessmentQuestionForm
+          versionId={id}
+          assessmentId={id}
+          topics={["fake_topic"]}
+        />
+      </section>
+      <section>
+        <h2>Profile transport fixture</h2>
+        <ProfileForm
+          organizationId={id}
+          userId={id}
+          slug="fixture"
+          profile={null}
+        />
+        <h2>Start transport fixture</h2>
+        <StartForm
+          slug="fixture"
+          enrollmentId={id}
+          assessmentId={id}
+          start={transportStartFixture}
+        />
+      </section>
+      <section>
+        <h2>Local authentication failure fixture</h2>
+        <MutationForm action={authFailureFixture} className="form-stack">
+          <label>
+            Fake auth email
+            <input
+              name="email"
+              type="email"
+              defaultValue="fake@example.invalid"
+              required
+            />
+          </label>
+          <label>
+            Fake auth password
+            <input
+              name="password"
+              type="password"
+              defaultValue="synthetic fixture only"
+              required
+            />
+          </label>
+          <button>Test fake auth failure</button>
+        </MutationForm>
+        <MutationForm action={redirectFixture}>
+          <button>Test local success redirect</button>
+        </MutationForm>
+      </section>
+      <section>
+        <h2>Invitation failure fixture</h2>
+        <InvitationForm
+          organizationId={id}
+          slug="fixture"
+          assignments={[{ id, title: "Fake assignment" }]}
+        />
+        <AdminInvitationForm organizationId={id} />
+      </section>
+      <section>
+        <h2>Draft content fixture</h2>
+        <DraftContentForm action={draftFixture} className="form-stack">
+          <input type="hidden" name="versionId" value={id} />
+          <input type="hidden" name="moduleId" value={id} />
+          <label>
+            Draft title
+            <input name="title" defaultValue="Synthetic lesson" required />
+          </label>
+          <label>
+            Draft position
+            <input
+              name="position"
+              type="number"
+              min="1"
+              defaultValue="1"
+              required
+            />
+          </label>
+          <label>
+            Draft minutes
+            <input
+              name="minutes"
+              type="number"
+              min="1"
+              max="240"
+              defaultValue="5"
+              required
+            />
+          </label>
+          <label>
+            Draft body
+            <textarea
+              name="body"
+              defaultValue="Synthetic content to preserve."
+              required
+            />
+          </label>
+          <button>Save fake draft</button>
+        </DraftContentForm>
+      </section>
+      <section>
+        <h2>Submission fixture</h2>
+        <AttemptForm
+          slug="fixture"
+          enrollmentId={id}
+          attemptId={id}
+          questions={[
+            {
+              question_id: "q1",
+              prompt: "Local fixture: choose a color",
+              options: [
+                { option_id: "blue", text: "Blue" },
+                { option_id: "green", text: "Green" },
+              ],
+            },
+            {
+              question_id: "q2",
+              prompt: "Local fixture: choose a shape",
+              options: [
+                { option_id: "circle", text: "Circle" },
+                { option_id: "square", text: "Square" },
+              ],
+            },
+          ]}
+        />
+      </section>
+      <section>
+        <h2>Start fixture</h2>
+        <StartForm
+          slug="fixture"
+          enrollmentId={id}
+          assessmentId={id}
+          start={startFixture}
+        />
+      </section>
+      <section>
+        <h2>Lesson progress fixture</h2>
+        <LessonInteractions
+          enrollmentId={id}
+          lessonId={id}
+          positions={[0, 1]}
+          coursePath="/fixture-course"
+        />
+      </section>
+    </main>
+  );
+}

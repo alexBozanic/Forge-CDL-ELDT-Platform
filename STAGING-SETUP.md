@@ -4,44 +4,66 @@ This procedure is required to validate behavior that plain PostgreSQL tests cann
 
 ## Current hosted test-project state
 
-As of 2026-09-12, the empty test project `uooiziwxmuzdbdcxblox` at
+The 001-003 provenance remains: the test project `uooiziwxmuzdbdcxblox` at
 `https://uooiziwxmuzdbdcxblox.supabase.co` has migrations `202609120001`,
 `202609120002`, and `202609120003` manually applied from saved commit
 `9f435699642b38454c11b96f84f90b7a1f7cf65c` through SQL Editor. The editor's
 **Run and enable RLS** option also enabled RLS on
 `private.invitation_redemption_limits`. No seed, Auth user, membership, sample
-record, application public-key configuration, or hosted Auth/PostgREST test has
-been applied. Migrations `202609120004`, `202609120005`, and `202609120006` remain pending there.
+record, application public-key configuration, or hosted Auth/PostgREST test had
+been applied at that checkpoint.
 
-SQL Editor execution may not have populated `supabase_migrations.schema_migrations`.
-Before any linked CLI push, do **not** rerun the three create-table migrations or
-reset the project. First retrieve the exact three files from the saved commit,
-compare their SHA-256 values with the executed artifacts and this branch, and
-inspect both migration history and representative schema state:
+**Operator-reported evidence, 2026-09-13:** with explicit user approval, an
+authenticated operator applied the exact migrations 004-007 from release commit
+`7a56c600511d74cc4cadbe5365612d972dc681bd` individually through the Supabase SQL
+Editor; each returned `Success`. A fresh read-only query then reported all 28
+public and all 3 private application tables with RLS enabled, the transcript RPC
+present, anonymous execution denied, authenticated execution allowed, and
+authenticated `SELECT` on `assessment_answers` denied. It also reported zero Auth
+users and zero completions. This is source-attributed hosted schema evidence, not
+execution performed by this local agent and not Auth/PostgREST/browser evidence.
+
+The `supabase_migrations.schema_migrations` table is absent because migrations
+were executed manually. Do not rerun 001-007, manufacture migration history,
+reset, seed, or reinterpret SQL Editor success as CLI reconciliation.
+
+SQL Editor execution did not populate `supabase_migrations.schema_migrations`.
+The repository therefore provides an inspection-only offline bundle in
+`release/staging-migration-bundle`. Regenerate it with the command below; the
+generator refuses changed, missing, or unexpected migrations and has no network,
+database, history-repair, or push path:
 
 ```bash
-sha256sum supabase/migrations/20260912000{1,2,3}_*.sql
-supabase migration list --linked
+pnpm test:migration-bundle
+./scripts/prepare-staging-migration-bundle.sh
 ```
 
-```sql
-select version, name from supabase_migrations.schema_migrations order by version;
-select n.nspname, c.relname, c.relrowsecurity
-from pg_class c join pg_namespace n on n.oid = c.relnamespace
-where (n.nspname, c.relname) in
-  (('private', 'invitation_redemption_limits'),
-   ('public', 'invitations'), ('public', 'enrollments'))
-order by 1, 2;
-```
+Its source manifest records the exact hashes for all seven migrations and the
+hosted 001-003 provenance commit. Files 004-007 remain separate and retain their
+own transaction boundaries. The bundle is evidence for review, not an executable
+claim that the hosted schema matches.
 
-Only after the file hashes and inspected schema agree should an operator use the
-installed Supabase CLI's documented migration-repair command to mark exactly
-`202609120001`, `202609120002`, and `202609120003` as applied. Re-run
-`supabase migration list --linked`, review the resulting diff so it contains only
-the pending forward migrations, and then apply `202609120004` followed by
-`202609120005`, then `202609120006`. Record the hashes and command output in the
-private deployment log. Do not hand-insert migration-history rows or use `db reset`
-on this project.
+### Controlled operator gates
+
+There is intentionally no repository script that repairs migration history or
+pushes this bundle. A trusted operator must complete and archive each gate before
+choosing any mutation command from current official tooling documentation:
+
+1. Open project `uooiziwxmuzdbdcxblox` in the Supabase dashboard and independently
+   confirm that the connection endpoint used by the trusted SQL session belongs
+   to that project. A CLI link plus an environment variable is not proof of target.
+2. Run `verify-hosted-schema-read-only.sql` in that explicitly verified session.
+   It begins a read-only transaction and rolls back. Review migration history,
+   expected 001-003 objects, forced RLS state, and security-definer routines.
+3. Compare the original SQL Editor artifacts for 001-003 with commit
+   `9f435699642b38454c11b96f84f90b7a1f7cf65c` and the manifest hashes. Schema
+   inspection alone cannot prove source equivalence. Stop on any uncertainty.
+4. Stop. Migration-history reconciliation is a separate future operator decision;
+   it is not required for preview configuration and is not authorized here. The
+   already-applied migrations must not be replayed.
+
+Never hand-insert migration-history rows, use `db reset`, rely on confirmation
+environment strings, or allow an automated script to repair history and then push.
 
 ## New disposable project configuration
 
@@ -85,6 +107,65 @@ NEXT_PUBLIC_SITE_URL
 ```
 
 `NEXT_PUBLIC_SITE_URL` must be an HTTPS origin in staging; HTTP is accepted only for `localhost` or `127.0.0.1`. Do not add a service-role key to the application environment.
+
+For the exact Vercel Preview procedure, commit pinning, callbacks, and fake Auth
+account prerequisites, follow `VERCEL-PREVIEW.md`.
+
+### Current Vercel preview state
+
+**Operator-reported evidence, 2026-09-14:** Vercel project
+`forge-cdl-eldt-platform` was created in team `alexbozanics-projects` and connected
+to GitHub. It detected Next.js, used Node.js 22 and frozen pnpm installation, and
+has an ignore command restricting builds to `VERCEL_ENV=preview`. The first
+Create Preview action was unexpectedly labeled Production and was canceled by
+that guard; nothing went live. An explicitly selected Preview redeploy compiled
+all routes and serverless outputs, then Vercel refused publication with
+`Vulnerable version of Next.js detected, please update immediately.` No preview
+was published and the block must not be bypassed.
+
+Preview-scoped values for the public Supabase URL, browser-safe publishable key,
+and `NEXT_PUBLIC_SITE_URL` were saved; no application secret was supplied. The
+assigned origin is
+`https://forge-cdl-eldt-platform-git-codex-a685d8-alexbozanics-projects.vercel.app`.
+The Supabase Site URL and exact `/auth/confirm` redirect were saved for that
+origin. Hosted migrations and data were not changed: 001-007 remain manually
+applied, migration history remains absent, and Auth users remain zero. Test-inbox
+and real-browser Auth workflows remain unverified.
+
+With user-approved registry access restored on 2026-09-14, official npm registry
+metadata identified current stable Next.js and matching `eslint-config-next` as
+`16.3.5`, and React as `19.3.0`. A trial of the maintained Next.js 15 backport was
+rejected after production audit exposed high-severity vulnerable transitive
+packages; it was not committed. Dependencies were then resolved normally from
+`registry.npmjs.org`: Next.js and its ESLint config are 16.3.5; React, React DOM,
+and their types are 19.3.0; and plugin-compatible ESLint is 9.39.5. Next.js 16's
+native flat configs replaced the legacy compatibility adapter. The lockfile was
+regenerated normally, production audit reported no high findings, then a frozen
+install, format, lint,
+typecheck, full PostgreSQL suites, migration-bundle checks, local restore,
+production build, security headers, and public/Auth-route smoke all passed. This
+is local repair evidence; the Vercel Preview has not yet been retried or published.
+
+**Operator-reported Preview evidence, 2026-09-14:** Preview deployment
+`GXhUzS2rrjrMS3ssvUHwhdZu7Sha` is Ready and a platform administrator authenticated.
+The application created fake school `Forge Demo CDL Academy` (`forge-demo`) and
+draft version `5ddc6f56-4aad-4f3a-aed7-31d64337e71d`, containing module
+`Getting started`, lesson `How this demo works`, and one-question final assessment
+`9e781fa2-5b57-4d3e-ab5f-121b343144b8` (80 percent, five minutes). No blueprint
+topic or question was persisted. An invalid `demo-purpose` question topic produced
+a raw FK `23503` whole-page error. Adding valid topic `demo_purpose` returned a
+03:10:01.669Z HTTP 500 Gateway Timeout; an earlier module add similarly timed out,
+then succeeded only after the operator verified no write and manually retried.
+
+The authoring repair validates topic syntax and positive counts before RPC,
+requires choosing a server-verified existing blueprint topic for questions,
+preserves submitted values on failure, shows accessible action/pending feedback,
+and maps database/gateway failures to a stable message without automatic retry or
+private details. Local PostgreSQL completed the topic-to-question-to-review-to-
+publish RPC workflow and rejected invalid/missing topics. No deterministic SQL or
+locking failure reproduced locally: `add_assessment_topic` performs one authorized
+insert and draft-manifest refresh. The hosted timeout remains a transient gateway
+observation, not a proven database defect, and needs one controlled Preview recheck.
 
 ## Automated Auth/PostgREST test
 

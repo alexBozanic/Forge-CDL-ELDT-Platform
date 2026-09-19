@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export default function SchoolError({
   reset,
 }: {
@@ -12,11 +14,16 @@ export default function SchoolError({
         <div>
           <h1>School workspace unavailable</h1>
           <p>
-            Your data was not changed. Try again or return to the dashboard.
+            We could not load this page. Reload it or return to the dashboard.
+            If you just saved or submitted something, check its current status
+            before repeating the action.
           </p>
           <button className="button" onClick={reset}>
-            Try again
+            Reload page
           </button>
+          <Link className="button secondary" href="/dashboard">
+            Return to dashboard
+          </Link>
         </div>
       </div>
     </main>

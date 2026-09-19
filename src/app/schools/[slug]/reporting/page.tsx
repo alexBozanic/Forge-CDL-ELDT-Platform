@@ -1,3 +1,10 @@
+import {
+  decodeReportingCursor,
+  loadReportingQueue,
+} from "@/lib/reporting-queue";
+import { randomUUID } from "node:crypto";
+import { MutationForm } from "@/components/mutation-form";
+import { recordTime } from "@/lib/record-time";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
@@ -8,8 +15,10 @@ import {
 } from "./actions";
 export default async function ReportingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ before?: string | string[] }>;
 }) {
   const { slug } = await params;
   const { supabase, isPlatformAdministrator, memberships } =
@@ -31,16 +40,23 @@ export default async function ReportingPage({
     .eq("slug", slug)
     .single();
   if (!org) notFound();
-  const { data: records, error } = await supabase
-    .from("reporting_records")
-    .select(
-      "id,status,created_at,readiness_issues,reporting_identity_snapshot,provider_snapshot,course_completions(id,student_user_id,completed_at,course_manifest_hash,course_versions(title,version_number),assessment_attempts(score_percent,submitted_at)),reporting_events(id,from_status,to_status,reason,occurred_at)",
-    )
-    .eq("organization_id", org.id)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
+  let cursor;
+  try {
+    cursor = decodeReportingCursor((await searchParams).before);
+  } catch {
+    notFound();
+  }
+  const { records, versions, next } = await loadReportingQueue(
+    supabase,
+    org.id,
+    cursor,
+  );
   return (
     <main className="container main" id="main-content">
+      <nav className="inline-form" aria-label="Reporting navigation">
+        <Link href={`/schools/${slug}`}>School workspace</Link>
+        <Link href="/dashboard">Dashboard</Link>
+      </nav>
       <p className="kicker">{org.name} · Manual reporting</p>
       <h1>Completion and TPR work queue</h1>
       <div className="notice">
@@ -58,29 +74,51 @@ export default async function ReportingPage({
           Download tenant-safe CSV
         </Link>
       </p>
+      <p>
+        CSV downloads support up to 10,000 records. If the export cannot be
+        completed, an error appears instead of a partial file.
+      </p>
+      <p>Newest records first; up to 50 per page.</p>
+      <nav className="inline-form" aria-label="Reporting pages">
+        {cursor ? (
+          <Link href={`/schools/${slug}/reporting`}>Newest records</Link>
+        ) : null}
+        {next ? (
+          <Link href={`/schools/${slug}/reporting?before=${next}`}>
+            Older records
+          </Link>
+        ) : null}
+      </nav>
       {records?.length ? (
         <div className="list-stack">
           {records.map((record) => {
             const completion = Array.isArray(record.course_completions)
               ? record.course_completions[0]
               : record.course_completions;
-            const version = Array.isArray(completion?.course_versions)
-              ? completion?.course_versions[0]
-              : completion?.course_versions;
+            const version = completion
+              ? versions.get(completion.course_version_id)
+              : undefined;
             return (
-              <article className="panel" key={record.id}>
+              <article className="panel reporting-record" key={record.id}>
                 <h2>
                   {version?.title ?? "Pinned course"} · {record.status}
                 </h2>
                 <p>
                   Completed{" "}
                   {completion?.completed_at
-                    ? new Date(completion.completed_at).toLocaleString()
+                    ? recordTime(completion.completed_at)
                     : "unknown"}{" "}
                   · version {version?.version_number}
                 </p>
                 <p>
                   Manifest <code>{completion?.course_manifest_hash}</code>
+                </p>
+                <p>
+                  <Link
+                    href={`/schools/${slug}/students/${completion?.student_user_id}`}
+                  >
+                    View or edit student profile
+                  </Link>
                 </p>
                 {record.status === "needs_attention" ? (
                   <>
@@ -88,7 +126,7 @@ export default async function ReportingPage({
                       Missing:{" "}
                       {(record.readiness_issues as string[]).join(", ")}
                     </p>
-                    <form
+                    <MutationForm
                       action={updateReportingIdentifiers}
                       className="form-stack"
                     >
@@ -131,8 +169,10 @@ export default async function ReportingPage({
                       <button className="button secondary">
                         Save required reporting fields
                       </button>
-                    </form>
-                    <form action={prepareReporting}>
+                    </MutationForm>
+                    <MutationForm
+                      action={prepareReporting.bind(null, randomUUID())}
+                    >
                       <input type="hidden" name="slug" value={slug} />
                       <input
                         type="hidden"
@@ -142,11 +182,14 @@ export default async function ReportingPage({
                       <button className="button">
                         Review fields and mark ready
                       </button>
-                    </form>
+                    </MutationForm>
                   </>
                 ) : null}
                 {record.status === "ready" ? (
-                  <form action={transitionReporting} className="form-stack">
+                  <MutationForm
+                    action={transitionReporting.bind(null, randomUUID())}
+                    className="form-stack"
+                  >
                     <input type="hidden" name="slug" value={slug} />
                     <input type="hidden" name="reportingId" value={record.id} />
                     <input type="hidden" name="status" value="submitted" />
@@ -155,11 +198,13 @@ export default async function ReportingPage({
                       <input name="reason" required />
                     </label>
                     <button className="button">Record submitted</button>
-                  </form>
+                  </MutationForm>
                 ) : null}
                 {record.status === "submitted" ? (
                   <div className="inline-form">
-                    <form action={transitionReporting}>
+                    <MutationForm
+                      action={transitionReporting.bind(null, randomUUID())}
+                    >
                       <input type="hidden" name="slug" value={slug} />
                       <input
                         type="hidden"
@@ -174,8 +219,10 @@ export default async function ReportingPage({
                         required
                       />
                       <button className="button">Record accepted</button>
-                    </form>
-                    <form action={transitionReporting}>
+                    </MutationForm>
+                    <MutationForm
+                      action={transitionReporting.bind(null, randomUUID())}
+                    >
                       <input type="hidden" name="slug" value={slug} />
                       <input
                         type="hidden"
@@ -192,7 +239,7 @@ export default async function ReportingPage({
                       <button className="button secondary">
                         Record rejected
                       </button>
-                    </form>
+                    </MutationForm>
                   </div>
                 ) : null}
                 <details>
@@ -201,15 +248,18 @@ export default async function ReportingPage({
                     {record.reporting_events?.map((event) => (
                       <li key={event.id}>
                         {event.from_status ?? "created"} → {event.to_status} ·{" "}
-                        {new Date(event.occurred_at).toLocaleString()} ·{" "}
-                        {event.reason}
+                        {recordTime(event.occurred_at)} · {event.reason}
                       </li>
                     ))}
                   </ul>
                 </details>
                 <p>
-                  Use the browser print command for a human-readable transcript
-                  of this immutable history.
+                  <Link
+                    className="button secondary"
+                    href={`/schools/${slug}/reporting/${completion?.id}`}
+                  >
+                    View printable training transcript
+                  </Link>
                 </p>
               </article>
             );
@@ -217,8 +267,12 @@ export default async function ReportingPage({
         </div>
       ) : (
         <div className="empty-state">
-          <h2>No completion records</h2>
-          <p>Passing partial work does not create reporting work.</p>
+          <h2>{cursor ? "No older records" : "No completion records"}</h2>
+          <p>
+            {cursor
+              ? "You have reached the end of this queue."
+              : "Passing partial work does not create reporting work."}
+          </p>
         </div>
       )}
     </main>

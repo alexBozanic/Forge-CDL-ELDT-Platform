@@ -1,14 +1,12 @@
 "use server";
-
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { requiredString } from "@/lib/forms";
-
-export async function updatePassword(formData: FormData) {
-  const password = requiredString(formData, "password");
-  if (password.length < 12) redirect("/password/update?error=password");
+import { runAuthAction } from "@/lib/auth-action";
+export async function updatePassword(form: FormData) {
   const { supabase } = await requireUser();
-  const { error } = await supabase.auth.updateUser({ password });
-  if (error) redirect("/password/update?error=update");
-  redirect("/dashboard");
+  const state = await runAuthAction("update", form, ({ password }) =>
+    supabase.auth.updateUser({ password }),
+  );
+  if (state.complete) redirect("/dashboard");
+  return state;
 }

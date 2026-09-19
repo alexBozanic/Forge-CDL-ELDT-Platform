@@ -1,3 +1,5 @@
+import { MutationForm } from "@/components/mutation-form";
+import { authTransportFailure } from "@/lib/auth-action";
 import Link from "next/link";
 import { getAuthorizationContext } from "@/lib/auth";
 import { logout } from "../login/actions";
@@ -17,11 +19,15 @@ export default async function DashboardPage() {
           <h1>Choose your workspace</h1>
           <p>{user.email}</p>
         </div>
-        <form action={logout}>
+        <MutationForm
+          failureMessage={authTransportFailure}
+          pendingMessage="Processing request..."
+          action={logout}
+        >
           <button className="button secondary" type="submit">
             Sign out
           </button>
-        </form>
+        </MutationForm>
       </div>
       <div className="card-grid">
         {isPlatformAdministrator ? (

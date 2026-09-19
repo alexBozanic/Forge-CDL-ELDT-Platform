@@ -128,12 +128,14 @@ values ('dddddddd-0000-4000-8000-000000000001', '72100000-0000-4000-8000-0000000
 
 set role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
-select public.review_course_version(
+select public.review_course_version_at_hash(
   'dddddddd-0000-4000-8000-000000000001',
+  (select manifest_hash from public.course_versions where id = 'dddddddd-0000-4000-8000-000000000001'),
   'approved',
   'Demonstration content review only; not regulatory or instructor approval.'
 );
-select public.publish_course_version('dddddddd-0000-4000-8000-000000000001');
+select public.publish_course_version_at_hash('dddddddd-0000-4000-8000-000000000001',
+  (select manifest_hash from public.course_versions where id = 'dddddddd-0000-4000-8000-000000000001'));
 reset role;
 
 insert into public.course_assignments (

@@ -1,3 +1,5 @@
+import { MutationForm } from "@/components/mutation-form";
+import { authTransportFailure } from "@/lib/auth-action";
 import { login } from "./actions";
 import Link from "next/link";
 
@@ -18,7 +20,12 @@ export default async function LoginPage({
         {error ? (
           <p className="form-error">Email or password was not accepted.</p>
         ) : null}
-        <form action={login} className="form-stack">
+        <MutationForm
+          failureMessage={authTransportFailure}
+          pendingMessage="Processing request..."
+          action={login}
+          className="form-stack"
+        >
           <label>
             Email
             <input name="email" type="email" autoComplete="email" required />
@@ -35,7 +42,7 @@ export default async function LoginPage({
           <button className="button" type="submit">
             Sign in
           </button>
-        </form>
+        </MutationForm>
         <p className="auth-links">
           <Link href="/signup">Create an account</Link>
           <Link href="/password/recover">Forgot password?</Link>

@@ -1,3 +1,4 @@
+import { MutationForm } from "@/components/mutation-form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAuthorizationContext } from "@/lib/auth";
@@ -24,7 +25,7 @@ export default async function CoursesPage() {
             Every revision is a separate draft. Publishing requires an
             exact-manifest content review.
           </p>
-          <form action={createCourse} className="form-stack">
+          <MutationForm action={createCourse} className="form-stack">
             <label>
               Course title
               <input name="title" required maxLength={160} />
@@ -38,7 +39,7 @@ export default async function CoursesPage() {
               (demo schools only)
             </label>
             <button className="button">Create course and draft</button>
-          </form>
+          </MutationForm>
         </section>
         <section>
           <h2>Course library</h2>
@@ -61,10 +62,10 @@ export default async function CoursesPage() {
                     </Link>
                   ))}
                 </div>
-                <form action={createRevision}>
+                <MutationForm action={createRevision}>
                   <input type="hidden" name="courseId" value={course.id} />
                   <button className="text-button">Create new revision</button>
-                </form>
+                </MutationForm>
               </article>
             ))}
           </div>

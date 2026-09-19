@@ -1,3 +1,5 @@
+import { MutationForm } from "@/components/mutation-form";
+import { authTransportFailure } from "@/lib/auth-action";
 import Link from "next/link";
 import { requestPasswordRecovery } from "./actions";
 
@@ -20,7 +22,12 @@ export default async function RecoverPage({
             </span>
           </div>
         ) : (
-          <form action={requestPasswordRecovery} className="form-stack">
+          <MutationForm
+            failureMessage={authTransportFailure}
+            pendingMessage="Processing request..."
+            action={requestPasswordRecovery}
+            className="form-stack"
+          >
             <label>
               Email
               <input name="email" type="email" autoComplete="email" required />
@@ -28,7 +35,7 @@ export default async function RecoverPage({
             <button className="button" type="submit">
               Send recovery instructions
             </button>
-          </form>
+          </MutationForm>
         )}
         <p>
           <Link href="/login">Return to sign in</Link>

@@ -1,5 +1,18 @@
 \set ON_ERROR_STOP on
 begin;
+-- Happy-path fixtures explicitly pass the hash currently loaded by the test.
+-- Stale editor behavior is covered separately in review-manifest-preconditions.sql.
+create or replace function pg_temp.review_current_fixture(version_id uuid, decision public.curriculum_review_decision, notes text)
+returns uuid language sql as $$
+  select public.review_course_version_at_hash(version_id,
+    (select manifest_hash from public.course_versions where id = version_id), decision, notes);
+$$;
+create or replace function pg_temp.publish_current_fixture(version_id uuid)
+returns text language sql as $$
+  select public.publish_course_version_at_hash(version_id,
+    (select manifest_hash from public.course_versions where id = version_id));
+$$;
+
 
 create or replace function pg_temp.assert_true(value boolean, message text)
 returns void language plpgsql as $$
@@ -38,7 +51,7 @@ select public.update_course_lesson(
   :'first_authored_lesson_id', 'First draft lesson',
   E'# First draft\n\nEdited original test lesson text.', 1, 2
 );
-select public.review_course_version(
+select pg_temp.review_current_fixture(
   :'authored_version_id', 'approved',
   'Content review for this exact test manifest; not regulatory approval.'
 );
@@ -54,15 +67,15 @@ select pg_temp.assert_true((select manifest_hash <> :'approved_hash'
   from public.course_versions where id = :'authored_version_id'),
   'draft edit did not change manifest hash');
 do $$ begin
-  perform public.publish_course_version((select id from public.course_versions where title = 'Revision workflow demonstration — version 1'));
+  perform pg_temp.publish_current_fixture((select id from public.course_versions where title = 'Revision workflow demonstration — version 1'));
   raise exception 'ASSERTION FAILED: stale approval published a changed manifest';
 exception when object_not_in_prerequisite_state then null;
 end $$;
-select public.review_course_version(
+select pg_temp.review_current_fixture(
   :'authored_version_id', 'approved',
   'Second exact-manifest content review; not regulatory approval.'
 );
-select public.publish_course_version(:'authored_version_id') as published_hash \gset
+select pg_temp.publish_current_fixture(:'authored_version_id') as published_hash \gset
 select pg_temp.assert_true((select manifest_hash = :'published_hash' and manifest is not null
   from public.course_versions where id = :'authored_version_id' and status = 'published'),
   'published manifest/hash was not frozen');
@@ -74,14 +87,14 @@ select public.add_course_lesson(
   :'demo_gate_version_id', :'demo_gate_module_id', 'Demo gate lesson',
   'Demo publication gate fixture.', 1, 1
 );
-select public.review_course_version(
+select pg_temp.review_current_fixture(
   :'demo_gate_version_id', 'approved', 'Exact demo gate review; no regulatory claim.'
 );
 reset role;
 
 do $$ begin
   update public.organizations set status = 'suspended' where is_demo;
-  perform public.publish_course_version((select v.id from public.course_versions v
+  perform pg_temp.publish_current_fixture((select v.id from public.course_versions v
     join public.courses c on c.id = v.course_id
     where c.title = 'Revision workflow demonstration' and v.status = 'draft'));
   raise exception 'ASSERTION FAILED: demo version published without an active demo school';
@@ -217,15 +230,15 @@ select public.add_course_lesson(
   'Plain original test content.', 1, 2
 );
 do $$ begin
-  perform public.publish_course_version((select v.id from public.course_versions v join public.courses c on c.id = v.course_id where c.title = 'Non-demo review fixture'));
+  perform pg_temp.publish_current_fixture((select v.id from public.course_versions v join public.courses c on c.id = v.course_id where c.title = 'Non-demo review fixture'));
   raise exception 'ASSERTION FAILED: non-demo version published without review';
 exception when object_not_in_prerequisite_state then null;
 end $$;
-select public.review_course_version(
+select pg_temp.review_current_fixture(
   :'real_version_id', 'approved',
   'Exact content review only; no compliance or instructor claim.'
 );
-select public.publish_course_version(:'real_version_id');
+select pg_temp.publish_current_fixture(:'real_version_id');
 select pg_temp.assert_true(public.create_course_assignment(
   :'real_organization_id', :'real_version_id', 'Reviewed non-demo assignment'
 ) is not null, 'reviewed non-demo content could not be assigned');
