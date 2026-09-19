@@ -3,6 +3,13 @@
 This is the continuation entry point. Earlier checkpoint documents retain history;
 the evidence below supersedes their older pending/blocked statements.
 
+September 19 curriculum follow-up: `CURRICULUM-RENDERING.md` records support for
+the incoming lessons' headings, emphasis and numbered lists, with three safe
+rendering regressions (80 application tests total). The user now confirms
+instructor approval of both supplied content packages. They are staged locally;
+full-course hosted import and exam settings remain outstanding. Do not infer that
+the current one-question demo already contains the approved full curriculum.
+
 Latest lesson recovery: `LESSON-READ-RECOVERY.md` records prevention of false
 "not started" progress after failed reads, sanitized recovery and three actual-page
 render regressions (77 application tests total). The Taylor's fake-data learner,
